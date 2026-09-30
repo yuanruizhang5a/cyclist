@@ -104,6 +104,28 @@ next, weakening, and exact-backlink rules.  `LTL/Examples.v` contains:
 The optional experimental cut and OCaml proof-search heuristics are not
 ported.  Certificate construction is explicit rather than automatic.
 
+## First-order instance
+
+`FirstOrder/` realizes the ranked first-order semantics used by the original
+`src/firstorder` prover.  It includes:
+
+- reified free/existential variables, constructor terms, tagged inductive
+  atoms, products, disjunctive formulae, sequents, substitutions, and ordered
+  clause definitions;
+- a free-constructor model with ranked inductive predicates and the original
+  universal-left/existential-right sequent interpretation;
+- theorem-backed identity, contradiction, left-disjunction,
+  right-conjunction, exact-backlink, left-unfold, and right-unfold rules;
+- a direct transcription of `examples/fo.defs`;
+- rank- and measure-decreasing derived proof-search principles; and
+- a proof-producing executable dispatcher for all nine positive
+  `benchmarks/fo` inputs.  `search_sound` turns every successful result into a
+  kernel-checked validity theorem, while `solvedb` returns `false` for goals
+  outside the implemented strategy set.
+
+The first-order implementation is additive: neither `Cyclic/` nor `LTL/` is
+modified.
+
 ## Trusted assumptions
 
 There are no `Admitted` proofs or project-defined axioms.  The LTL least-future

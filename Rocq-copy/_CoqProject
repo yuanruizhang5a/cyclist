@@ -4,4 +4,10 @@ Cyclic/Framework.v
 LTL/Syntax.v
 LTL/Rules.v
 LTL/Examples.v
-
+FirstOrder/Syntax.v
+FirstOrder/Semantics.v
+FirstOrder/Rules.v
+FirstOrder/Definitions.v
+FirstOrder/Derived.v
+FirstOrder/Benchmarks.v
+FirstOrder/Search.v
