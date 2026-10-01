@@ -7,6 +7,10 @@ LTL/Examples.v
 FirstOrder/Syntax.v
 FirstOrder/Semantics.v
 FirstOrder/Rules.v
+FirstOrder/Automation.v
+FirstOrder/Certification.v
+FirstOrder/RuleGeneration.v
+FirstOrder/GraphSearch.v
 FirstOrder/Definitions.v
 FirstOrder/Derived.v
 FirstOrder/Benchmarks.v

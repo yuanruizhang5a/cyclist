@@ -10,6 +10,10 @@ FILES := \
 	FirstOrder/Syntax.v \
 	FirstOrder/Semantics.v \
 	FirstOrder/Rules.v \
+	FirstOrder/Automation.v \
+	FirstOrder/Certification.v \
+	FirstOrder/RuleGeneration.v \
+	FirstOrder/GraphSearch.v \
 	FirstOrder/Definitions.v \
 	FirstOrder/Derived.v \
 	FirstOrder/Benchmarks.v \
@@ -44,6 +48,18 @@ FirstOrder/Semantics.vo: FirstOrder/Semantics.v FirstOrder/Syntax.vo
 FirstOrder/Rules.vo: FirstOrder/Rules.v FirstOrder/Semantics.vo
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<
 
+FirstOrder/Automation.vo: FirstOrder/Automation.v FirstOrder/Semantics.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+FirstOrder/Certification.vo: FirstOrder/Certification.v FirstOrder/Rules.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+FirstOrder/RuleGeneration.vo: FirstOrder/RuleGeneration.v FirstOrder/Rules.vo FirstOrder/Automation.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+FirstOrder/GraphSearch.vo: FirstOrder/GraphSearch.v FirstOrder/RuleGeneration.vo FirstOrder/Certification.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
 FirstOrder/Definitions.vo: FirstOrder/Definitions.v FirstOrder/Syntax.vo
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<
 
@@ -53,5 +69,5 @@ FirstOrder/Derived.vo: FirstOrder/Derived.v FirstOrder/Semantics.vo FirstOrder/D
 FirstOrder/Benchmarks.vo: FirstOrder/Benchmarks.v FirstOrder/Rules.vo FirstOrder/Derived.vo
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<
 
-FirstOrder/Search.vo: FirstOrder/Search.v FirstOrder/Benchmarks.vo
+FirstOrder/Search.vo: FirstOrder/Search.v FirstOrder/Benchmarks.vo FirstOrder/GraphSearch.vo
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<

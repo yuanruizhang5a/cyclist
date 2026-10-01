@@ -536,3 +536,83 @@ Proof.
   - apply sequent_eq_dec.
   - apply definitions_eq_dec.
 Defined.
+
+(** The cyclic graph checker uses the Boolean equalities above.  Search and
+    certificate reflection need the converse direction as well: a successful
+    executable comparison must justify replacing one reified label by the
+    other inside a semantic proof.  The following lemmas establish that link
+    once, bottom-up, rather than repeating Boolean case analyses in every
+    graph theorem. *)
+
+Lemma atoms_eqb_spec xs ys : atoms_eqb xs ys = true <-> xs = ys.
+Proof.
+  revert ys. induction xs as [|x xs IH]; intros [|y ys]; simpl;
+    try (split; intro H; [discriminate|inversion H]).
+  - tauto.
+  - rewrite Bool.andb_true_iff, atom_eqb_spec, IH.
+    split.
+    + intros [-> ->]. reflexivity.
+    + intro H. inversion H. auto.
+Qed.
+
+Lemma formula_eqb_spec xs ys : formula_eqb xs ys = true <-> xs = ys.
+Proof.
+  revert ys. induction xs as [|x xs IH]; intros [|y ys]; simpl;
+    try (split; intro H; [discriminate|inversion H]).
+  - tauto.
+  - rewrite Bool.andb_true_iff, atoms_eqb_spec, IH.
+    split.
+    + intros [-> ->]. reflexivity.
+    + intro H. inversion H. auto.
+Qed.
+
+Lemma clause_eqb_spec x y : clause_eqb x y = true <-> x = y.
+Proof.
+  destruct x as [xb xh], y as [yb yh]. unfold clause_eqb; simpl.
+  rewrite Bool.andb_true_iff, atoms_eqb_spec, terms_eqb_spec.
+  split.
+  - intros [-> ->]. reflexivity.
+  - intro H. inversion H. auto.
+Qed.
+
+Lemma clauses_eqb_spec xs ys : clauses_eqb xs ys = true <-> xs = ys.
+Proof.
+  revert ys. induction xs as [|x xs IH]; intros [|y ys]; simpl;
+    try (split; intro H; [discriminate|inversion H]).
+  - tauto.
+  - rewrite Bool.andb_true_iff, clause_eqb_spec, IH.
+    split.
+    + intros [-> ->]. reflexivity.
+    + intro H. inversion H. auto.
+Qed.
+
+Lemma definitions_eqb_spec xs ys : definitions_eqb xs ys = true <-> xs = ys.
+Proof.
+  revert ys. induction xs as [|[name cs] xs IH];
+    intros [|[name' cs'] ys]; simpl;
+    try (split; intro H; [discriminate|inversion H]).
+  - tauto.
+  - repeat rewrite Bool.andb_true_iff.
+    rewrite String.eqb_eq, clauses_eqb_spec, IH.
+    split.
+    + intros [[-> ->] ->]. reflexivity.
+    + intro H. inversion H. auto.
+Qed.
+
+Lemma sequent_eqb_spec x y : sequent_eqb x y = true <-> x = y.
+Proof.
+  destruct x as [xl xr], y as [yl yr]. unfold sequent_eqb; simpl.
+  rewrite Bool.andb_true_iff, !formula_eqb_spec.
+  split.
+  - intros [-> ->]. reflexivity.
+  - intro H. inversion H. auto.
+Qed.
+
+Lemma judgment_eqb_spec x y : judgment_eqb x y = true <-> x = y.
+Proof.
+  destruct x as [xd xq], y as [yd yq]. unfold judgment_eqb; simpl.
+  rewrite Bool.andb_true_iff, definitions_eqb_spec, sequent_eqb_spec.
+  split.
+  - intros [-> ->]. reflexivity.
+  - intro H. inversion H. auto.
+Qed.
