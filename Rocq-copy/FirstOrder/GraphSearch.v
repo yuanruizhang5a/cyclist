@@ -426,16 +426,43 @@ Definition find_graph_witness (g : Cyclic.graph) : option (checked_graph g) :=
       end
   end.
 
+(** Proof search must not confuse syntactic closure with a cyclic proof.
+    [bounded_depth_first_search] above is retained as a useful diagnostic—it
+    returns the first graph with no open nodes.  The public certifying search
+    uses this stronger DFS instead.  At a closed leaf it runs the unchanged
+    generic checker; if global progress or witness routing fails, [None] is
+    returned to the local successor loop, which then tries the next branch.
+
+    This distinction matters whenever two different backlink choices close
+    the same finite tree but only one follows a progressing trace. *)
+Fixpoint bounded_checked_depth_first_search
+    (fuel : nat) (g : Cyclic.graph)
+    : option { closed : Cyclic.graph & checked_graph closed } :=
+  if graph_closedb g then
+    match find_graph_witness g with
+    | Some checked => Some (existT _ g checked)
+    | None => None
+    end
+  else
+    match fuel with
+    | 0 => None
+    | S fuel' =>
+        let fix try_successors (successors : list Cyclic.graph)
+            : option { closed : Cyclic.graph & checked_graph closed } :=
+          match successors with
+          | [] => None
+          | next :: rest =>
+              match bounded_checked_depth_first_search fuel' next with
+              | Some result => Some result
+              | None => try_successors rest
+              end
+          end in
+        try_successors (expand_graph g)
+    end.
+
 Definition certify_searched_graph (fuel : nat) (root : judgment)
     : option { g : Cyclic.graph & checked_graph g } :=
-  match bounded_graph_search fuel root with
-  | None => None
-  | Some g =>
-      match find_graph_witness g with
-      | None => None
-      | Some checked => Some (existT _ g checked)
-      end
-  end.
+  bounded_checked_depth_first_search fuel (Cyclic.start_graph root).
 
 (** Regression: this goal requires [L.Or] followed by two independently
     generated identity closures.  It is deliberately unrelated to the named

@@ -504,6 +504,38 @@ Proof.
   setoid_rewrite atom_mem_spec. tauto.
 Qed.
 
+(** Membership modulo trace annotations.  Equality and disequality atoms are
+    still compared exactly; only [Pred]'s optional tag is ignored by
+    [atom_eqb_upto_tags].  The argument order is chosen so a successful lookup
+    records the concrete atom found in [p] together with its comparison to
+    the requested [needle]. *)
+Definition atom_mem_upto_tags (needle : atom) (p : product) : bool :=
+  existsb (fun candidate => atom_eqb_upto_tags candidate needle) p.
+
+Lemma atom_mem_upto_tags_spec needle p :
+  atom_mem_upto_tags needle p = true <->
+  exists candidate, In candidate p /\
+    atom_eqb_upto_tags candidate needle = true.
+Proof.
+  unfold atom_mem_upto_tags. rewrite existsb_exists. tauto.
+Qed.
+
+(** Set-style containment used by the original identity axiom.  Every atom
+    requested by the right product must have a semantically identical atom
+    in the left product, but predicate trace tags need not agree. *)
+Definition product_subsetb_upto_tags (small big : product) : bool :=
+  forallb (fun a => atom_mem_upto_tags a big) small.
+
+Lemma product_subsetb_upto_tags_spec small big :
+  product_subsetb_upto_tags small big = true <->
+  forall a, In a small ->
+    exists candidate, In candidate big /\
+      atom_eqb_upto_tags candidate a = true.
+Proof.
+  unfold product_subsetb_upto_tags. rewrite forallb_forall.
+  setoid_rewrite atom_mem_upto_tags_spec. tauto.
+Qed.
+
 Definition formula_eq_dec (x y : formula) : {x = y} + {x <> y} :=
   list_eq_dec product_eq_dec x y.
 

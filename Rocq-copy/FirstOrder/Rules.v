@@ -1206,6 +1206,563 @@ Definition right_existential_substitution_at_rule
       end)
     (fun _ _ => eq_refl).
 
+(** Equation-producing unfolding writes argument equations in the order
+    [actual = clause-head].  Thus the fresh existential variable frequently
+    occurs on the right.  This orientation rule swaps exactly such an
+    equality; the next simplification step can then use the witness rule
+    above. *)
+
+Definition right_equality_orientation_source
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (replacement : term) (id : nat)
+    (after_atoms : product) (after_products : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent lhs
+      (before_products ++
+        (before_atoms ++ Eq replacement (Var (existential_var id)) ::
+          after_atoms)%list :: after_products)%list).
+
+Definition right_equality_orientation_target
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (replacement : term) (id : nat)
+    (after_atoms : product) (after_products : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent lhs
+      (before_products ++
+        (before_atoms ++ Eq (Var (existential_var id)) replacement ::
+          after_atoms)%list :: after_products)%list).
+
+Lemma product_holds_swap_equality i rho before x y after :
+  product_holds i rho (before ++ Eq x y :: after)%list <->
+  product_holds i rho (before ++ Eq y x :: after)%list.
+Proof.
+  rewrite !(product_holds_app i rho before). simpl.
+  split; intros [Hbefore [Heq Hafter]].
+  - split; [exact Hbefore|]. split; [now symmetry|exact Hafter].
+  - split; [exact Hbefore|]. split; [now symmetry|exact Hafter].
+Qed.
+
+Lemma right_equality_orientation_right_holds i base before_products
+    before_atoms replacement id after_atoms after_products :
+  right_holds i base
+    (before_products ++
+      (before_atoms ++ Eq replacement (Var (existential_var id)) ::
+        after_atoms)%list :: after_products)%list <->
+  right_holds i base
+    (before_products ++
+      (before_atoms ++ Eq (Var (existential_var id)) replacement ::
+        after_atoms)%list :: after_products)%list.
+Proof.
+  unfold right_holds. split; intros [witness H]; exists witness.
+  - apply (proj1 (formula_holds_replace_product i _ before_products
+      (before_atoms ++ Eq replacement (Var (existential_var id)) ::
+        after_atoms)%list
+      (before_atoms ++ Eq (Var (existential_var id)) replacement ::
+        after_atoms)%list after_products
+      (product_holds_swap_equality i _ before_atoms replacement
+        (Var (existential_var id)) after_atoms))). exact H.
+  - apply (proj2 (formula_holds_replace_product i _ before_products
+      (before_atoms ++ Eq replacement (Var (existential_var id)) ::
+        after_atoms)%list
+      (before_atoms ++ Eq (Var (existential_var id)) replacement ::
+        after_atoms)%list after_products
+      (product_holds_swap_equality i _ before_atoms replacement
+        (Var (existential_var id)) after_atoms))). exact H.
+Qed.
+
+Lemma right_equality_orientation_semantics ds lhs before_products before_atoms
+    replacement id after_atoms after_products w :
+  denote (right_equality_orientation_source ds lhs before_products
+    before_atoms replacement id after_atoms after_products) w <->
+  denote (right_equality_orientation_target ds lhs before_products
+    before_atoms replacement id after_atoms after_products) w.
+Proof.
+  destruct w as [i base]. unfold right_equality_orientation_source,
+    right_equality_orientation_target, denote, sequent_holds, mk_judgment,
+    mk_sequent; simpl.
+  split; intros H Hmodel Hlhs.
+  - apply (proj1 (right_equality_orientation_right_holds i base
+      before_products before_atoms replacement id after_atoms
+      after_products)). now apply H.
+  - apply (proj2 (right_equality_orientation_right_holds i base
+      before_products before_atoms replacement id after_atoms
+      after_products)). now apply H.
+Qed.
+
+Definition right_equality_orientation_rule
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (replacement : term) (id : nat)
+    (after_atoms : product) (after_products : formula)
+    : Cyclic.rule_instance :=
+  let source := right_equality_orientation_source ds lhs before_products
+    before_atoms replacement id after_atoms after_products in
+  let target := right_equality_orientation_target ds lhs before_products
+    before_atoms replacement id after_atoms after_products in
+  equivalence_rule "Orient existential =/right" source target
+    (identity_edge source)
+    (right_equality_orientation_semantics ds lhs before_products before_atoms
+      replacement id after_atoms after_products)
+    (fun w => identity_edge_respects_rank_equivalence source target w
+      (fun _ => eq_refl)).
+
+(** ** Discharging a right-hand atom from the antecedent
+
+    OCaml [simpl_rhs] removes succedent atoms already supplied by a singleton
+    antecedent product.  Inductive predicates are compared modulo trace tags:
+    tags guide cyclic descent but do not change truth.  Equality and
+    disequality atoms have no tags and are therefore compared structurally.
+
+    This verified rule removes one selected occurrence.  Repeated
+    simplification obtains the original rule's "remove all" behaviour while
+    keeping each proof step small and independently checkable. *)
+
+(** Boolean equality modulo predicate tags implies semantic equivalence.
+    This is deliberately a semantic lemma rather than syntactic equality,
+    because [Pred (Some 1) p xs] and [Pred (Some 2) p xs] denote the same
+    predicate application even though their trace annotations differ. *)
+Lemma atom_eqb_upto_tags_holds i rho assumption supplied :
+  atom_eqb_upto_tags assumption supplied = true ->
+  (atom_holds i rho assumption <-> atom_holds i rho supplied).
+Proof.
+  destruct assumption as [left right|left right|tag name args];
+    destruct supplied as [left' right'|left' right'|tag' name' args'];
+    simpl; intro Hmatch; try discriminate.
+  - apply Bool.andb_true_iff in Hmatch as [Hleft Hright].
+    apply term_eqb_spec in Hleft. apply term_eqb_spec in Hright.
+    now subst left' right'.
+  - apply Bool.andb_true_iff in Hmatch as [Hleft Hright].
+    apply term_eqb_spec in Hleft. apply term_eqb_spec in Hright.
+    now subst left' right'.
+  - apply Bool.andb_true_iff in Hmatch as [Hname Hargs].
+    apply String.eqb_eq in Hname. apply terms_eqb_spec in Hargs.
+    now subst name' args'.
+Qed.
+
+(** Product containment modulo predicate tags is semantically sufficient for
+    identity.  For each requested RHS atom, [Hsubset] supplies a matching LHS
+    atom; [product_holds_atom] extracts its truth, and the preceding lemma
+    forgets any trace-tag difference. *)
+Lemma product_holds_subset_upto_tags i rho small big :
+  (forall a, In a small ->
+    exists candidate, In candidate big /\
+      atom_eqb_upto_tags candidate a = true) ->
+  product_holds i rho big ->
+  product_holds i rho small.
+Proof.
+  intros Hsubset Hbig. induction small as [|a small IH]; simpl; [exact I|].
+  split.
+  - destruct (Hsubset a (or_introl eq_refl)) as
+        [candidate [Hin Hmatch]].
+    apply (proj1 (atom_eqb_upto_tags_holds i rho candidate a Hmatch)).
+    eapply product_holds_atom; eauto.
+  - apply IH. intros b Hin. apply Hsubset. now right.
+Qed.
+
+(** If the existential witness is chosen to be the base valuation itself,
+    merging the two valuations changes no variable of either kind.  This
+    simple observation lets identity close products containing existential
+    variables too; no freeness side condition is necessary. *)
+Lemma merge_valuation_same rho : merge_valuation rho rho = rho.
+Proof.
+  apply functional_extensionality. intros [kind id]. destruct kind;
+    reflexivity.
+Qed.
+
+(** Identity may select any succedent product and compare it with the unique
+    antecedent product modulo predicate tags.  Choosing [rho] itself as the
+    existential witness preserves even non-free atoms, so this strengthened
+    axiom needs no variable-class restriction. *)
+Definition identity_axiom_anywhere_upto_tags
+    (ds : definitions) (big : product) (rhs : formula) (small : product)
+    (Hin : In small rhs)
+    (Hsubset : product_subsetb_upto_tags small big = true)
+    : Cyclic.axiom_instance.
+Proof.
+  refine
+    {| Cyclic.axiom_name := "Id/modulo-tags";
+       Cyclic.axiom_conclusion := mk_judgment ds (mk_sequent [big] rhs) |}.
+  intros [i rho]. unfold denote, sequent_holds; simpl.
+  intros _ Hlhs. apply formula_holds_singleton_inv in Hlhs.
+  exists rho, small. split; [exact Hin|].
+  rewrite merge_valuation_same.
+  eapply product_holds_subset_upto_tags; [|exact Hlhs].
+  now apply (proj1 (product_subsetb_upto_tags_spec small big)).
+Defined.
+
+(** Once the selected atom is known true, inserting or deleting it from the
+    middle of a conjunctive product preserves that product's truth. *)
+Lemma product_holds_insert_known i rho before supplied after :
+  atom_holds i rho supplied ->
+  (product_holds i rho (before ++ supplied :: after)%list <->
+   product_holds i rho (before ++ after)%list).
+Proof.
+  intro Hsupplied. rewrite !(product_holds_app i rho before). simpl. tauto.
+Qed.
+
+Definition right_discharge_source
+    (ds : definitions) (lhs : product) (before_products : formula)
+    (before_atoms : product) (supplied : atom) (after_atoms : product)
+    (after_products : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent [lhs]
+      (before_products ++
+        (before_atoms ++ supplied :: after_atoms)%list ::
+        after_products)%list).
+
+Definition right_discharge_target
+    (ds : definitions) (lhs : product) (before_products : formula)
+    (before_atoms after_atoms : product) (after_products : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent [lhs]
+      (before_products ++ (before_atoms ++ after_atoms)%list ::
+        after_products)%list).
+
+Lemma right_holds_remove_supplied_atom i base lhs assumption before_products
+    before_atoms supplied after_atoms after_products
+    (Hin : In assumption lhs)
+    (Hmatch : atom_eqb_upto_tags assumption supplied = true)
+    (Hfree : atom_freeb supplied = true)
+    (Hlhs : product_holds i base lhs) :
+  right_holds i base
+    (before_products ++ (before_atoms ++ supplied :: after_atoms)%list ::
+      after_products)%list <->
+  right_holds i base
+    (before_products ++ (before_atoms ++ after_atoms)%list ::
+      after_products)%list.
+Proof.
+  assert (Hassumption : atom_holds i base assumption).
+  { eapply product_holds_atom; eauto. }
+  assert (Hsupplied_base : atom_holds i base supplied).
+  { apply (proj1 (atom_eqb_upto_tags_holds i base assumption supplied Hmatch)).
+    exact Hassumption. }
+  unfold right_holds. split; intros [witness Hright]; exists witness.
+  - apply (proj1 (formula_holds_replace_product i
+      (merge_valuation base witness) before_products
+      (before_atoms ++ supplied :: after_atoms)%list
+      (before_atoms ++ after_atoms)%list after_products
+      (product_holds_insert_known i (merge_valuation base witness)
+        before_atoms supplied after_atoms
+        (proj2 (atom_holds_merge_free i base witness supplied Hfree)
+          Hsupplied_base)))).
+    exact Hright.
+  - apply (proj2 (formula_holds_replace_product i
+      (merge_valuation base witness) before_products
+      (before_atoms ++ supplied :: after_atoms)%list
+      (before_atoms ++ after_atoms)%list after_products
+      (product_holds_insert_known i (merge_valuation base witness)
+        before_atoms supplied after_atoms
+        (proj2 (atom_holds_merge_free i base witness supplied Hfree)
+          Hsupplied_base)))).
+    exact Hright.
+Qed.
+
+Lemma right_discharge_semantics ds lhs assumption before_products before_atoms
+    supplied after_atoms after_products
+    (Hin : In assumption lhs)
+    (Hmatch : atom_eqb_upto_tags assumption supplied = true)
+    (Hfree : atom_freeb supplied = true) w :
+  denote (right_discharge_source ds lhs before_products before_atoms supplied
+    after_atoms after_products) w <->
+  denote (right_discharge_target ds lhs before_products before_atoms
+    after_atoms after_products) w.
+Proof.
+  destruct w as [i base]. unfold right_discharge_source,
+    right_discharge_target, denote, sequent_holds, mk_judgment, mk_sequent;
+    simpl.
+  split.
+  - intros H Hmodel Hlhs. apply (proj1
+      (right_holds_remove_supplied_atom i base lhs assumption before_products
+        before_atoms supplied after_atoms after_products Hin Hmatch Hfree
+        (formula_holds_singleton_inv i base lhs Hlhs))).
+    now apply H.
+  - intros H Hmodel Hlhs. apply (proj2
+      (right_holds_remove_supplied_atom i base lhs assumption before_products
+        before_atoms supplied after_atoms after_products Hin Hmatch Hfree
+        (formula_holds_singleton_inv i base lhs Hlhs))).
+    now apply H.
+Qed.
+
+Definition right_discharge_rule
+    (ds : definitions) (lhs : product) (assumption : atom)
+    (before_products : formula) (before_atoms : product) (supplied : atom)
+    (after_atoms : product) (after_products : formula)
+    (Hin : In assumption lhs)
+    (Hmatch : atom_eqb_upto_tags assumption supplied = true)
+    (Hfree : atom_freeb supplied = true) : Cyclic.rule_instance :=
+  let source := right_discharge_source ds lhs before_products before_atoms
+    supplied after_atoms after_products in
+  let target := right_discharge_target ds lhs before_products before_atoms
+    after_atoms after_products in
+  equivalence_rule "Discharge/right" source target (identity_edge source)
+    (right_discharge_semantics ds lhs assumption before_products before_atoms
+      supplied after_atoms after_products Hin Hmatch Hfree)
+    (fun w => identity_edge_respects_rank_equivalence source target w
+      (fun _ => eq_refl)).
+
+(** ** Decomposition of same-constructor equalities on the right
+
+    Values form a free constructor algebra, so two applications of the same
+    constructor are equal exactly when their argument lists are pointwise
+    equal.  This is the verified counterpart of OCaml [func_eqs]. *)
+
+Definition right_function_equality_source
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (name : string) (left_args right_args : list term)
+    (after_atoms : product) (after_products : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent lhs
+      (before_products ++
+        (before_atoms ++ Eq (Fun name left_args) (Fun name right_args) ::
+          after_atoms)%list :: after_products)%list).
+
+Definition right_function_equality_target
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (left_args right_args : list term)
+    (after_atoms : product) (after_products : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent lhs
+      (before_products ++
+        (before_atoms ++ equation_product left_args right_args ++
+          after_atoms)%list :: after_products)%list).
+
+Lemma product_holds_decompose_function_equality i rho before name
+    left_args right_args after
+    (Harity : List.length left_args = List.length right_args) :
+  product_holds i rho
+    (before ++ Eq (Fun name left_args) (Fun name right_args) :: after)%list <->
+  product_holds i rho
+    (before ++ equation_product left_args right_args ++ after)%list.
+Proof.
+  rewrite (product_holds_app i rho before
+    (Eq (Fun name left_args) (Fun name right_args) :: after)).
+  rewrite (product_holds_app i rho before
+    (equation_product left_args right_args ++ after)%list).
+  rewrite (product_holds_app i rho
+    (equation_product left_args right_args) after). simpl.
+  split.
+  - intros [Hbefore [Hequality Hafter]]. split; [exact Hbefore|].
+    split; [|exact Hafter].
+    injection Hequality as Hevaluated.
+    now apply equation_product_holds_any.
+  - intros [Hbefore [Hequations Hafter]]. split; [exact Hbefore|].
+    split; [|exact Hafter].
+    pose proof (equation_product_holds_inv i rho left_args right_args
+      Harity Hequations) as Hevaluated.
+    now f_equal.
+Qed.
+
+Lemma right_function_equality_right_holds i base before_products before_atoms
+    name left_args right_args after_atoms after_products
+    (Harity : List.length left_args = List.length right_args) :
+  right_holds i base
+    (before_products ++
+      (before_atoms ++ Eq (Fun name left_args) (Fun name right_args) ::
+        after_atoms)%list :: after_products)%list <->
+  right_holds i base
+    (before_products ++
+      (before_atoms ++ equation_product left_args right_args ++
+        after_atoms)%list :: after_products)%list.
+Proof.
+  unfold right_holds. split; intros [witness H]; exists witness.
+  - apply (proj1 (formula_holds_replace_product i _ before_products
+      (before_atoms ++ Eq (Fun name left_args) (Fun name right_args) ::
+        after_atoms)%list
+      (before_atoms ++ equation_product left_args right_args ++
+        after_atoms)%list after_products
+      (product_holds_decompose_function_equality i _ before_atoms name
+        left_args right_args after_atoms Harity))). exact H.
+  - apply (proj2 (formula_holds_replace_product i _ before_products
+      (before_atoms ++ Eq (Fun name left_args) (Fun name right_args) ::
+        after_atoms)%list
+      (before_atoms ++ equation_product left_args right_args ++
+        after_atoms)%list after_products
+      (product_holds_decompose_function_equality i _ before_atoms name
+        left_args right_args after_atoms Harity))). exact H.
+Qed.
+
+Lemma right_function_equality_semantics ds lhs before_products before_atoms
+    name left_args right_args after_atoms after_products
+    (Harity : List.length left_args = List.length right_args) w :
+  denote (right_function_equality_source ds lhs before_products before_atoms
+    name left_args right_args after_atoms after_products) w <->
+  denote (right_function_equality_target ds lhs before_products before_atoms
+    left_args right_args after_atoms after_products) w.
+Proof.
+  destruct w as [i base]. unfold right_function_equality_source,
+    right_function_equality_target, denote, sequent_holds, mk_judgment,
+    mk_sequent; simpl.
+  split; intros H Hmodel Hlhs.
+  - apply (proj1 (right_function_equality_right_holds i base before_products
+      before_atoms name left_args right_args after_atoms after_products
+      Harity)). now apply H.
+  - apply (proj2 (right_function_equality_right_holds i base before_products
+      before_atoms name left_args right_args after_atoms after_products
+      Harity)). now apply H.
+Qed.
+
+Definition right_function_equality_rule
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (name : string) (left_args right_args : list term)
+    (after_atoms : product) (after_products : formula)
+    (Harity : List.length left_args = List.length right_args)
+    : Cyclic.rule_instance :=
+  let source := right_function_equality_source ds lhs before_products
+    before_atoms name left_args right_args after_atoms after_products in
+  let target := right_function_equality_target ds lhs before_products
+    before_atoms left_args right_args after_atoms after_products in
+  equivalence_rule "Function =/right" source target (identity_edge source)
+    (right_function_equality_semantics ds lhs before_products before_atoms
+      name left_args right_args after_atoms after_products Harity)
+    (fun w => identity_edge_respects_rank_equivalence source target w
+      (fun _ => eq_refl)).
+
+(** ** Decomposition of known injective constructors on the left
+
+    The logical transformation is the left-hand counterpart of
+    [right_function_equality_rule].  If two values built with the same free
+    constructor are equal, their argument lists are pointwise equal.  On the
+    left this implication is used in the opposite direction as well: the
+    pointwise equations reconstruct the constructor equality, so replacing
+    one presentation by the other preserves the entire antecedent.
+
+    The rule kernel below is intentionally general: it proves the
+    transformation for every same-named constructor in our free term model.
+    [RuleGeneration.v] applies it only to the symbols ["s"] and ["cons"],
+    exactly matching the [bijections] table of the original OCaml prover.
+
+    Both [before_products]/[after_products] and
+    [before_atoms]/[after_atoms] are retained explicitly.  Thus the proof is
+    not tied to the first atom of a singleton antecedent, even though lists
+    are used as the executable representation of logical sets. *)
+
+Definition left_function_equality_source
+    (ds : definitions) (before_products : formula)
+    (before_atoms : product) (name : string) (left_args right_args : list term)
+    (after_atoms : product) (after_products rhs : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent
+      (before_products ++
+        (before_atoms ++ Eq (Fun name left_args) (Fun name right_args) ::
+          after_atoms)%list :: after_products)%list
+      rhs).
+
+Definition left_function_equality_target
+    (ds : definitions) (before_products : formula)
+    (before_atoms : product) (left_args right_args : list term)
+    (after_atoms : product) (after_products rhs : formula) : judgment :=
+  mk_judgment ds
+    (mk_sequent
+      (before_products ++
+        (before_atoms ++ equation_product left_args right_args ++
+          after_atoms)%list :: after_products)%list
+      rhs).
+
+(** An [equation_product] contains only equality atoms.  Equality atoms do
+    not carry trace tags, so prepending any such list leaves the first trace
+    rank in the remaining product unchanged.  No arity premise is needed for
+    this rank-only fact; mismatched lists merely make [equation_product]
+    stop at the shorter list. *)
+Lemma rank_product_equation_product i rho trace left_args right_args after :
+  rank_product i rho trace
+    (equation_product left_args right_args ++ after)%list =
+  rank_product i rho trace after.
+Proof.
+  revert right_args. induction left_args as [|left_arg left_args IH];
+    intros [|right_arg right_args]; simpl; auto.
+Qed.
+
+(** Replacing one constructor equality by its pointwise equations also
+    preserves ranks when there are ordinary atoms before the selected
+    equality.  The induction follows the executable definition of
+    [rank_product]: once an earlier predicate supplies a rank, neither tail
+    is inspected; otherwise the induction hypothesis compares the tails. *)
+Lemma rank_product_decompose_function_equality i rho trace before name
+    left_args right_args after :
+  rank_product i rho trace
+    (before ++ Eq (Fun name left_args) (Fun name right_args) :: after)%list =
+  rank_product i rho trace
+    (before ++ equation_product left_args right_args ++ after)%list.
+Proof.
+  induction before as [|a before IH]; simpl.
+  - symmetry. apply rank_product_equation_product.
+  - destruct (rank_atom i rho trace a); [reflexivity|exact IH].
+Qed.
+
+(** A rank-preserving replacement of one product preserves the rank of the
+    whole antecedent formula.  Products before the selected one take
+    precedence in [rank_formula]; if none contributes a rank, the supplied
+    equality compares the selected products and the common suffix. *)
+Lemma rank_formula_replace_product i rho trace before old_product new_product
+    after
+    (Hrank : rank_product i rho trace old_product =
+      rank_product i rho trace new_product) :
+  rank_formula i rho trace (before ++ old_product :: after)%list =
+  rank_formula i rho trace (before ++ new_product :: after)%list.
+Proof.
+  induction before as [|p before IH]; simpl.
+  - rewrite Hrank. reflexivity.
+  - destruct (rank_product i rho trace p); [reflexivity|exact IH].
+Qed.
+
+Lemma left_function_equality_semantics ds before_products before_atoms name
+    left_args right_args after_atoms after_products rhs
+    (Harity : List.length left_args = List.length right_args) w :
+  denote (left_function_equality_source ds before_products before_atoms name
+    left_args right_args after_atoms after_products rhs) w <->
+  denote (left_function_equality_target ds before_products before_atoms
+    left_args right_args after_atoms after_products rhs) w.
+Proof.
+  destruct w as [i rho]. unfold left_function_equality_source,
+    left_function_equality_target, denote, sequent_holds, mk_judgment,
+    mk_sequent; simpl.
+  pose proof (formula_holds_replace_product i rho before_products
+    (before_atoms ++ Eq (Fun name left_args) (Fun name right_args) ::
+      after_atoms)%list
+    (before_atoms ++ equation_product left_args right_args ++
+      after_atoms)%list after_products
+    (product_holds_decompose_function_equality i rho before_atoms name
+      left_args right_args after_atoms Harity)) as Hantecedent.
+  split.
+  - intros H Hmodel Hlhs. apply H; [exact Hmodel|].
+    now apply (proj2 Hantecedent).
+  - intros H Hmodel Hlhs. apply H; [exact Hmodel|].
+    now apply (proj1 Hantecedent).
+Qed.
+
+Lemma left_function_equality_rank ds before_products before_atoms name
+    left_args right_args after_atoms after_products rhs w trace :
+  FirstOrderTheory.rank
+    (left_function_equality_target ds before_products before_atoms left_args
+      right_args after_atoms after_products rhs) w trace =
+  FirstOrderTheory.rank
+    (left_function_equality_source ds before_products before_atoms name
+      left_args right_args after_atoms after_products rhs) w trace.
+Proof.
+  destruct w as [i rho]. unfold FirstOrderTheory.rank, rank_of_tag,
+    left_function_equality_source, left_function_equality_target,
+    mk_judgment, mk_sequent; simpl.
+  symmetry. apply rank_formula_replace_product.
+  apply rank_product_decompose_function_equality.
+Qed.
+
+Definition left_function_equality_rule
+    (ds : definitions) (before_products : formula)
+    (before_atoms : product) (name : string) (left_args right_args : list term)
+    (after_atoms : product) (after_products rhs : formula)
+    (Harity : List.length left_args = List.length right_args)
+    : Cyclic.rule_instance :=
+  let source := left_function_equality_source ds before_products before_atoms
+    name left_args right_args after_atoms after_products rhs in
+  let target := left_function_equality_target ds before_products before_atoms
+    left_args right_args after_atoms after_products rhs in
+  equivalence_rule "Injective constructor =/left" source target
+    (identity_edge source)
+    (left_function_equality_semantics ds before_products before_atoms name
+      left_args right_args after_atoms after_products rhs Harity)
+    (fun w => identity_edge_respects_rank_equivalence source target w
+      (left_function_equality_rank ds before_products before_atoms name
+        left_args right_args after_atoms after_products rhs w)).
+
 (** ** Substitution justified by a left-hand equality *)
 
 Lemma eval_term_single_subst_equal rho x replacement u :

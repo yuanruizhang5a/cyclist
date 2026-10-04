@@ -26,9 +26,12 @@ Definition try_identity_product
     (ds : definitions) (big : product) (rhs : formula) (small : product)
     (Hin : In small rhs) : option Cyclic.axiom_instance.
 Proof.
-  destruct (product_subsetb small big) eqn:Hsubset; [|exact None].
+  (* Predicate tags describe cyclic traces, not predicate truth.  The
+     original identity test therefore uses containment modulo tags; Eq and
+     Neq atoms remain exact through [atom_eqb_upto_tags]. *)
+  destruct (product_subsetb_upto_tags small big) eqn:Hsubset; [|exact None].
   destruct (product_freeb small) eqn:Hfree; [|exact None].
-  exact (Some (identity_axiom_anywhere_from_check ds big rhs small
+  exact (Some (identity_axiom_anywhere_upto_tags ds big rhs small
     Hin Hsubset Hfree)).
 Defined.
 
@@ -217,6 +220,297 @@ Definition right_reflexive_equality_candidate (goal : judgment)
   find_right_reflexive_in_formula goal.(judgment_definitions)
     q.(antecedent) [] q.(succedent).
 
+(** Recognize the solved-witness orientation [?e = t].  We deliberately
+    require [t] to be free: that is the executable side condition used by the
+    semantic proof to ensure that assigning [?e] cannot change the value of
+    [t] when the succedent witness valuation is installed. *)
+Definition right_existential_at_head
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (left_term right_term : term)
+    (after_atoms : product) (after_products : formula)
+    : option Cyclic.rule_instance.
+Proof.
+  destruct left_term as [n|x|name args]; [exact None| |exact None].
+  destruct x as [kind id]. destruct kind; [exact None|].
+  destruct (term_freeb right_term) eqn:Hfree; [|exact None].
+  exact (Some (right_existential_substitution_at_rule ds lhs before_products
+    before_atoms id right_term after_atoms after_products Hfree)).
+Defined.
+
+(** Recognize the orientation [t = ?e].  This step only swaps the equality;
+    repeated simplification immediately exposes [?e = t] to the preceding
+    witness-substitution generator. *)
+Definition orient_right_existential_at_head
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (left_term right_term : term)
+    (after_atoms : product) (after_products : formula)
+    : option Cyclic.rule_instance.
+Proof.
+  destruct right_term as [n|x|name args]; [exact None| |exact None].
+  destruct x as [kind id]. destruct kind; [exact None|].
+  destruct (term_freeb left_term) eqn:Hfree; [|exact None].
+  exact (Some (right_equality_orientation_rule ds lhs before_products
+    before_atoms left_term id after_atoms after_products)).
+Defined.
+
+Fixpoint find_right_existential_in_product
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms remaining : product) (after_products : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | a :: after_atoms =>
+      match a with
+      | Eq left_term right_term =>
+          match right_existential_at_head ds lhs before_products before_atoms
+            left_term right_term after_atoms after_products with
+          | Some rule => Some rule
+          | None =>
+              match orient_right_existential_at_head ds lhs before_products
+                before_atoms left_term right_term after_atoms after_products with
+              | Some rule => Some rule
+              | None => find_right_existential_in_product ds lhs before_products
+                  (before_atoms ++ [a])%list after_atoms after_products
+              end
+          end
+      | _ => find_right_existential_in_product ds lhs before_products
+          (before_atoms ++ [a])%list after_atoms after_products
+      end
+  end.
+
+Fixpoint find_right_existential_in_formula
+    (ds : definitions) (lhs before_products remaining : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | p :: after_products =>
+      match find_right_existential_in_product ds lhs before_products [] p
+        after_products with
+      | Some rule => Some rule
+      | None => find_right_existential_in_formula ds lhs
+          (before_products ++ [p])%list after_products
+      end
+  end.
+
+Definition right_existential_substitution_candidate (goal : judgment)
+    : option Cyclic.rule_instance :=
+  let q := goal.(judgment_sequent) in
+  find_right_existential_in_formula goal.(judgment_definitions)
+    q.(antecedent) [] q.(succedent).
+
+(** ** Discharge succedent atoms supplied by a singleton antecedent
+
+    [find_atom_upto_tags] returns not just the matching atom but also the two
+    propositions required by the verified rule: membership in the complete
+    antecedent product and successful comparison modulo predicate trace tags.
+    Carrying these proofs in a dependent result avoids trusting a separate
+    Boolean search routine. *)
+Fixpoint find_atom_upto_tags (needle : atom) (haystack : product)
+    : option { found : atom |
+        In found haystack /\ atom_eqb_upto_tags found needle = true }.
+Proof.
+  destruct haystack as [|candidate rest].
+  - exact None.
+  - destruct (atom_eqb_upto_tags candidate needle) eqn:Hmatch.
+    + exact (Some (exist _ candidate (conj (or_introl eq_refl) Hmatch))).
+    + destruct (find_atom_upto_tags needle rest) as
+          [[found [Hin Hfound]] |].
+      * exact (Some (exist _ found (conj (or_intror Hin) Hfound))).
+      * exact None.
+Defined.
+
+Definition right_discharge_at_head
+    (ds : definitions) (lhs : product) (before_products : formula)
+    (before_atoms : product) (supplied : atom) (after_atoms : product)
+    (after_products : formula) : option Cyclic.rule_instance.
+Proof.
+  (* A right atom containing existential variables need not have the same
+     value under the base and witness valuations.  Reject it unless the
+     reflection checker proves that it is entirely free. *)
+  destruct (atom_freeb supplied) eqn:Hfree; [|exact None].
+  destruct (find_atom_upto_tags supplied lhs) as
+      [[assumption [Hin Hmatch]] |]; [|exact None].
+  exact (Some (right_discharge_rule ds lhs assumption before_products
+    before_atoms supplied after_atoms after_products Hin Hmatch Hfree)).
+Defined.
+
+Fixpoint find_right_discharge_in_product
+    (ds : definitions) (lhs : product) (before_products : formula)
+    (before_atoms remaining : product) (after_products : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | supplied :: after_atoms =>
+      match right_discharge_at_head ds lhs before_products before_atoms
+        supplied after_atoms after_products with
+      | Some rule => Some rule
+      | None => find_right_discharge_in_product ds lhs before_products
+          (before_atoms ++ [supplied])%list after_atoms after_products
+      end
+  end.
+
+Fixpoint find_right_discharge_in_formula
+    (ds : definitions) (lhs : product)
+    (before_products remaining : formula) : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | p :: after_products =>
+      match find_right_discharge_in_product ds lhs before_products [] p
+        after_products with
+      | Some rule => Some rule
+      | None => find_right_discharge_in_formula ds lhs
+          (before_products ++ [p])%list after_products
+      end
+  end.
+
+Definition right_discharge_candidate (goal : judgment)
+    : option Cyclic.rule_instance :=
+  match goal.(judgment_sequent).(antecedent) with
+  | [lhs] => find_right_discharge_in_formula goal.(judgment_definitions) lhs
+      [] goal.(judgment_sequent).(succedent)
+  | _ => None
+  end.
+
+(** ** Injective-constructor equalities on the left
+
+    The original prover declares exactly [s] and [cons] to be injective.  A
+    same-headed equality using either symbol may therefore be replaced by
+    pointwise argument equalities.  Keeping this whitelist in the generator
+    is important: right-side function decomposition is sound for every
+    function symbol, whereas the converse implication used on the left
+    requires injectivity. *)
+Definition injective_constructorb (name : string) : bool :=
+  String.eqb name "s" || String.eqb name "cons".
+
+Definition left_function_equality_at_head
+    (ds : definitions) (before_products : formula)
+    (before_atoms : product) (left_term right_term : term)
+    (after_atoms : product) (after_products rhs : formula)
+    : option Cyclic.rule_instance.
+Proof.
+  destruct left_term as [n|x|left_name left_args];
+    [exact None|exact None|].
+  destruct right_term as [m|y|right_name right_args];
+    [exact None|exact None|].
+  destruct (string_dec left_name right_name) as [Hname | Hname];
+    [subst right_name|exact None].
+  destruct (injective_constructorb left_name) eqn:Hinjective;
+    [|exact None].
+  destruct (Nat.eq_dec (List.length left_args) (List.length right_args))
+    as [Harity | Harity]; [|exact None].
+  exact (Some (left_function_equality_rule ds before_products before_atoms
+    left_name left_args right_args after_atoms after_products rhs Harity)).
+Defined.
+
+(** Scan every atom of the selected antecedent product.  Prefix accumulators
+    preserve the exact list order so the resulting premise changes only the
+    chosen equality. *)
+Fixpoint find_left_function_equality_in_product
+    (ds : definitions) (before_products : formula)
+    (before_atoms remaining : product) (after_products rhs : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | a :: after_atoms =>
+      match a with
+      | Eq left_term right_term =>
+          match left_function_equality_at_head ds before_products before_atoms
+            left_term right_term after_atoms after_products rhs with
+          | Some rule => Some rule
+          | None => find_left_function_equality_in_product ds before_products
+              (before_atoms ++ [a])%list after_atoms after_products rhs
+          end
+      | _ => find_left_function_equality_in_product ds before_products
+          (before_atoms ++ [a])%list after_atoms after_products rhs
+      end
+  end.
+
+(** The OCaml [bij_eqs] rule searches the complete left disjunction rather
+    than only singleton antecedents.  This second scan mirrors that scope and
+    rewrites one occurrence; repeated simplification handles later ones. *)
+Fixpoint find_left_function_equality_in_formula
+    (ds : definitions) (before_products remaining rhs : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | p :: after_products =>
+      match find_left_function_equality_in_product ds before_products [] p
+        after_products rhs with
+      | Some rule => Some rule
+      | None => find_left_function_equality_in_formula ds
+          (before_products ++ [p])%list after_products rhs
+      end
+  end.
+
+Definition left_function_equality_candidate (goal : judgment)
+    : option Cyclic.rule_instance :=
+  let q := goal.(judgment_sequent) in
+  find_left_function_equality_in_formula goal.(judgment_definitions) []
+    q.(antecedent) q.(succedent).
+
+(** Recognize [f(xs) = f(ys)] and expose the verified pairwise-equality
+    decomposition.  Constructor names and arities are checked here, so the
+    rule kernel receives the exact propositional equalities it needs. *)
+Definition right_function_equality_at_head
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms : product) (left_term right_term : term)
+    (after_atoms : product) (after_products : formula)
+    : option Cyclic.rule_instance.
+Proof.
+  destruct left_term as [n|x|left_name left_args];
+    [exact None|exact None|].
+  destruct right_term as [m|y|right_name right_args];
+    [exact None|exact None|].
+  destruct (string_dec left_name right_name) as [Hname | Hname];
+    [subst right_name|exact None].
+  destruct (Nat.eq_dec (List.length left_args) (List.length right_args))
+    as [Harity | Harity]; [|exact None].
+  exact (Some (right_function_equality_rule ds lhs before_products
+    before_atoms left_name left_args right_args after_atoms after_products
+    Harity)).
+Defined.
+
+Fixpoint find_right_function_equality_in_product
+    (ds : definitions) (lhs before_products : formula)
+    (before_atoms remaining : product) (after_products : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | a :: after_atoms =>
+      match a with
+      | Eq left_term right_term =>
+          match right_function_equality_at_head ds lhs before_products
+            before_atoms left_term right_term after_atoms after_products with
+          | Some rule => Some rule
+          | None => find_right_function_equality_in_product ds lhs
+              before_products (before_atoms ++ [a])%list after_atoms
+              after_products
+          end
+      | _ => find_right_function_equality_in_product ds lhs before_products
+          (before_atoms ++ [a])%list after_atoms after_products
+      end
+  end.
+
+Fixpoint find_right_function_equality_in_formula
+    (ds : definitions) (lhs before_products remaining : formula)
+    : option Cyclic.rule_instance :=
+  match remaining with
+  | [] => None
+  | p :: after_products =>
+      match find_right_function_equality_in_product ds lhs before_products
+        [] p after_products with
+      | Some rule => Some rule
+      | None => find_right_function_equality_in_formula ds lhs
+          (before_products ++ [p])%list after_products
+      end
+  end.
+
+Definition right_function_equality_candidate (goal : judgment)
+    : option Cyclic.rule_instance :=
+  let q := goal.(judgment_sequent) in
+  find_right_function_equality_in_formula goal.(judgment_definitions)
+    q.(antecedent) [] q.(succedent).
+
 Definition simplification_candidate (goal : judgment)
     : option Cyclic.rule_instance :=
   match goal.(judgment_sequent).(antecedent) with
@@ -227,11 +521,40 @@ Definition simplification_candidate (goal : judgment)
       | None =>
           match right_reflexive_equality_candidate goal with
           | Some rule => Some rule
-          | None => find_left_equality_substitution goal.(judgment_definitions)
-              [] p goal.(judgment_sequent).(succedent)
+          | None =>
+              match find_left_equality_substitution
+                goal.(judgment_definitions) [] p
+                goal.(judgment_sequent).(succedent) with
+              | Some rule => Some rule
+              | None =>
+                  match right_existential_substitution_candidate goal with
+                  | Some rule => Some rule
+                  | None =>
+                      match right_discharge_candidate goal with
+                      | Some rule => Some rule
+                      | None =>
+                          match left_function_equality_candidate goal with
+                          | Some rule => Some rule
+                          | None => right_function_equality_candidate goal
+                          end
+                      end
+                  end
+              end
           end
       end
-  | _ => right_reflexive_equality_candidate goal
+  | _ =>
+      match right_reflexive_equality_candidate goal with
+      | Some rule => Some rule
+      | None =>
+          match right_existential_substitution_candidate goal with
+          | Some rule => Some rule
+          | None =>
+              match left_function_equality_candidate goal with
+              | Some rule => Some rule
+              | None => right_function_equality_candidate goal
+              end
+          end
+      end
   end.
 
 (** ** Structural propositional rules *)
@@ -447,6 +770,31 @@ Example generated_identity_closes_arbitrary_variable :
   with Some _ => true | None => false end = true.
 Proof. vm_compute. reflexivity. Qed.
 
+(** Identity compares inductive predicates modulo their trace tags and may
+    choose a strict-subset product from any RHS disjunct.  The surrounding
+    equality demonstrates that non-predicate atoms are still checked too. *)
+Example generated_identity_is_tag_insensitive_at_arbitrary_rhs_position :
+  match generate_axiom
+    (mk_judgment []
+      (mk_sequent
+        [[Pred (Some 4) "P" [Var (free_var 0)];
+          Eq (Const 0) (Const 1);
+          Pred None "Extra" []]]
+        [[Pred None "Unrelated" []];
+         [Pred (Some 91) "P" [Var (free_var 0)];
+          Eq (Const 0) (Const 1)]]))
+  with Some _ => true | None => false end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** Ignoring tags must not accidentally make equality symmetric.  OCaml
+    [Prod.mem] and the verified Boolean comparison both retain the ordered
+    term pair for Eq/Neq atoms. *)
+Example generated_identity_keeps_equality_orientation_exact :
+  identity_candidate []
+    [Eq (Var (free_var 0)) (Var (free_var 1))]
+    [[Eq (Var (free_var 1)) (Var (free_var 0))]] = None.
+Proof. vm_compute. reflexivity. Qed.
+
 Example generated_left_disjunction_has_two_premises :
   match left_disjunction_candidate
     (mk_judgment [] (mk_sequent [[Eq zero zero]; [Neq zero (succ zero)]] [[]]))
@@ -470,4 +818,197 @@ Example generated_reflexive_simplification_removes_only_the_selected_atom :
         (mk_judgment [] (mk_sequent [[Neq zero (succ zero)]] [[]]))
   | None => false
   end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** Regression for the witness-producing RHS simplifier.  The equality
+    chooses existential variable 0 to be [7], and that choice is substituted
+    into the remaining predicate argument. *)
+Example generated_right_existential_substitution_installs_the_witness :
+  match simplification_candidate
+    (mk_judgment []
+      (mk_sequent [[]]
+        [[Eq (Var (existential_var 0)) (Const 7);
+          Pred None "P" [Var (existential_var 0)]]])) with
+  | Some rule =>
+      match rule.(Cyclic.rule_premises) with
+      | [premise] =>
+          judgment_eqb premise.(Cyclic.premise_judgment)
+            (mk_judgment []
+              (mk_sequent [[]] [[Pred None "P" [Const 7]]]))
+      | _ => false
+      end
+  | None => false
+  end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** The standard unfolding kernel emits [actual = fresh-existential].  The
+    first simplification orients that equation and the second installs the
+    witness, so both syntactic orientations reach the same premise. *)
+Example generated_right_existential_substitution_orients_then_solves :
+  match simplification_candidate
+    (mk_judgment []
+      (mk_sequent [[]]
+        [[Eq (Const 7) (Var (existential_var 0));
+          Pred None "P" [Var (existential_var 0)]]])) with
+  | Some orient_rule =>
+      match orient_rule.(Cyclic.rule_premises) with
+      | [oriented] =>
+          match simplification_candidate oriented.(Cyclic.premise_judgment) with
+          | Some solve_rule =>
+              match solve_rule.(Cyclic.rule_premises) with
+              | [solved] =>
+                  judgment_eqb solved.(Cyclic.premise_judgment)
+                    (mk_judgment []
+                      (mk_sequent [[]] [[Pred None "P" [Const 7]]]))
+              | _ => false
+              end
+          | None => false
+          end
+      | _ => false
+      end
+  | None => false
+  end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** [bij_eqs] parity regression.  The selected [cons = cons] equality is in
+    the middle of the second antecedent product.  Decomposition must preserve
+    both surrounding tagged predicates, the untouched first product, the RHS,
+    and the left-to-right order of the two generated argument equations. *)
+Example generated_left_constructor_injectivity_decomposes_middle_cons :
+  match simplification_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Pred (Some 3) "Untouched" []];
+         [Pred (Some 4) "KeepL" [];
+          Eq (cons (Var (free_var 0)) (Var (free_var 1)))
+             (cons (Var (free_var 2)) (Var (free_var 3)));
+          Pred (Some 5) "KeepR" []]]
+        [[Pred None "Goal" []]])) with
+  | Some rule =>
+      match rule.(Cyclic.rule_premises) with
+      | [premise] =>
+          judgment_eqb premise.(Cyclic.premise_judgment)
+            (mk_judgment []
+              (mk_sequent
+                [[Pred (Some 3) "Untouched" []];
+                 [Pred (Some 4) "KeepL" [];
+                  Eq (Var (free_var 0)) (Var (free_var 2));
+                  Eq (Var (free_var 1)) (Var (free_var 3));
+                  Pred (Some 5) "KeepR" []]]
+                [[Pred None "Goal" []]]))
+      | _ => false
+      end
+  | None => false
+  end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** Same-headed symbols are not automatically assumed injective on the left.
+    Only the original prover's explicit [s]/[cons] whitelist may use the
+    converse direction of constructor congruence. *)
+Example generated_left_constructor_injectivity_rejects_unknown_function :
+  left_function_equality_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Eq (Fun "f" [Var (free_var 0)])
+             (Fun "f" [Var (free_var 1)])]] [[]])) = None.
+Proof. vm_compute. reflexivity. Qed.
+
+(** The OCaml implementation accidentally raises [Invalid_argument] on a
+    malformed known constructor with unequal arities.  The verified generator
+    rejects that input safely because the semantic decomposition theorem
+    requires equal list lengths. *)
+Example generated_left_constructor_injectivity_rejects_arity_mismatch :
+  left_function_equality_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Eq (Fun "cons" [Var (free_var 0)])
+             (Fun "cons" [Var (free_var 1); Var (free_var 2)])]] [[]])) = None.
+Proof. vm_compute. reflexivity. Qed.
+
+(** When both sides contain decomposable function equalities, the injective
+    LHS rule is selected first.  This records the ordering of OCaml
+    [bij_eqs] before [func_eqs] and prevents later refactoring from silently
+    changing the search tree. *)
+Example generated_left_constructor_injectivity_precedes_right_function :
+  match simplification_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Eq (succ (Var (free_var 0))) (succ (Var (free_var 1)))]]
+        [[Eq (Fun "f" [Const 1]) (Fun "f" [Const 2])]])) with
+  | Some rule =>
+      match rule.(Cyclic.rule_premises) with
+      | [premise] =>
+          judgment_eqb premise.(Cyclic.premise_judgment)
+            (mk_judgment []
+              (mk_sequent
+                [[Eq (Var (free_var 0)) (Var (free_var 1))]]
+                [[Eq (Fun "f" [Const 1]) (Fun "f" [Const 2])]]))
+      | _ => false
+      end
+  | None => false
+  end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** [simpl_rhs] parity regression.  The antecedent predicate and selected
+    succedent predicate have different trace tags but identical semantic
+    content.  The selected occurrence lies in the middle of the second RHS
+    product, so this also checks both prefix accumulators. *)
+Example generated_right_discharge_ignores_predicate_tags_and_keeps_context :
+  match simplification_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Pred (Some 7) "P" [Var (free_var 0)]]]
+        [[Pred None "OtherAlternative" []];
+         [Neq (Const 0) (Const 1);
+          Pred (Some 99) "P" [Var (free_var 0)];
+          Pred None "Keep" []]])) with
+  | Some rule =>
+      match rule.(Cyclic.rule_premises) with
+      | [premise] =>
+          judgment_eqb premise.(Cyclic.premise_judgment)
+            (mk_judgment []
+              (mk_sequent
+                [[Pred (Some 7) "P" [Var (free_var 0)]]]
+                [[Pred None "OtherAlternative" []];
+                 [Neq (Const 0) (Const 1); Pred None "Keep" []]]))
+      | _ => false
+      end
+  | None => false
+  end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** RHS discharge precedes constructor injectivity, as in the original
+    simplifier sequence.  The known [cons] equality remains untouched while
+    the supplied predicate is removed first. *)
+Example generated_right_discharge_precedes_left_constructor_injectivity :
+  match simplification_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Eq (cons (Const 1) (Const 2)) (cons (Const 3) (Const 4));
+          Pred (Some 1) "P" []]]
+        [[Pred (Some 2) "P" []; Pred None "Goal" []]])) with
+  | Some rule =>
+      match rule.(Cyclic.rule_premises) with
+      | [premise] =>
+          judgment_eqb premise.(Cyclic.premise_judgment)
+            (mk_judgment []
+              (mk_sequent
+                [[Eq (cons (Const 1) (Const 2)) (cons (Const 3) (Const 4));
+                  Pred (Some 1) "P" []]]
+                [[Pred None "Goal" []]]))
+      | _ => false
+      end
+  | None => false
+  end = true.
+Proof. vm_compute. reflexivity. Qed.
+
+(** This negative test protects the valuation side condition.  An
+    existential variable may receive a different RHS witness value, so a
+    syntactic antecedent match alone does not justify discharge. *)
+Example generated_right_discharge_rejects_existential_atom :
+  right_discharge_candidate
+    (mk_judgment []
+      (mk_sequent
+        [[Pred None "P" [Var (existential_var 0)]]]
+        [[Pred None "P" [Var (existential_var 0)]]])) = None.
 Proof. vm_compute. reflexivity. Qed.

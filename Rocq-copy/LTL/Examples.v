@@ -6,41 +6,86 @@ From CyclistRocq.LTL Require Import Syntax Rules.
 Import ListNotations.
 Open Scope string_scope.
 
+(* ===== Overview =====
+   Two worked cyclic proofs, built with the generic [Cyclic] framework:
+   (1) [em_root]     : p ∨ ¬p   (excluded middle, no cycle)
+   (2) [cyclic_root] : ◇p ∨ □¬p   (needs a backlink / cycle)
+   For each we (a) define the judgments (nodes), (b) define the rule
+   instances with their soundness proofs, (c) assemble a proof graph,
+   (d) supply a trace witness, (e) prove the checker's side conditions
+   and bundle them in a certificate, and (f) conclude [Valid].
+   Finally some negative tests show the checker rejects bad graphs. *)
+
+(* ---- Basic formulae ----
+   [p] is the atom p. *)
 Definition p : formula := Atom "p".
+(* [np] is ¬p. *)
 Definition np : formula := NegAtom "p".
+(* [fp] is ◇p ("p eventually holds"). *)
 Definition fp : formula := Eventually p.
+(* [gnp] is □¬p ("p never holds"). *)
 Definition gnp : formula := Always np.
 
+(* ---- Edge infos ----
+   An edge between two proof nodes lists (edge_valid) tag pairs (a,b):
+   tag a of the conclusion is "followed" by tag b of the premise, with
+   rank(b) <= rank(a); and (edge_progress) the sub-list where the rank
+   strictly decreases.  A cycle is accepted only if some tag progresses.
+
+   [empty_edge]: no tags followed.  Used for rules whose premises carry
+   no tracked formula (Disj, the axiom branch). *)
 Definition empty_edge : Cyclic.edge_info :=
   {| Cyclic.edge_valid := []; Cyclic.edge_progress := [] |}.
 
+(* Tag 0 followed to tag 0, no strict decrease.
+   Used by Eventually and by the backlink. *)
 Definition stay0 : Cyclic.edge_info :=
   {| Cyclic.edge_valid := [(0, 0)]; Cyclic.edge_progress := [] |}.
 
+(* Tag 0 -> tag 1 with strict rank decrease: □¬p (rank 2d+1) becomes
+   ◯□¬p (rank 2d'+2) after unfolding Always. *)
 Definition progress01 : Cyclic.edge_info :=
   {| Cyclic.edge_valid := [(0, 1)]; Cyclic.edge_progress := [(0, 1)] |}.
 
+(* Tag 1 -> tag 0 with strict decrease: ◯□¬p moves to □¬p one step
+   later, via the Next rule. *)
 Definition progress10 : Cyclic.edge_info :=
   {| Cyclic.edge_valid := [(1, 0)]; Cyclic.edge_progress := [(1, 0)] |}.
 
+(* ---- Judgments (proof nodes) ----
+   Proof 1, excluded middle.  Root sequent: [p ∨ ¬p]. *)
 Definition em_root : judgment := [untagged (Disj p np)].
+(* Premise after the Disj rule: [p, ¬p] -- closed by the axiom rule. *)
 Definition em_leaf : judgment := [untagged p; untagged np].
 
+(* Proof 2 root: [◇p ∨ □¬p].  Valid: p occurs sometime, or never. *)
 Definition cyclic_root : judgment :=
   [untagged (Disj fp gnp)].
 
+(* [◇p, □¬p#0] -- the backlink target (the "companion" of the cycle).
+   □¬p carries tag 0 so progress on it can be traced around the loop. *)
 Definition cycle_companion : judgment :=
   [untagged fp; tagged 0 gnp].
 
+(* After unfolding ◇p: [p, ◯◇p, □¬p#0]. *)
 Definition after_eventually : judgment :=
   [untagged p; untagged (Next fp); tagged 0 gnp].
 
+(* Left branch of the Always rule: [p, ¬p, ◯◇p] -- closed by Axiom
+   (¬p is the unfolded head of □¬p). *)
 Definition axiom_branch : judgment :=
   [untagged p; untagged np; untagged (Next fp)].
 
+(* Right branch of the Always rule: [p, ◯◇p, ◯□¬p#1].  The Next rule
+   strips the ◯'s and gives back [cycle_companion]. *)
 Definition temporal_branch : judgment :=
   [untagged p; untagged (Next fp); tagged 1 (Next gnp)].
 
+(* ---- Countermodel steps (one per proof edge) ----
+   The framework proves soundness by contraposition: if the conclusion
+   is false at a world, some premise is false at a related world.  These
+   lemmas show it for each rule use.
+   Here: if [p ∨ ¬p] is false, then [p, ¬p] is false. *)
 Lemma em_counter_step w :
   ~ denote em_root w -> ~ denote em_leaf w.
 Proof.
@@ -50,6 +95,7 @@ Proof.
   - exists (untagged (Disj p np)). split; [now left|now right].
 Qed.
 
+(* Disj step: falsity of [◇p ∨ □¬p] gives falsity of [cycle_companion]. *)
 Lemma disj_counter_step w :
   ~ denote cyclic_root w -> ~ denote cycle_companion w.
 Proof.
@@ -59,6 +105,8 @@ Proof.
   - exists (untagged (Disj fp gnp)). split; [now left|now right].
 Qed.
 
+(* Eventually step: falsity of [cycle_companion] gives falsity of
+   [after_eventually] at the same world (◇p unfolds to p ∨ ◯◇p). *)
 Lemma eventually_counter_step w :
   ~ denote cycle_companion w -> ~ denote after_eventually w.
 Proof.
@@ -74,6 +122,7 @@ Proof.
   - exists (tagged 0 gnp). split; [right; now left|exact Heval].
 Qed.
 
+(* Helper: if [after_eventually] is false, then p is false at [now]. *)
 Lemma p_is_false_under_after_eventually tr now :
   ~ denote after_eventually (tr, now) -> tr now "p" = false.
 Proof.
@@ -82,6 +131,7 @@ Proof.
   split; [now left|exact Hp].
 Qed.
 
+(* Helper: if [after_eventually] is false, then □¬p is false at [now]. *)
 Lemma gnp_is_false_under_after_eventually tr now :
   ~ denote after_eventually (tr, now) -> ~ eval gnp tr now.
 Proof.
@@ -89,6 +139,8 @@ Proof.
   exists (tagged 0 gnp). split; [right; right; now left|exact Hg].
 Qed.
 
+(* Always step (right branch): falsity of [after_eventually] gives
+   falsity of [temporal_branch] at the same world. *)
 Lemma always_counter_step tr now :
   ~ denote after_eventually (tr, now) ->
   ~ denote temporal_branch (tr, now).
@@ -106,6 +158,8 @@ Proof.
     + cbn. replace (now + S k) with (S (now + k)) by lia. apply Heval.
 Qed.
 
+(* Next step: falsity of [temporal_branch] at [now] gives falsity of
+   [cycle_companion] at the NEXT world [now+1]. *)
 Lemma next_counter_step tr now :
   ~ denote temporal_branch (tr, now) ->
   ~ denote cycle_companion (tr, S now).
@@ -118,6 +172,10 @@ Proof.
     split; [right; right; now left|exact Heval].
 Qed.
 
+(* ---- Edge-respect lemmas ----
+   [respects_edge] says the rank inequalities promised by an edge_info
+   really hold between the two worlds.
+   Eventually edge: tag 0 keeps its rank (<=); no progress pairs. *)
 Lemma stay0_eventually_respects w :
   Cyclic.respects_edge cycle_companion after_eventually w w stay0.
 Proof.
@@ -127,6 +185,8 @@ Proof.
   - intros a b Hin. inversion Hin.
 Qed.
 
+(* Always edge: rank of ◯□¬p#1 (2*d(now+1)+2) is strictly below the
+   rank of □¬p#0 (2*d(now)+1), using [failure_distance_shift]. *)
 Lemma progress01_always_respects tr now :
   ~ denote after_eventually (tr, now) ->
   Cyclic.respects_edge after_eventually temporal_branch
@@ -154,6 +214,8 @@ Proof.
     lia.
 Qed.
 
+(* Next edge: rank of □¬p#0 at now+1 (2d+1) is strictly below that of
+   ◯□¬p#1 at now (2d+2). *)
 Lemma progress10_next_respects tr now :
   Cyclic.respects_edge temporal_branch cycle_companion
     (tr, now) (tr, S now) progress10.
@@ -169,6 +231,9 @@ Proof.
             2 * failure_distance np tr (S now) + 2). lia.
 Qed.
 
+(* ---- Concrete rule soundness ----
+   Soundness of the Always rule specialised to these judgments (validity
+   of both branches implies validity of [after_eventually]). *)
 Lemma always_concrete_rule :
   Cyclic.Valid axiom_branch ->
   Cyclic.Valid temporal_branch ->
@@ -192,6 +257,8 @@ Proof.
   - exists (untagged (Next fp)). split; [right; now left|exact Heval].
 Qed.
 
+(* Soundness of the Next rule here: validity of [cycle_companion]
+   implies validity of [temporal_branch]. *)
 Lemma next_concrete_rule :
   Cyclic.Valid cycle_companion -> Cyclic.Valid temporal_branch.
 Proof.
@@ -203,10 +270,16 @@ Proof.
     split; [right; right; now left|exact Heval].
 Qed.
 
+(* ---- Rule instances ----
+   Each instance = name + conclusion + premises (with edges) + proofs that
+   (1) valid premises give a valid conclusion, and (2) a countermodel step
+   exists with the edge respected.
+   Premise of the Disj rule in proof 1. *)
 Definition em_disj_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := em_leaf;
      Cyclic.premise_edge := empty_edge |}.
 
+(* Disj rule instance for proof 1: [p ∨ ¬p] from [p, ¬p]. *)
 Definition em_disj_instance : Cyclic.rule_instance.
 Proof.
   refine
@@ -220,10 +293,12 @@ Proof.
     split; intros a b Hin; inversion Hin.
 Defined.
 
+(* Premise of the Disj rule in proof 2. *)
 Definition disj_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := cycle_companion;
      Cyclic.premise_edge := empty_edge |}.
 
+(* Disj rule instance for proof 2: [◇p ∨ □¬p] from [cycle_companion]. *)
 Definition disj_instance : Cyclic.rule_instance.
 Proof.
   refine
@@ -238,10 +313,12 @@ Proof.
     split; intros a b Hin; inversion Hin.
 Defined.
 
+(* Premise of the Eventually rule (edge [stay0]). *)
 Definition eventually_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := after_eventually;
      Cyclic.premise_edge := stay0 |}.
 
+(* Eventually rule: [cycle_companion] from [after_eventually]. *)
 Definition eventually_instance : Cyclic.rule_instance.
 Proof.
   refine
@@ -256,14 +333,18 @@ Proof.
     now apply stay0_eventually_respects.
 Defined.
 
+(* Left premise of the Always rule: [axiom_branch], no tag edge. *)
 Definition always_left_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := axiom_branch;
      Cyclic.premise_edge := empty_edge |}.
 
+(* Right premise of the Always rule: [temporal_branch], edge [progress01]. *)
 Definition always_right_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := temporal_branch;
      Cyclic.premise_edge := progress01 |}.
 
+(* Always rule (two premises): [after_eventually] from
+   [axiom_branch] and [temporal_branch]. *)
 Definition always_instance : Cyclic.rule_instance.
 Proof.
   refine
@@ -279,10 +360,12 @@ Proof.
     now apply progress01_always_respects.
 Defined.
 
+(* Premise of the Next rule: [cycle_companion], edge [progress10]. *)
 Definition next_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := cycle_companion;
      Cyclic.premise_edge := progress10 |}.
 
+(* Next rule: [temporal_branch] from [cycle_companion]. *)
 Definition next_instance : Cyclic.rule_instance.
 Proof.
   refine
@@ -297,15 +380,22 @@ Proof.
     apply progress10_next_respects.
 Defined.
 
+(* Axiom instance closing [axiom_branch], with context [◯◇p]. *)
 Definition branch_axiom : Cyclic.axiom_instance :=
   atom_axiom_instance [untagged (Next fp)] "p".
 
+(* Axiom instance closing [em_leaf], with empty context. *)
 Definition em_axiom : Cyclic.axiom_instance :=
   atom_axiom_instance [] "p".
 
+(* The backlink rule instance targeting [cycle_companion]. *)
 Definition cycle_backlink : Cyclic.rule_instance :=
   exact_backlink_instance cycle_companion.
 
+(* ---- Proof graphs ----
+   A graph is a root plus numbered nodes; each node has a judgment and a
+   payload (RuleNode inst children / AxiomNode inst / BacklinkNode inst target).
+   Proof 1: node 0 (Disj) -> node 1 (axiom). *)
 Definition em_graph : Cyclic.graph :=
   {| Cyclic.graph_root := em_root;
      Cyclic.graph_nodes :=
@@ -314,6 +404,13 @@ Definition em_graph : Cyclic.graph :=
         {| Cyclic.node_judgment := em_leaf;
            Cyclic.node_payload := Cyclic.AxiomNode em_axiom |}] |}.
 
+(* Proof 2, nodes by index:
+     0 cyclic_root      (Disj)       -> 1
+     1 cycle_companion  (Eventually) -> 2
+     2 after_eventually (Always)     -> 3, 4
+     3 axiom_branch     (Axiom)
+     4 temporal_branch  (Next)       -> 5
+     5 cycle_companion  (Backlink to node 1)  -- closes the cycle *)
 Definition cyclic_graph : Cyclic.graph :=
   {| Cyclic.graph_root := cyclic_root;
      Cyclic.graph_nodes :=
@@ -330,10 +427,15 @@ Definition cyclic_graph : Cyclic.graph :=
         {| Cyclic.node_judgment := cycle_companion;
            Cyclic.node_payload := Cyclic.BacklinkNode cycle_backlink 1 |}] |}.
 
+(* ---- Scripts ----
+   The same graphs, built command by command by the framework's builder
+   (ApplyRule on an open node, CloseWith an axiom, AddBacklink from a node
+   to an ancestor).  Script for proof 1. *)
 Definition em_script : list Cyclic.command :=
   [Cyclic.ApplyRule 0 em_disj_instance;
    Cyclic.CloseWith 1 em_axiom].
 
+(* Script for proof 2; the last command adds the backlink 5 -> 1. *)
 Definition cyclic_script : list Cyclic.command :=
   [Cyclic.ApplyRule 0 disj_instance;
    Cyclic.ApplyRule 1 eventually_instance;
@@ -342,20 +444,28 @@ Definition cyclic_script : list Cyclic.command :=
    Cyclic.ApplyRule 4 next_instance;
    Cyclic.AddBacklink 5 1 cycle_backlink].
 
+(* Running the script succeeds and yields exactly [em_graph]. *)
 Example em_builder_records_whole_graph :
   (Cyclic.run_script em_root em_script).(Cyclic.build_ok) = true /\
   (Cyclic.run_script em_root em_script).(Cyclic.built_graph) = em_graph.
 Proof. vm_compute. auto. Qed.
 
+(* Running the script succeeds and yields exactly [cyclic_graph]. *)
 Example cyclic_builder_records_whole_graph :
   (Cyclic.run_script cyclic_root cyclic_script).(Cyclic.build_ok) = true /\
   (Cyclic.run_script cyclic_root cyclic_script).(Cyclic.built_graph) = cyclic_graph.
 Proof. vm_compute. auto. Qed.
 
+(* ---- Trace witnesses ----
+   A witness chooses, per node, which tag (if any) is traced along an
+   infinite path, and a natural-number potential used to check progress.
+   Proof 1 has no cycle, so nothing is traced. *)
 Definition em_witness : Cyclic.trace_witness :=
   {| Cyclic.witness_tag := fun _ => None;
      Cyclic.witness_potential := fun _ => 0 |}.
 
+(* Proof 2: the traced formula is □¬p: tag 0 at nodes 1,2,5 and tag 1
+   (◯□¬p) at node 4; untraced elsewhere. *)
 Definition cycle_witness_tag (i : nat) : option nat :=
   match i with
   | 1 | 2 | 5 => Some 0
@@ -363,6 +473,8 @@ Definition cycle_witness_tag (i : nat) : option nat :=
   | _ => None
   end.
 
+(* Potentials along the cycle 1 -> 2 -> 4 -> 5 -> 1; they let the checker
+   verify the cycle contains a strict progress step. *)
 Definition cycle_witness_potential (i : nat) : nat :=
   match i with
   | 1 => 1
@@ -370,18 +482,24 @@ Definition cycle_witness_potential (i : nat) : nat :=
   | _ => 0
   end.
 
+(* Bundle of tag and potential for proof 2. *)
 Definition cycle_witness : Cyclic.trace_witness :=
   {| Cyclic.witness_tag := cycle_witness_tag;
      Cyclic.witness_potential := cycle_witness_potential |}.
 
+(* The boolean checker (structure + relations + witness) accepts proof 1. *)
 Example em_raw_check_passes :
   Cyclic.raw_check em_graph em_witness = true.
 Proof. vm_compute. reflexivity. Qed.
 
+(* ...and proof 2. *)
 Example cyclic_raw_check_passes :
   Cyclic.raw_check cyclic_graph cycle_witness = true.
 Proof. vm_compute. reflexivity. Qed.
 
+(* ---- Edge facts for the certificate ----
+   [edge_at g i j e]: graph [g] has an edge i -> j carrying info [e].
+   One lemma per edge of [cyclic_graph]. *)
 Lemma cyclic_edge_0_1 :
   Cyclic.edge_at cyclic_graph 0 1 empty_edge.
 Proof. eexists; split; [reflexivity|]. cbn. now left. Qed.
@@ -402,15 +520,18 @@ Lemma cyclic_edge_4_5 :
   Cyclic.edge_at cyclic_graph 4 5 progress10.
 Proof. eexists; split; [reflexivity|]. cbn. now left. Qed.
 
+(* Backlink edge 5 -> 1 uses the premise edge of [exact_backlink_premise]. *)
 Lemma cyclic_edge_5_1 :
   Cyclic.edge_at cyclic_graph 5 1
     (Cyclic.premise_edge (exact_backlink_premise cycle_companion)).
 Proof. eexists; split; [reflexivity|]. cbn. now left. Qed.
 
+(* That backlink edge is literally [stay0] (identity on tag 0). *)
 Lemma backlink_stay0 :
   Cyclic.premise_edge (exact_backlink_premise cycle_companion) = stay0.
 Proof. reflexivity. Qed.
 
+(* The backlink edge respects ranks: same judgment, same world. *)
 Lemma stay0_backlink_respects w :
   Cyclic.respects_edge cycle_companion cycle_companion w w stay0.
 Proof.
@@ -420,9 +541,11 @@ Proof.
   - intros a b Hin. inversion Hin.
 Qed.
 
+(* Edge 0 -> 1 in [em_graph]. *)
 Lemma em_edge_0_1 : Cyclic.edge_at em_graph 0 1 empty_edge.
 Proof. eexists; split; [reflexivity|]. cbn. now left. Qed.
 
+(* [p ∨ ¬p] can never be false (case split on the atom). *)
 Lemma em_false_impossible tr now : ~ denote em_root (tr, now) -> False.
 Proof.
   intro Hfalse. apply Hfalse.
@@ -431,6 +554,7 @@ Proof.
   - exists (untagged (Disj p np)). split; [now left|now right].
 Qed.
 
+(* [axiom_branch] can never be false: it contains p and ¬p. *)
 Lemma axiom_branch_false_impossible tr now :
   ~ denote axiom_branch (tr, now) -> False.
 Proof.
@@ -440,6 +564,7 @@ Proof.
   - exists (untagged np). split; [right; now left|exact Hp].
 Qed.
 
+(* [em_leaf] can never be false either. *)
 Lemma em_leaf_false_impossible tr now :
   ~ denote em_leaf (tr, now) -> False.
 Proof.
@@ -449,6 +574,10 @@ Proof.
   - exists (untagged np). split; [right; now left|exact Hp].
 Qed.
 
+(* ---- Certificate obligations ----
+   A node is "live" if it can start an infinite path.  If a node is false
+   at some world it must be live; axiom nodes are never false, so they
+   need not be.  Proof 2 version. *)
 Lemma cyclic_false_nodes_are_live i w :
   i < List.length cyclic_graph.(Cyclic.graph_nodes) ->
   ~ Cyclic.holds (Cyclic.label_at cyclic_graph i) w ->
@@ -466,6 +595,7 @@ Proof.
   - cbn in Hi. lia.
 Qed.
 
+(* Same obligation for proof 1. *)
 Lemma em_false_nodes_are_live i w :
   i < List.length em_graph.(Cyclic.graph_nodes) ->
   ~ Cyclic.holds (Cyclic.label_at em_graph i) w ->
@@ -478,6 +608,9 @@ Proof.
   - cbn in Hi. lia.
 Qed.
 
+(* Advance: from any false node there is an edge to a successor that is
+   false at a related world and respects the edge.  This builds the
+   infinite countermodel path in the soundness argument.  Proof 2. *)
 Lemma cyclic_advance :
   forall i w,
     i < List.length cyclic_graph.(Cyclic.graph_nodes) ->
@@ -523,6 +656,7 @@ Proof.
   - cbn in Hi. lia.
 Qed.
 
+(* Advance obligation for proof 1. *)
 Lemma em_advance :
   forall i w,
     i < List.length em_graph.(Cyclic.graph_nodes) ->
@@ -548,6 +682,9 @@ Proof.
   - cbn in Hi. lia.
 Qed.
 
+(* Every edge into a live node is a legal step of [cycle_witness]: tags
+   match the edge's pairs, and the potential does not increase (or the
+   progress pair strictly decreases it). *)
 Lemma cyclic_trace_transition :
   forall i j e,
     Cyclic.edge_at cyclic_graph i j e ->
@@ -581,6 +718,8 @@ Proof.
   - cbn in Hi. lia.
 Qed.
 
+(* Trace-transition obligation for proof 1 (the only edge leads to a
+   non-live node, so it is vacuous). *)
 Lemma em_trace_transition :
   forall i j e,
     Cyclic.edge_at em_graph i j e ->
@@ -602,6 +741,11 @@ Proof.
   - cbn in Hi. lia.
 Qed.
 
+(* ---- Certificates ----
+   Bundle graph + witness + all semantic obligations proved above.
+   [check_certificate] re-checks the boolean part, and
+   [finish_cyclic_certificate] derives [Valid].
+   Certificate for proof 1. *)
 Definition em_certificate : Cyclic.certificate :=
   {| Cyclic.cert_graph := em_graph;
      Cyclic.cert_witness := em_witness;
@@ -611,6 +755,7 @@ Definition em_certificate : Cyclic.certificate :=
      Cyclic.cert_advance := em_advance;
      Cyclic.cert_trace_transition := em_trace_transition |}.
 
+(* Certificate for proof 2. *)
 Definition ltl_cycle_certificate : Cyclic.certificate :=
   {| Cyclic.cert_graph := cyclic_graph;
      Cyclic.cert_witness := cycle_witness;
@@ -620,27 +765,35 @@ Definition ltl_cycle_certificate : Cyclic.certificate :=
      Cyclic.cert_advance := cyclic_advance;
      Cyclic.cert_trace_transition := cyclic_trace_transition |}.
 
+(* The certificate for proof 1 passes the checker. *)
 Example em_certificate_checks :
   Cyclic.check_certificate em_certificate = true.
 Proof. vm_compute. reflexivity. Qed.
 
+(* The certificate for proof 2 passes the checker. *)
 Example ltl_cycle_certificate_checks :
   Cyclic.check_certificate ltl_cycle_certificate = true.
 Proof. vm_compute. reflexivity. Qed.
 
+(* Final theorem 1: p ∨ ¬p is valid, via the certificate. *)
 Theorem excluded_middle_ltl : Cyclic.Valid em_root.
 Proof. Cyclic.finish_cyclic_certificate em_certificate. Qed.
 
+(* Final theorem 2: ◇p ∨ □¬p is valid.  A genuinely cyclic proof: the
+   backlink is justified because □¬p's rank strictly decreases. *)
 Theorem eventually_or_always_not : Cyclic.Valid cyclic_root.
 Proof. Cyclic.finish_cyclic_certificate ltl_cycle_certificate. Qed.
 
 (** Rejection tests exercise independent failure modes of the checker. *)
+(* A graph with only the root and an open goal (no proof yet). *)
 Definition open_graph : Cyclic.graph := Cyclic.start_graph em_root.
 
+(* A graph with an open goal is rejected. *)
 Example open_goal_is_rejected :
   Cyclic.raw_check open_graph em_witness = false.
 Proof. vm_compute. reflexivity. Qed.
 
+(* Proof 1 but the Disj node points to a non-existent child (index 99). *)
 Definition dangling_graph : Cyclic.graph :=
   {| Cyclic.graph_root := em_root;
      Cyclic.graph_nodes :=
@@ -649,18 +802,22 @@ Definition dangling_graph : Cyclic.graph :=
         {| Cyclic.node_judgment := em_leaf;
            Cyclic.node_payload := Cyclic.AxiomNode em_axiom |}] |}.
 
+(* Dangling child pointers are rejected. *)
 Example dangling_target_is_rejected :
   Cyclic.raw_check dangling_graph em_witness = false.
 Proof. vm_compute. reflexivity. Qed.
 
+(* An edge whose progress pair (7,8) is not among its valid pairs. *)
 Definition malformed_edge : Cyclic.edge_info :=
   {| Cyclic.edge_valid := [];
      Cyclic.edge_progress := [(7, 8)] |}.
 
+(* Premise carrying the malformed edge. *)
 Definition malformed_premise : Cyclic.premise :=
   {| Cyclic.premise_judgment := em_leaf;
      Cyclic.premise_edge := malformed_edge |}.
 
+(* A semantically sound rule instance that uses the malformed premise. *)
 Definition malformed_rule : Cyclic.rule_instance.
 Proof.
   refine
@@ -675,6 +832,7 @@ Proof.
     exfalso. now apply (em_false_impossible tr now).
 Defined.
 
+(* Proof 1 with the malformed rule substituted. *)
 Definition malformed_graph : Cyclic.graph :=
   {| Cyclic.graph_root := em_root;
      Cyclic.graph_nodes :=
@@ -683,10 +841,13 @@ Definition malformed_graph : Cyclic.graph :=
         {| Cyclic.node_judgment := em_leaf;
            Cyclic.node_payload := Cyclic.AxiomNode em_axiom |}] |}.
 
+(* The structural check rejects progress pairs not in edge_valid. *)
 Example progress_must_be_valid_is_rejected :
   Cyclic.structural_check malformed_graph = false.
 Proof. vm_compute. reflexivity. Qed.
 
+(* A pure loop: node 0 (a rule) -> node 1 (backlink to 0), with no
+   progress anywhere. *)
 Definition flat_graph : Cyclic.graph :=
   {| Cyclic.graph_root := cycle_companion;
      Cyclic.graph_nodes :=
@@ -697,10 +858,13 @@ Definition flat_graph : Cyclic.graph :=
            Cyclic.node_payload :=
              Cyclic.BacklinkNode cycle_backlink 0 |}] |}.
 
+(* The structure is well formed... *)
 Example flat_graph_is_structurally_well_formed :
   Cyclic.structural_check flat_graph = true.
 Proof. vm_compute. reflexivity. Qed.
 
+(* ...but the relational check rejects it: no tag strictly decreases
+   around the cycle (the essential soundness condition). *)
 Example flat_cycle_without_progress_is_rejected :
   Cyclic.relational_check flat_graph = false.
 Proof. vm_compute. reflexivity. Qed.
