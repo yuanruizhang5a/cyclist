@@ -15,3 +15,15 @@ FirstOrder/Definitions.v
 FirstOrder/Derived.v
 FirstOrder/Benchmarks.v
 FirstOrder/Search.v
+SP/Syntax.v
+SP/Semantics.v
+SP/Rules.v
+SP/Automation.v
+SP/Certification.v
+SP/RuleGeneration.v
+SP/GraphSearch.v
+SP/Definitions.v
+SP/Benchmarks.v
+SP/Examples.v
+SP/Tests.v
+SP/Search.v

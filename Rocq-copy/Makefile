@@ -17,7 +17,19 @@ FILES := \
 	FirstOrder/Definitions.v \
 	FirstOrder/Derived.v \
 	FirstOrder/Benchmarks.v \
-	FirstOrder/Search.v
+	FirstOrder/Search.v \
+	SP/Syntax.v \
+	SP/Semantics.v \
+	SP/Rules.v \
+	SP/Automation.v \
+	SP/Certification.v \
+	SP/RuleGeneration.v \
+	SP/GraphSearch.v \
+	SP/Definitions.v \
+	SP/Benchmarks.v \
+	SP/Examples.v \
+	SP/Tests.v \
+	SP/Search.v
 
 VOS := $(FILES:.v=.vo)
 
@@ -70,4 +82,40 @@ FirstOrder/Benchmarks.vo: FirstOrder/Benchmarks.v FirstOrder/Rules.vo FirstOrder
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<
 
 FirstOrder/Search.vo: FirstOrder/Search.v FirstOrder/Benchmarks.vo FirstOrder/GraphSearch.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Syntax.vo: SP/Syntax.v Cyclic/Framework.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Semantics.vo: SP/Semantics.v SP/Syntax.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Rules.vo: SP/Rules.v SP/Semantics.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Automation.vo: SP/Automation.v SP/Semantics.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Certification.vo: SP/Certification.v SP/Rules.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/RuleGeneration.vo: SP/RuleGeneration.v SP/Rules.vo SP/Automation.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/GraphSearch.vo: SP/GraphSearch.v SP/RuleGeneration.vo SP/Certification.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Definitions.vo: SP/Definitions.v SP/Syntax.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Benchmarks.vo: SP/Benchmarks.v SP/Definitions.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Examples.vo: SP/Examples.v SP/GraphSearch.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Tests.vo: SP/Tests.v SP/RuleGeneration.vo SP/Benchmarks.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+SP/Search.vo: SP/Search.v SP/GraphSearch.vo SP/Benchmarks.vo
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<

@@ -126,6 +126,28 @@ ported.  Certificate construction is explicit rather than automatic.
 The first-order implementation is additive: neither `Cyclic/` nor `LTL/` is
 modified.
 
+## Separation-logic instance
+
+`SP/` is a proof-producing, deliberately conservative port of the symbolic-
+heap prover in `src/seplog`.  It provides:
+
+- free and existential variables and trace tags, substitutions, unification,
+  symbolic heaps, ordinal constraints, clauses, and definition tables;
+- a standard finite partial-map heap semantics with exact points-to ownership,
+  disjoint heap partitions, formula-local witnesses, and rank-bounded
+  inductive unfolding;
+- theorem-backed identity, tag-erasure, pure ex-falso, disjunction, exact
+  backlink, and general clause-introduction kernels;
+- the unchanged generic cyclic checker, an executable certification bridge,
+  and bounded iterative-deepening graph search; and
+- direct reifications of `examples/sl.defs` plus the selected ATVA and
+  Songbird dependency closures and benchmark inputs.
+
+The public entry points are `SP.Search.search`, `SP.Search.solvedb`, and
+`SP.Search.search_sound`.  Unsupported rule families return no candidate.
+The exact coverage and benchmark outcomes are recorded in
+`SP/SP_IMPLEMENTATION_AUDIT.md`.
+
 ## Trusted assumptions
 
 There are no `Admitted` proofs or project-defined axioms.  The LTL least-future
