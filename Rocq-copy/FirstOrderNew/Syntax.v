@@ -16,8 +16,8 @@ Inductive term := Const (value : Z) | Var (name : variable)
   | Fun (symbol : string) (arguments : list term).
 Inductive atom := Eq (left right : term) | Deq (left right : term)
   | Pred (tag : nat) (symbol : string) (arguments : list term).
-Definition product := list atom.
-Definition formula := list product.
+Definition product := list atom. (* conjunction *)
+Definition formula := list product. (* disjunction *)
 Record sequent := { antecedent : formula; succedent : formula }.
 
 

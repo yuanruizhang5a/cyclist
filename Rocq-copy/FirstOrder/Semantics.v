@@ -6,11 +6,15 @@ From CyclistRocq.FirstOrder Require Import Syntax.
 Import ListNotations.
 Open Scope string_scope.
 
-(** The first-order domain is the free constructor algebra. *)
+(** The first-order domain is the free constructor algebra: values are either
+    numeric constants or finite trees headed by named function symbols.
+    Constructors are syntactically distinct; no quotienting equations are
+    imposed on values. *)
 Inductive value : Type :=
 | VConst (n : nat)
 | VFun (name : string) (args : list value).
 
+(** Structural decidable equality for semantic values. *)
 Fixpoint value_eq_dec (x y : value) : {x = y} + {x <> y}.
 Proof.
   decide equality.
@@ -19,11 +23,16 @@ Proof.
   - apply string_dec.
 Defined.
 
+(** Executable Boolean equality for values. *)
 Definition value_eqb (x y : value) : bool :=
   if value_eq_dec x y then true else false.
 
+(** A valuation assigns one semantic value to every syntactic variable. *)
 Definition valuation : Type := variable -> value.
 
+(** Evaluate a term in the free constructor algebra.  Constants and function
+    applications become the corresponding value constructors; variables are
+    read from [rho]. *)
 Fixpoint eval_term (rho : valuation) (t : term) : value :=
   match t with
   | Const n => VConst n
@@ -31,6 +40,7 @@ Fixpoint eval_term (rho : valuation) (t : term) : value :=
   | Fun f xs => VFun f (map (eval_term rho) xs)
   end.
 
+(** Evaluate a list of terms under the same valuation. *)
 Definition eval_terms (rho : valuation) (xs : list term) : list value :=
   map (eval_term rho) xs.
 
@@ -42,10 +52,14 @@ Record interpretation : Type := {
   predicate_rank : string -> list value -> option nat
 }.
 
+(** A predicate instance holds when the interpretation assigns it some finite
+    derivation height.  The particular height is hidden here. *)
 Definition predicate_holds
     (i : interpretation) (name : string) (args : list value) : Prop :=
   exists height, i.(predicate_rank) name args = Some height.
 
+(** Interpret one atom.  Equality and disequality compare evaluated values;
+    a predicate consults [i].  Its trace tag has no effect on truth. *)
 Definition atom_holds
     (i : interpretation) (rho : valuation) (a : atom) : Prop :=
   match a with
@@ -54,6 +68,8 @@ Definition atom_holds
   | Pred _ name args => predicate_holds i name (eval_terms rho args)
   end.
 
+(** Interpret a product as conjunction.  Every atom must hold, and the empty
+    product is [True]. *)
 Fixpoint product_holds
     (i : interpretation) (rho : valuation) (p : product) : Prop :=
   match p with
@@ -61,10 +77,14 @@ Fixpoint product_holds
   | a :: p' => atom_holds i rho a /\ product_holds i rho p'
   end.
 
+(** Interpret a formula as disjunction: one product in the list must hold.
+    Consequently the empty formula is false. *)
 Definition formula_holds
     (i : interpretation) (rho : valuation) (f : formula) : Prop :=
   exists p, In p f /\ product_holds i rho p.
 
+(** Combine two valuations by taking free variables from [base] and
+    existential variables from [witness]. *)
 Definition merge_valuation (base witness : valuation) : valuation :=
   fun x =>
     match x.(variable_kind) with
@@ -72,10 +92,14 @@ Definition merge_valuation (base witness : valuation) : valuation :=
     | Existential => witness x
     end.
 
+(** Truth of a right-hand formula existentially chooses values for witness
+    variables while keeping all free-variable values from [rho]. *)
 Definition right_holds
     (i : interpretation) (rho : valuation) (f : formula) : Prop :=
   exists witness, formula_holds i (merge_valuation rho witness) f.
 
+(** Every predicate premise in [p] must have a derivation height strictly
+    below [height].  Equations impose no rank condition. *)
 Definition body_decreases
     (i : interpretation) (rho : valuation) (p : product) (height : nat) : Prop :=
   forall tag name args,
@@ -84,6 +108,10 @@ Definition body_decreases
       i.(predicate_rank) name (eval_terms rho args) = Some child_height /\
       child_height < height.
 
+(** [i] models the inductive definitions [ds] when two conditions hold:
+    clauses introduce predicate instances whose bodies hold, and every ranked
+    predicate instance is justified by a matching clause whose predicate
+    premises have smaller ranks.  Together these rule out unsupported cycles. *)
 Definition models (ds : definitions) (i : interpretation) : Prop :=
   (forall name c rho,
       In c (lookup_definition name ds) ->
@@ -97,17 +125,27 @@ Definition models (ds : definitions) (i : interpretation) : Prop :=
         product_holds i rho c.(clause_body) /\
         body_decreases i rho c.(clause_body) height).
 
+(** A semantic world pairs an inductive predicate interpretation with a
+    valuation for variables. *)
 Definition world : Type := (interpretation * valuation)%type.
 
+(** A sequent holds at [(i,rho)] when, provided [i] models [ds], truth of an
+    antecedent disjunct forces a succedent disjunct with suitable witnesses. *)
 Definition sequent_holds (ds : definitions) (q : sequent) (w : world) : Prop :=
   let '(i, rho) := w in
   models ds i ->
   formula_holds i rho q.(antecedent) ->
   right_holds i rho q.(succedent).
 
+(** Give a judgment its semantic meaning at one world by using the definitions
+    and sequent stored inside it. *)
 Definition denote (j : judgment) (w : world) : Prop :=
   sequent_holds j.(judgment_definitions) j.(judgment_sequent) w.
 
+(** If [a] is a predicate carrying the requested [tag], return its trace rank.
+    A true predicate of derivation height [h] gets [S h]; a tagged but false
+    predicate gets zero; a nonmatching atom returns [None].  Adding one keeps
+    zero available as the explicit "does not hold" rank. *)
 Definition rank_atom
     (i : interpretation) (rho : valuation) (tag : nat) (a : atom) : option nat :=
   match a with
@@ -121,6 +159,8 @@ Definition rank_atom
   | _ => None
   end.
 
+(** Search a product from left to right for the first atom with [tag], returning
+    its rank or [None] if the tag does not occur. *)
 Fixpoint rank_product
     (i : interpretation) (rho : valuation) (tag : nat) (p : product) : option nat :=
   match p with
@@ -132,6 +172,8 @@ Fixpoint rank_product
       end
   end.
 
+(** Search the products of a formula from left to right for [tag].  Missing
+    tags have total rank zero. *)
 Fixpoint rank_formula
     (i : interpretation) (rho : valuation) (tag : nat) (f : formula) : nat :=
   match f with
@@ -143,22 +185,36 @@ Fixpoint rank_formula
       end
   end.
 
+(** Read the rank of an antecedent trace tag in a judgment at a world. *)
 Definition rank_of_tag (j : judgment) (w : world) (tag : nat) : nat :=
   rank_formula (fst w) (snd w) tag j.(judgment_sequent).(antecedent).
 
+(** Package the first-order syntax, semantics, tags, and ranks as the abstract
+    theory interface expected by the generic cyclic-proof framework. *)
 Module FirstOrderTheory <: Framework.THEORY.
+  (** Worlds carry an interpretation and a variable valuation. *)
   Definition World := world.
+  (** Framework judgments are the first-order judgments from [Syntax]. *)
   Definition Judgment := judgment.
+  (** A framework sequent is represented by its truth predicate over worlds. *)
   Definition Sequent := World -> Prop.
+  (** Exact executable equality used for ordinary judgment comparison. *)
   Definition judgment_eqb := judgment_eqb.
+  (** Tag-insensitive executable equality used to recognize backlinks. *)
   Definition backlink_eqb := backlink_eqb.
+  (** Semantic interpretation supplied to the generic framework. *)
   Definition denote := denote.
+  (** Trace tags visible to the generic framework. *)
   Definition tags := judgment_tags.
+  (** Natural-number progress measure associated with a trace tag. *)
   Definition rank := rank_of_tag.
 End FirstOrderTheory.
 
+(** Instantiate the generic cyclic-proof machinery for first-order logic. *)
 Module Cyclic := Framework.Make FirstOrderTheory.
 
+(** A structural size for nested terms.  A constant or variable has size one;
+    a function adds one to the sum of the sizes of all arguments. *)
 Fixpoint term_size (t : term) : nat :=
   match t with
   | Const _ | Var _ => 1
@@ -188,6 +244,8 @@ Proof.
     unfold ltof. simpl. pose proof (term_size_member x args Hin). lia.
 Qed.
 
+(** Check whether a term contains only free variables.  Constants pass and a
+    function passes exactly when all of its arguments pass. *)
 Fixpoint term_freeb (t : term) : bool :=
   match t with
   | Const _ => true
@@ -196,13 +254,16 @@ Fixpoint term_freeb (t : term) : bool :=
   | Fun _ xs => forallb term_freeb xs
   end.
 
+(** Check that every term in an atom contains only free variables. *)
 Definition atom_freeb (a : atom) : bool :=
   match a with
   | Eq x y | Neq x y => term_freeb x && term_freeb y
   | Pred _ _ xs => forallb term_freeb xs
   end.
 
+(** Check that all atoms of a product contain only free variables. *)
 Definition product_freeb (p : product) : bool := forallb atom_freeb p.
+(** Check that all products of a formula contain only free variables. *)
 Definition formula_freeb (f : formula) : bool := forallb product_freeb f.
 
 Lemma eval_term_merge_free base witness t :
@@ -280,6 +341,10 @@ Proof.
     apply (proj2 (formula_holds_merge_free i rho rho f Hfree)). exact H.
 Qed.
 
+(** Build the valuation used after introducing a freshly shifted clause.
+    Identifiers below [offset] retain their values from [old]; identifiers at
+    or above it are interpreted by subtracting the offset and consulting the
+    clause-local environment.  Variable kinds are preserved. *)
 Definition combine_valuation
     (offset : nat) (old clause_env : valuation) : valuation :=
   fun x =>
@@ -288,6 +353,10 @@ Definition combine_valuation
       {| variable_kind := x.(variable_kind);
          variable_id := x.(variable_id) - offset |}.
 
+(** View the existential variables created by shifting a clause through the
+    witness valuation: an original clause variable [x] receives the value of
+    its shifted existential counterpart.  [base] is intentionally unused; it
+    documents that this adapter is paired with [merge_valuation base witness]. *)
 Definition existential_clause_valuation
     (offset : nat) (base witness : valuation) : valuation :=
   fun x => witness (existential_shift_variable offset x).

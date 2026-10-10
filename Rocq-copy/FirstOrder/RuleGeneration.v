@@ -30,9 +30,8 @@ Proof.
      original identity test therefore uses containment modulo tags; Eq and
      Neq atoms remain exact through [atom_eqb_upto_tags]. *)
   destruct (product_subsetb_upto_tags small big) eqn:Hsubset; [|exact None].
-  destruct (product_freeb small) eqn:Hfree; [|exact None].
   exact (Some (identity_axiom_anywhere_upto_tags ds big rhs small
-    Hin Hsubset Hfree)).
+    Hin Hsubset)).
 Defined.
 
 (** Scan right products in source order, matching the deterministic priority

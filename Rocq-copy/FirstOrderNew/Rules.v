@@ -7,8 +7,7 @@ Open Scope list_scope.
 Record trace_edge := { continuations : list (nat * nat); progressing : list (nat * nat) }.
 Definition empty_edge := {| continuations := []; progressing := [] |}.
 Record native_premise := { premise_label : sequent; premise_trace : trace_edge }.
-Record application := { application_name : string;
-  conclusion : sequent; premises : list native_premise }.
+Record application := { application_name : string; conclusion : sequent; premises : list native_premise }.
 Definition respects d source target w w' e :=
   (forall a b, In (a,b) e.(continuations) -> rank d target w' b <= rank d source w a) /\
   (forall a b, In (a,b) e.(progressing) -> rank d target w' b < rank d source w a).
