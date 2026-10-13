@@ -1,0 +1,74 @@
+\contentsline {chapter}{Purpose and reader contract}{i}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Orientation: the theorem-producing path}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}The mathematical object language}{3}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Ranked semantics for first-order judgments}{6}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Constructor-tree values and valuations}{6}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Ranked inductive predicates}{7}{section.3.2}%
+\contentsline {section}{\numberline {3.3}DNF truth and shared existential witnesses}{8}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Trace ranks}{9}{section.3.4}%
+\contentsline {chapter}{\numberline {4}The generic cyclic substrate}{10}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Local rules and countermodel propagation}{10}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Finite graphs, backlinks, and structural checking}{11}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Relations, closure, and infinite descent}{11}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Finite witnesses and lexicographic descent}{12}{section.4.4}%
+\contentsline {chapter}{\numberline {5}The implemented inference rules I: logical structure}{14}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Identity modulo tags and ex falso}{14}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Left disjunction and restricted right conjunction}{15}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Reflexive equality elimination}{15}{section.5.3}%
+\contentsline {chapter}{\numberline {6}The implemented inference rules II: equality and structure}{17}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Left equality substitution}{17}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Right existential solving and orientation}{17}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Right discharge}{18}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Constructor-equality decomposition}{18}{section.6.4}%
+\contentsline {chapter}{\numberline {7}The implemented inference rules III: cyclic structure}{20}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Explicit weakening and free substitution}{20}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Matched and equation-producing right unfolding}{21}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Ranked left unfolding}{21}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Exact backlinks}{22}{section.7.4}%
+\contentsline {chapter}{\numberline {8}Verified executable infrastructure}{23}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Normalization and Boolean reflection}{23}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Variables and freshness}{24}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Directional matching}{24}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Substitution composition and symmetric unification}{25}{section.8.4}%
+\contentsline {chapter}{\numberline {9}From syntax to candidate rules}{26}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Priority is operational semantics}{26}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Scanning arbitrary positions}{27}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Boolean side conditions are proof inputs}{27}{section.9.3}%
+\contentsline {chapter}{\numberline {10}Graph construction and certification-aware search}{29}{chapter.10}%
+\contentsline {section}{\numberline {10.1}First-open-node expansion}{29}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Prepared backlinks}{30}{section.10.2}%
+\contentsline {section}{\numberline {10.3}DFS, closed graphs, and checked graphs}{30}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Trace-witness construction}{31}{section.10.4}%
+\contentsline {chapter}{\numberline {11}Reflecting executable checks into a certificate}{32}{chapter.11}%
+\contentsline {chapter}{\numberline {12}The concrete definition library and derived mathematics}{34}{chapter.12}%
+\contentsline {section}{\numberline {12.1}Nineteen inductive definitions}{34}{section.12.1}%
+\contentsline {section}{\numberline {12.2}Introduction, inversion, and rank induction}{35}{section.12.2}%
+\contentsline {section}{\numberline {12.3}Rank sums and the hydra measure}{36}{section.12.3}%
+\contentsline {chapter}{\numberline {13}Benchmarks and the public search contract}{37}{chapter.13}%
+\contentsline {section}{\numberline {13.1}Nine positive judgments}{37}{section.13.1}%
+\contentsline {section}{\numberline {13.2}Verified proofs and iterative deepening}{38}{section.13.2}%
+\contentsline {section}{\numberline {13.3}Reproduced public computations}{39}{section.13.3}%
+\contentsline {chapter}{\numberline {14}Complete vertical slice: \(O(x)\vdash N(x)\)}{40}{chapter.14}%
+\contentsline {section}{\numberline {14.1}The direct mathematical proof}{40}{section.14.1}%
+\contentsline {section}{\numberline {14.2}The verified 15-node cyclic graph}{41}{section.14.2}%
+\contentsline {section}{\numberline {14.3}Cyclic proof and direct induction are the same descent seen twice}{42}{section.14.3}%
+\contentsline {chapter}{\numberline {15}Limitations and precise claims}{44}{chapter.15}%
+\contentsline {section}{\numberline {15.1}What is implemented soundly}{44}{section.15.1}%
+\contentsline {section}{\numberline {15.2}Missing rule families}{44}{section.15.2}%
+\contentsline {paragraph}{Folding.}{44}{section*.123}%
+\contentsline {paragraph}{General existential instantiation.}{44}{section*.124}%
+\contentsline {paragraph}{Exact multi-unification for right unfolding.}{44}{section*.125}%
+\contentsline {paragraph}{Composed left/right unfolding.}{44}{section*.126}%
+\contentsline {section}{\numberline {15.3}Restricted implemented families}{45}{section.15.3}%
+\contentsline {section}{\numberline {15.4}Search and interface limitations}{45}{section.15.4}%
+\contentsline {section}{\numberline {15.5}Soundness is not completeness}{45}{section.15.5}%
+\contentsline {chapter}{\numberline {16}Trust boundary and reproduced validation}{46}{chapter.16}%
+\contentsline {section}{\numberline {16.1}What the kernel checks}{46}{section.16.1}%
+\contentsline {section}{\numberline {16.2}Printed assumptions}{46}{section.16.2}%
+\contentsline {section}{\numberline {16.3}Build and computation record}{47}{section.16.3}%
+\contentsline {chapter}{\numberline {17}A theorem-first extension checklist}{48}{chapter.17}%
+\contentsline {chapter}{\numberline {A}Mathematics-to-Rocq correspondence}{50}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Module and symbol index}{52}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Rule quick reference}{54}{appendix.C}%
+\contentsline {chapter}{\numberline {D}End-to-end audit recipe}{55}{appendix.D}%
+\contentsline {chapter}{Conclusion}{57}{appendix*.128}%

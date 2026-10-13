@@ -1,0 +1,44 @@
+\contentsline {chapter}{Purpose and reader contract}{i}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Orientation: the theorem-producing path}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Reified symbolic heaps}{3}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Finite-heap and ranked semantics}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Finite partial heaps and separating conjunction}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Finite approximants of inductive predicates}{6}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Disjunction, existential witnesses, tags, and validity}{7}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Definition libraries and benchmark judgments}{9}{chapter.4}%
+\contentsline {chapter}{\numberline {5}The generic cyclic framework}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Local rules as validity and countermodel propagation}{11}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Proof graphs and structural well-formedness}{12}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Relational closure and the global progress check}{13}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Finite trace witnesses}{14}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Certificates and lexicographic infinite descent}{15}{section.5.5}%
+\contentsline {chapter}{\numberline {6}The implemented separation-logic rules}{17}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Identity and tag erasure}{17}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Ex falso from an explicit contradiction}{18}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Right introduction of an inductive predicate}{18}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Left disjunction and right choice}{19}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Exact backlinks and the teaching-only progressing loop}{19}{section.6.5}%
+\contentsline {chapter}{\numberline {7}Executable rule generation}{21}{chapter.7}%
+\contentsline {section}{\numberline {7.1}One-way ordered matching}{21}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Candidate priority and conservative stubs}{22}{section.7.2}%
+\contentsline {chapter}{\numberline {8}Reflection: from a checked graph to semantic evidence}{24}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Why reflection is needed}{24}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Reflecting the finite witness}{25}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Acyclic leaves use the same certificate interface}{26}{section.8.3}%
+\contentsline {chapter}{\numberline {9}Graph exploration and the public search API}{28}{chapter.9}%
+\contentsline {section}{\numberline {9.1}First-open-node depth-first search}{28}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Witness enumeration and closed-graph checking}{29}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Iterative deepening and the meaning of \code {solvedb}}{30}{section.9.3}%
+\contentsline {chapter}{\numberline {10}Complete vertical slice: \texttt {benchmark\_base\_19\_1}}{31}{chapter.10}%
+\contentsline {section}{\numberline {10.1}The mathematical entailment}{31}{section.10.1}%
+\contentsline {chapter}{\numberline {11}Examples, tests, and automation utilities}{33}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Accepted and rejected teaching graphs}{33}{section.11.1}%
+\contentsline {section}{\numberline {11.2}Regression tests for generators}{34}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Verified automation utilities}{34}{section.11.3}%
+\contentsline {chapter}{\numberline {12}Limitations and precise claims}{35}{chapter.12}%
+\contentsline {chapter}{\numberline {13}Trust boundary and assumptions}{37}{chapter.13}%
+\contentsline {chapter}{\numberline {14}A theorem-first extension checklist}{39}{chapter.14}%
+\contentsline {chapter}{\numberline {A}Mathematics-to-Rocq correspondence}{41}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Module and symbol index}{43}{appendix.B}%
+\contentsline {chapter}{\numberline {C}End-to-end audit checklist}{45}{appendix.C}%
+\contentsline {chapter}{Conclusion}{46}{appendix*.96}%
