@@ -424,6 +424,7 @@ Proof.
   eapply product_holds_neq_refl_false; eauto.
 Defined.
 
+
 (** Constructor terms in the semantic domain are disjoint.  The OCaml
     ex-falso test checks the common special cases [0 = s(_)] and
     [0 = cons(_,_)]; the free constructor model validates the slightly more
@@ -1374,7 +1375,7 @@ Qed.
     axiom needs no variable-class restriction. *)
 Definition identity_axiom_anywhere_upto_tags
     (ds : definitions) (big : product) (rhs : formula) (small : product)
-    (Hin : In small rhs)
+    (Hin : In small rhs) (* like a side condition *)
     (Hsubset : product_subsetb_upto_tags small big = true)
     : Cyclic.axiom_instance.
 Proof.
