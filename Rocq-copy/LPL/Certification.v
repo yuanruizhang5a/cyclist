@@ -9,20 +9,30 @@ Open Scope string_scope.
 
     [Cyclic.raw_check] is deliberately executable, whereas
     [Cyclic.certificate] contains the semantic evidence used by the generic
-    well-founded descent proof.  LTL constructs that evidence by hand for its
-    two example graphs.  This module proves once that the relevant successful Boolean checks expose all
-    local data needed to build the evidence.
+    well-founded descent proof. This module proves once that the relevant
+    successful Boolean checks expose all local data needed to build the
+    evidence.
+
+    Read the proof in three layers: structural reflection supplies a false
+    successor and liveness; witness reflection supplies trace transitions;
+    [certify_raw_check] combines them and [raw_check_sound] calls the generic
+    soundness theorem. The final one-node helper is a small starting example.
 
     Nothing here changes the generic framework.  The lemmas inspect its public
     graph representation and use the [rule_counter_step] theorem already
     stored in every LPL rule instance. *)
 
 Module MakeCertification (S : SIGNATURE) (Kernel : KERNEL S).
+(** These aliases share syntax, model and rule types with RuleGeneration.v.
+    A graph can therefore contain the very rule records returned by that
+    generator, with no translation or second kernel instantiation. *)
 Module Export Sem := Kernel.Core.Pr.Sem.
 Module Export Syn := Sem.Syn.
 Module Export P := Kernel.P.
 Module Export K := Kernel.
 
+(** Start with small executable-data facts. Pair membership concerns tag
+    numbers only; it says nothing yet about semantic rank inequalities. *)
 Lemma pair_mem_spec pair pairs :
   Cyclic.pair_mem pair pairs = true <-> In pair pairs.
 Proof.
@@ -39,6 +49,9 @@ Proof.
 Qed.
 
 
+(** The checker traverses a list with an explicit starting index. Keeping
+    [start] separate from [offset] aligns the tail induction with graph node
+    numbers; this pattern reappears for witness reflection below. *)
 Lemma all_nodes_wfb_from_nth g nodes start offset n :
   Cyclic.all_nodes_wfb_from g start nodes = true ->
   nth_error nodes offset = Some n ->
@@ -125,6 +138,9 @@ Lemma nth_error_map_premise_edge premises k p :
     Some p.(Cyclic.premise_edge).
 Proof. intro H. now rewrite nth_error_map, H. Qed.
 
+(** Rule-node edges pair an ordered target list with the rule's ordered
+    premise edges. Matching [nth_error] equations recover the actual graph
+    edge selected by the rule's semantic counterstep. *)
 Lemma combine_nth_in {A B : Type} (xs : list A) (ys : list B) k x y :
   nth_error xs k = Some x -> nth_error ys k = Some y ->
   In (x, y) (combine xs ys).
@@ -375,6 +391,9 @@ Qed.
 Definition certify_raw_check (g : Cyclic.graph) (tw : Cyclic.trace_witness)
     (Hcheck : Cyclic.raw_check g tw = true) : Cyclic.certificate.
 Proof.
+  (* The executable result is data evidence for each certificate field:
+     root consistency, false-node liveness, countermodel advancement and
+     witness transitions. No whole-graph soundness premise is assumed. *)
   refine
     {| Cyclic.cert_graph := g;
        Cyclic.cert_witness := tw;
@@ -409,6 +428,8 @@ Theorem raw_check_sound g tw :
   Cyclic.Valid g.(Cyclic.graph_root).
 Proof.
   intro Hcheck.
+  (* All object-specific work is now inside the constructed certificate.
+     The unchanged framework supplies the well-founded descent argument. *)
   apply (Cyclic.certificate_sound (certify_raw_check g tw Hcheck)).
   exact Hcheck.
 Qed.

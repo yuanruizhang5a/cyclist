@@ -1,3 +1,10 @@
+(** * Compositional safety for finite traces
+
+    These generic list lemmas support CounterLoop.v and NestedProgram.v.
+    They reproduce the semantic overlap/power shapes without depending on a
+    particular signature or kernel, so the lemmas apply to both model
+    instances by definitional conversion. They prove every visited state
+    safe, rather than only the final state or first observation. *)
 From Stdlib Require Import List Arith.
 Import ListNotations.
 
@@ -12,6 +19,8 @@ Fixpoint trace_power (R : list A -> Prop) n tr :=
   match n with 0 => exists s, tr = [s;s]
   | S n => trace_compose R (trace_power R n) tr end.
 End Powers.
+(** Safety assumes the invariant at the initial state and guarantees it on
+    the entire execution list, including stuttering and intermediate states. *)
 Definition trace_safe {A} (Inv : A -> Prop) (R : list A -> Prop) :=
   forall s tail, R (s :: tail) -> Inv s -> Forall Inv (s :: tail).
 
@@ -24,6 +33,9 @@ Proof.
   intros [prefix [s [tail [-> [-> ->]]]]] Ha Hb.
   rewrite Forall_app in Ha |- *; tauto.
 Qed.
+(** First use safety of [R]; its final shared state supplies the initial
+    invariant needed by [T]. [join_Forall] then combines both all-state facts
+    on the overlapped result. This is why endpoint overlap matters. *)
 Lemma compose_safe {A} (Inv : A -> Prop) R T : trace_safe Inv R -> trace_safe Inv T ->
   trace_safe Inv (trace_compose R T).
 Proof.
@@ -41,6 +53,9 @@ Qed.
 Lemma choice_safe {A} (Inv : A -> Prop) R T : trace_safe Inv R -> trace_safe Inv T ->
   trace_safe Inv (fun tr => R tr \/ T tr).
 Proof. intros HR HT s tail [H|H] Hs; [eapply HR|eapply HT]; eauto. Qed.
+(** Induct on an arbitrary finite iteration count. Zero repeats the initial
+    state twice; the successor case is just compositional safety. No claim
+    about reaching an exit condition or about infinite executions is needed. *)
 Lemma power_safe {A} (Inv : A -> Prop) R : trace_safe Inv R -> forall n, trace_safe Inv (trace_power R n).
 Proof.
   intros HR n; induction n.

@@ -1,3 +1,14 @@
+(** * Reified syntax and its executable checks
+
+    This file defines data, not truth in a model. Read it in four parts:
+    terms and mutually defined formulas/programs; named FOL substitution;
+    updates and labels; occurrences, judgments and reflected syntax checks.
+    Semantics.v gives these objects meanings, and RuleGeneration.v uses the
+    Boolean checks to construct rules together with their required evidence.
+
+    Names ending in [b] return Booleans; later [_spec] lemmas connect those
+    computations to propositions. [Defined] keeps equality decisions and
+    other computational proofs transparent so generators can reduce them. *)
 From Stdlib Require Import List Bool Arith Lia.
 From CyclistRocq.LPL Require Import Signature.
 Import ListNotations.
@@ -18,6 +29,8 @@ Proof.
   apply list_eq_dec; exact term_eq_dec.
 Defined.
 
+(** Lists make terms easy to construct. The price is that arity correctness
+    is checked explicitly rather than built into the type of [Fun]. *)
 Fixpoint term_wfb (t : term) : bool :=
   match t with
   | Var _ => true
@@ -30,12 +43,17 @@ Fixpoint term_vars (t : term) : list nat :=
   | Fun _ ts => flat_map term_vars ts
   end.
 
+(** Terms have no binders, so substitution here is a structural traversal.
+    Binder capture is handled by the formula substitution operations below. *)
 Fixpoint subst_term (x : nat) (replacement t : term) : term :=
   match t with
   | Var y => if Nat.eqb x y then replacement else t
   | Fun f ts => Fun f (map (subst_term x replacement) ts)
   end.
 
+(** Formulas mention programs through modalities, while programs mention
+    formulas through tests. Mutual definitions and a combined induction
+    principle are therefore needed for proofs about the whole language. *)
 Inductive formula : Type :=
 | Truth | Falsity
 | Pred (p : S.predicate_symbol) (args : list term)
@@ -81,6 +99,9 @@ Fixpoint pureb (a : formula) : bool :=
   | _ => false
   end.
 
+(** Raw [All]/[Ex] constructors can contain any formula. This check enforces
+    the intended language: their bodies must be recursively pure FOL, as well
+    as arity-correct. A modality outside a quantifier remains permitted. *)
 Fixpoint formula_wfb (a : formula) : bool :=
   match a with
   | Truth | Falsity => true
@@ -121,9 +142,12 @@ with program_vars (p : program) : list nat :=
   | Star a => program_vars a
   end.
 
-(** Binding-aware substitution on pure syntax. [free_forb] records exactly
-    the capture side condition for this raw operation; the public quantifier
-    boundary must check it rather than interpreting a captured substitution. *)
+(** Binding-aware substitution on pure syntax. This raw helper stops at a
+    binder for [x], but does not rename other binders. [free_forb] supplies a
+    sufficient no-capture condition for its semantic correctness theorem.
+    Nonpure constructors are left unchanged; this is not an unrestricted
+    term-substitution operation for programs or temporal formulas. Public
+    quantifier rules use the capture-avoiding [subst_fo] defined below. *)
 Fixpoint raw_subst_fo (x : nat) (t : term) (a : formula) : formula :=
   match a with
   | Truth => Truth
@@ -150,6 +174,8 @@ Fixpoint free_forb (x : nat) (t : term) (a : formula) : bool :=
   | _ => false
   end.
 
+(** Choosing one above the maximum is deterministic and needs no search for
+    a witness. Collecting bound names too makes fresh renaming conservative. *)
 Definition fresh_name (names : list nat) := Datatypes.S (fold_right Nat.max 0 names).
 
 Lemma occursb_false x names : existsb (Nat.eqb x) names = false <-> ~ In x names.
@@ -167,6 +193,10 @@ Proof.
   intro Hin; specialize (Hbound _ Hin); unfold fresh_name in Hbound; lia.
 Qed.
 
+(** Renaming a binder changes its body before substitution recurses, so that
+    body is not literally a subterm of the original input. A size bound gives
+    a terminating fuel implementation; [raw_subst_size] justifies renaming
+    without consuming additional formula depth. *)
 Fixpoint fol_size (a : formula) : nat :=
   match a with
   | Neg a | All _ a | Ex _ a | First a | Box _ a | Diamond _ a => Datatypes.S (fol_size a)
@@ -206,7 +236,9 @@ Proof.
     + apply IHa; [exact Hp|intro H; apply Hv; now right].
 Qed.
 
-(** Total capture-avoiding substitution. Conflicting binders are renamed to a
+(** Total capture-avoiding substitution. At a quantifier there are three
+    cases: its binder shadows [x]; its binder would capture a name of [t]; or
+    substitution may descend directly. In the second case, rename first to a
     name fresh for the body, replacement and substituted variable. The fuel
     is a proved structural bound; public callers do not choose it. *)
 Fixpoint subst_fo_fuel (fuel x : nat) (t : term) (a : formula) : formula :=
@@ -251,10 +283,16 @@ Proof.
     apply IH; try (apply raw_subst_pure); exact Hp.
 Qed.
 
+(** These abbreviations inherit finite-trace suffix semantics. In particular
+    [Next] is false at the last state; [Always] includes the current state.
+    Their semantic boundary laws are proved in Semantics.v. *)
 Definition Next a := Suffix Falsity a.
 Definition Eventually a := Disj a (Suffix Truth a).
 Definition Always a := Neg (Eventually (Neg a)).
 
+(** An update is a description of one state, rooted at a world variable.
+    [AssignUpdate x t previous] evaluates [t] after [previous], then writes
+    [x]. It does not itself store the sequence of intermediate states. *)
 Inductive update : Type :=
 | Base (world_variable : nat)
 | AssignUpdate (x : nat) (value : term) (previous : update).
@@ -274,6 +312,9 @@ Fixpoint update_vars (u : update) : list nat :=
   | AssignUpdate x t u => x :: (term_vars t ++ update_vars u)
   end.
 
+(** Labels describe traces. [Join] is kept as a binary syntax tree so exact
+    graph matching sees its parentheses; evaluation will use ordinary append.
+    A separate label component is needed for each intermediate update state. *)
 Inductive label : Type :=
 | Empty
 | StateLabel (u : update)
@@ -290,6 +331,9 @@ Fixpoint label_wfb (l : label) : bool :=
   | _ => true
   end.
 
+(** A join is nonempty when either component is nonempty. Empty components
+    are valid units; only an empty complete assertion label is forbidden.
+    Trace variables are nonempty because semantic worlds carry that proof. *)
 Fixpoint label_nonemptyb (l : label) : bool :=
   match l with
   | Empty => false
@@ -297,6 +341,9 @@ Fixpoint label_nonemptyb (l : label) : bool :=
   | Join a b => label_nonemptyb a || label_nonemptyb b
   end.
 
+(** These are program-variable names occurring in updates, for eigenvariable
+    freshness. World and trace names belong to different syntactic sorts and
+    must not be added just because all three are represented by [nat]. *)
 Fixpoint label_vars (l : label) : list nat :=
   match l with
   | Empty | TraceLabel _ => []
@@ -326,6 +373,10 @@ Fixpoint subst_trace_label (x : nat) (replacement l : label) : label :=
   | _ => l
   end.
 
+(** Explicit label algebra, with a caller-selected path: [false] descends
+    left, [true] descends right. At the selected node, [left = true] groups
+    to the left. An inapplicable path/rotation leaves the relevant syntax
+    unchanged. These operations perform no normalization search. *)
 Fixpoint rotate_label (path : list bool) (left : bool) (l : label) : label :=
   match path with
   | [] => if left then
@@ -337,6 +388,8 @@ Fixpoint rotate_label (path : list bool) (left : bool) (l : label) : label :=
     | _ => l end
   end.
 
+(** Use the same paths to insert or remove an explicit [Empty] component.
+    Semantics.v proves that both label-algebra operations preserve evaluation. *)
 Fixpoint unit_label (path : list bool) (on_left insert : bool) (l : label) : label :=
   match path with
   | [] => if insert then if on_left then Join Empty l else Join l Empty
@@ -348,15 +401,25 @@ Fixpoint unit_label (path : list bool) (on_left insert : bool) (l : label) : lab
     | _ => l end
   end.
 
+(** Only these succedent formulas can be followed by a cyclic trace. A tag
+    identifies an occurrence, not a formula's syntactic position in a list. *)
 Definition traceableb (a : formula) : bool :=
   match a with Box _ _ | Suffix _ _ | DualSuffix _ _ => true | _ => false end.
 
+(** Tags are proof metadata: Semantics.v ignores them when interpreting
+    truth, while Progress.v uses them to find the occurrence whose rank is
+    followed. Distinct copies of the same labelled formula remain distinct
+    occurrences and need distinct tags when both are tagged. *)
 Record occurrence : Type := Occ {
   occurrence_label : label;
   occurrence_formula : formula;
   occurrence_tag : option nat
 }.
 
+(** [Jdg Gamma Delta] represents a two-sided sequent. Lists preserve exact
+    order for graph checking; explicit exchange rules account for reordering.
+    Semantically the antecedent is a conjunction and the succedent a
+    disjunction, including their empty-list cases. *)
 Record judgment : Type := Jdg {
   antecedent : list occurrence;
   succedent : list occurrence
@@ -383,6 +446,9 @@ Definition judgment_eqb a b := if judgment_eq_dec a b then true else false.
 Lemma judgment_eqb_spec a b : judgment_eqb a b = true <-> a = b.
 Proof. unfold judgment_eqb; destruct (judgment_eq_dec a b); intuition discriminate. Qed.
 
+(** Exact equality includes tags. Backlink equality ignores only tags:
+    labels, update histories, formulas, programs and context order must still
+    match. Explicit tag-renaming rules later justify the corresponding ranks. *)
 Definition erase_tag o := Occ o.(occurrence_label) o.(occurrence_formula) None.
 Definition erase_tags j := Jdg (map erase_tag j.(antecedent)) (map erase_tag j.(succedent)).
 Definition backlink_eqb a b := judgment_eqb (erase_tags a) (erase_tags b).
@@ -392,6 +458,9 @@ Definition judgment_vars j := flat_map occurrence_vars (j.(antecedent) ++ j.(suc
 Definition eigen_freshb v j l a :=
   negb (existsb (Nat.eqb v) (judgment_vars j ++ label_vars l ++ formula_vars a)).
 
+(** The occurrence check combines four independent requirements: valid label
+    syntax, nonempty complete label, valid formula syntax, and legal tagging.
+    [right] rejects every antecedent tag, even on a box formula. *)
 Definition occurrence_wfb (right : bool) o :=
   label_wfb o.(occurrence_label) && label_nonemptyb o.(occurrence_label) &&
   formula_wfb o.(occurrence_formula) &&
@@ -410,6 +479,8 @@ Fixpoint unique_tagsb (ts : list nat) :=
   | t :: ts => negb (existsb (Nat.eqb t) ts) && unique_tagsb ts
   end.
 
+(** Uniqueness makes lookup by tag unambiguous. The generic cyclic framework
+    checks edge endpoints, but these object-language invariants belong here. *)
 Definition judgment_wfb j :=
   forallb (occurrence_wfb false) j.(antecedent) &&
   forallb (occurrence_wfb true) j.(succedent) && unique_tagsb (judgment_tags j).
@@ -489,6 +560,9 @@ Proof.
     split; [intros [Ht Hts]; constructor; assumption | intro H; inversion H; auto].
 Qed.
 
+(** These propositional specifications separate what well-formedness means
+    from the executable checks. The mutual reflection proof follows the same
+    formula/program induction principle used for semantic freshness later. *)
 Fixpoint formula_wf (a : formula) : Prop :=
   match a with
   | Truth | Falsity => True
@@ -567,6 +641,9 @@ Proof.
     intuition.
 Qed.
 
+(** This is the full syntax boundary available to a caller who wants to
+    reason propositionally after computing [judgment_wfb]. Nonemptiness is
+    related to semantic admissibility separately in Semantics.v. *)
 Lemma judgment_wfb_spec j : judgment_wfb j = true <-> judgment_wf j.
 Proof.
   unfold judgment_wfb, judgment_wf.

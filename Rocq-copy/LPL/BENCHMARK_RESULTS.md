@@ -1,6 +1,6 @@
 # LPL benchmark results
 
-UTC run: `20261016T165938090755Z`. **15/15 units passed.**
+UTC run: `20261016T172216122771Z`. **15/15 units passed.**
 
 ```text
 The Rocq Prover, version 9.1.0
@@ -12,21 +12,21 @@ Every isolated benchmark uses `timeout --signal=KILL 600s`; the limit is never i
 
 | Unit | Seconds | Exit | Evidence | Compiler output / assumptions |
 | --- | ---: | ---: | --- | --- |
-| Labels | 0.465 | 0 | D1/D4, units, differing states, overlap; 1-node certificate | [log](benchmark-logs/20261016T165938090755Z/Labels.txt) |
-| Signatures | 6.958 | 0 | arbitrary models and independent Boolean signature; leaf certificates | [log](benchmark-logs/20261016T165938090755Z/Signatures.txt) |
-| Updates | 0.475 | 0 | identity, changed/dependent assignments, intermediate states; pure certificate | [log](benchmark-logs/20261016T165938090755Z/Updates.txt) |
-| Tests | 0.531 | 0 | successful/failed and trace-sensitive tests; 2-node certificate | [log](benchmark-logs/20261016T165938090755Z/Tests.txt) |
-| RegularPrograms | 0.453 | 0 | sequence, choice, zero/one/nested finite iteration; semantic validity | [log](benchmark-logs/20261016T165938090755Z/RegularPrograms.txt) |
-| Booleans | 0.514 | 0 | mixed modal Boolean formula; 3-node certificate | [log](benchmark-logs/20261016T165938090755Z/Booleans.txt) |
-| Quantifiers | 0.616 | 0 | capture avoidance, shadowing, eigenvariables; 2-node certificate | [log](benchmark-logs/20261016T165938090755Z/Quantifiers.txt) |
-| Temporal | 0.468 | 0 | immediate/postponed suffix, dual, first, next-at-end, sum measure; certificate | [log](benchmark-logs/20261016T165938090755Z/Temporal.txt) |
-| AssignmentChange | 0.551 | 0 | changed next-state value; 6-node certificate, 1 distinct tag | [log](benchmark-logs/20261016T165938090755Z/AssignmentChange.txt) |
-| RuleCoverage | 0.992 | 0 | 50 exact rule/request premise shapes, positive/negative syntax checks | [log](benchmark-logs/20261016T165938090755Z/RuleCoverage.txt) |
-| CheckerNegative | 0.349 | 0 | open/dangling/mismatched graphs, absent tags, closed nonprogressing cycle | [log](benchmark-logs/20261016T165938090755Z/CheckerNegative.txt) |
-| Cyclic | 0.756 | 0 | 11-node star cycle, real backlink, 1 distinct tag, explicit potential | [log](benchmark-logs/20261016T165938090755Z/Cyclic.txt) |
-| CyclicTags | 0.914 | 0 | 12-node star cycle, explicit tag-renaming backlink, 2 distinct tags | [log](benchmark-logs/20261016T165938090755Z/CyclicTags.txt) |
-| CounterLoop | 0.457 | 0 | guarded integer decrement loop, every visited state and finite stopping point | [log](benchmark-logs/20261016T165938090755Z/CounterLoop.txt) |
-| NestedProgram | 2.885 | 0 | nested sequence/choice/star, arbitrary uninterpreted predicate of unchanged variable | [log](benchmark-logs/20261016T165938090755Z/NestedProgram.txt) |
+| Labels | 0.469 | 0 | D1/D4, units, differing states, overlap; 1-node certificate | [log](benchmark-logs/20261016T172216122771Z/Labels.txt) |
+| Signatures | 6.953 | 0 | arbitrary models and independent Boolean signature; leaf certificates | [log](benchmark-logs/20261016T172216122771Z/Signatures.txt) |
+| Updates | 0.456 | 0 | identity, changed/dependent assignments, intermediate states; pure certificate | [log](benchmark-logs/20261016T172216122771Z/Updates.txt) |
+| Tests | 0.531 | 0 | successful/failed and trace-sensitive tests; 2-node certificate | [log](benchmark-logs/20261016T172216122771Z/Tests.txt) |
+| RegularPrograms | 0.456 | 0 | sequence, choice, zero/one/nested finite iteration; semantic validity | [log](benchmark-logs/20261016T172216122771Z/RegularPrograms.txt) |
+| Booleans | 0.551 | 0 | mixed modal Boolean formula; 3-node certificate | [log](benchmark-logs/20261016T172216122771Z/Booleans.txt) |
+| Quantifiers | 0.526 | 0 | capture avoidance, shadowing, eigenvariables; 2-node certificate | [log](benchmark-logs/20261016T172216122771Z/Quantifiers.txt) |
+| Temporal | 0.470 | 0 | immediate/postponed suffix, dual, first, next-at-end, sum measure; certificate | [log](benchmark-logs/20261016T172216122771Z/Temporal.txt) |
+| AssignmentChange | 0.534 | 0 | changed next-state value; 6-node certificate, 1 distinct tag | [log](benchmark-logs/20261016T172216122771Z/AssignmentChange.txt) |
+| RuleCoverage | 1.014 | 0 | 50 exact rule/request premise shapes, positive/negative syntax checks | [log](benchmark-logs/20261016T172216122771Z/RuleCoverage.txt) |
+| CheckerNegative | 0.344 | 0 | open/dangling/mismatched graphs, absent tags, closed nonprogressing cycle | [log](benchmark-logs/20261016T172216122771Z/CheckerNegative.txt) |
+| Cyclic | 0.744 | 0 | 11-node star cycle, real backlink, 1 distinct tag, explicit potential | [log](benchmark-logs/20261016T172216122771Z/Cyclic.txt) |
+| CyclicTags | 0.904 | 0 | 12-node star cycle, explicit tag-renaming backlink, 2 distinct tags | [log](benchmark-logs/20261016T172216122771Z/CyclicTags.txt) |
+| CounterLoop | 0.582 | 0 | guarded integer decrement loop, every visited state and finite stopping point | [log](benchmark-logs/20261016T172216122771Z/CounterLoop.txt) |
+| NestedProgram | 2.859 | 0 | nested sequence/choice/star, arbitrary uninterpreted predicate of unchanged variable | [log](benchmark-logs/20261016T172216122771Z/NestedProgram.txt) |
 
 ## Commands
 

@@ -1,3 +1,10 @@
+(** * Nested regular programs preserving an uninterpreted observation
+
+    Parameterize the predicate itself, not just its arguments. The program
+    changes variable 0 while the observation depends only on variable 1.
+    Structural safety lemmas handle nested sequence, choice and star, then
+    [Always] states the result at every visited state. This is a direct
+    semantic proof and assumes no decision procedure for the predicate. *)
 From Stdlib Require Import List ZArith.
 From CyclistRocq.LPL Require Import Signature Rules RuleGeneration Certification.
 From CyclistRocq.LPL.Benchmarks Require Import Support InvariantSupport.
@@ -6,6 +13,9 @@ Import ListNotations.
 Module Type PROPERTY.
   Parameter holds : Z -> Prop.
 End PROPERTY.
+(** Build a shared kernel with the supplied predicate interpreted as an
+    arbitrary Rocq proposition. The following proof can only preserve its
+    existing truth; it cannot compute or invent a proof of [Property.holds]. *)
 Module ArbitraryPredicate (Property : PROPERTY).
   Module Kernel.
     Module Core := MakeRules ZSignature.
@@ -23,6 +33,9 @@ Module ArbitraryPredicate (Property : PROPERTY).
   Definition nested := Seq (Choice (Seq increment decrement) (Test Truth))
     (Star (Choice increment (Seq (Test Truth) decrement))).
 
+  (** Safety of any assignment to variable 0 follows from [write_other] at
+      variable 1. No condition on the replacement term or algebraic property
+      of the observation is needed for this semantic preservation argument. *)
   Lemma assignment_safe t : trace_safe invariant (program_holds M (Assign 0 t)).
   Proof.
     intros s tail [start Htrace] Hinitial; injection Htrace as Hs Htail; subst s tail.
@@ -34,6 +47,9 @@ Module ArbitraryPredicate (Property : PROPERTY).
     intros s tail [start [Htrace _]] Hinitial; injection Htrace as Hs Htail; subst;
       repeat constructor; exact Hinitial.
   Qed.
+  (** Small adapters expose the generic composition/choice/power lemmas in
+      the instantiated program syntax. The nested proof then mirrors the
+      program tree, with induction on finite powers hidden in [star_safe]. *)
   Lemma seq_safe a b : trace_safe invariant (program_holds M a) ->
     trace_safe invariant (program_holds M b) -> trace_safe invariant (program_holds M (Seq a b)).
   Proof. apply compose_safe. Qed.
@@ -55,6 +71,9 @@ Module ArbitraryPredicate (Property : PROPERTY).
   Qed.
   Definition root := Jdg [Occ (StateLabel (Base 0)) observation None]
     [Occ (StateLabel (Base 0)) (Box (Star nested) (Always observation)) None].
+  (** As in CounterLoop.v, convert whole-execution safety into [Always] of a
+      pure atom. This proves every intermediate state's observation, not just
+      a property of the final state or a [First] assertion about the prefix. *)
   Theorem preserves_uninterpreted_predicate_at_every_state : Cyclic.Valid root.
   Proof.
     intros w Hadm Hleft; pose proof (proj1 (left_singleton w _) Hleft) as [_ Hinitial].
@@ -70,6 +89,9 @@ Module ArbitraryPredicate (Property : PROPERTY).
   Example nonvacuity : exists w, admissible M root w.
   Proof. exists witness_world; apply judgment_wfb_admissible; reflexivity. Qed.
 End ArbitraryPredicate.
+(** One concrete instantiation closes the module parameters for the printed
+    assumption audit. The theorem above was already proved for every supplied
+    predicate, independently of this existential arithmetic definition. *)
 Module EvenProperty <: PROPERTY.
   Definition holds z := exists k, z = (2 * k)%Z.
 End EvenProperty.

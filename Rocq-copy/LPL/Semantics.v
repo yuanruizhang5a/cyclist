@@ -1,3 +1,14 @@
+(** * Meaning of first-order labelled process logic
+
+    Suggested reading order: the generic overlap relation; models, states and
+    labels; the mutual formula/program interpretation; FOL substitution and
+    sequent denotation; semantic rule equations; finally state-switch
+    freshness. Progress.v builds ranks on top of these definitions.
+
+    Two operations must stay distinct throughout: labels concatenate by list
+    append, while executable program traces overlap a shared endpoint. All
+    formulas are false on an empty trace; assertion admissibility makes the
+    intended logical laws available on the nonempty traces used by rules. *)
 From Stdlib Require Import List Bool Arith Lia Classical_Prop Classical_Pred_Type.
 From Stdlib Require Import Logic.FunctionalExtensionality.
 From Stdlib Require Import Logic.ClassicalDescription.
@@ -89,6 +100,9 @@ Lemma overlap_list_assoc {A} (a b c out : list A) :
   (exists ab, overlap_list a b ab /\ overlap_list ab c out) <->
   (exists bc, overlap_list b c bc /\ overlap_list a bc out).
 Proof.
+  (* Reassociate by peeling the first trace. The singleton case is the
+     boundary where overlap contributes no additional prefix state. This
+     list lemma later reassociates both program runs and counterexamples. *)
   revert b c out; induction a as [|s a IH]; intros b c out.
   - split; intros [middle [H1 H2]];
       [destruct H1 as [prefix [x [tail [Heq _]]]] |
@@ -123,6 +137,10 @@ Proof.
         destruct (overlap_list_head _ _ _ Hab) as [x [r [r' [_ ->]]]]; discriminate.
 Qed.
 
+(** Interpretations are total on argument lists; syntax checks enforce arity
+    for actual object-language uses. No injectivity, disjoint constructors,
+    decision procedure for truth, or arithmetic structure is assumed.
+    [domain_inhabitant] witnesses nonemptiness and supports classical choice. *)
 Record model : Type := Model {
   domain : Type;
   domain_inhabitant : domain;
@@ -132,6 +150,9 @@ Record model : Type := Model {
 
 Section Interpretation.
 Context (M : model).
+(** A state assigns a model value to each program variable. The surrounding
+    section generalizes the definitions and proofs over [M]; integer-specific
+    reasoning only appears in the benchmarks. *)
 Definition state := nat -> domain M.
 Definition trace := list state.
 
@@ -149,6 +170,9 @@ Fixpoint eval_term (s : state) (t : term) : domain M :=
   | Fun f ts => interpret_function M f (map (eval_term s) ts)
   end.
 
+(** States are functions, so equalities between whole updated states use
+    functional extensionality. These update laws also handle the shadowing
+    and commuting writes encountered under named quantifiers. *)
 Lemma write_shadow s x a b : write (write s x a) x b = write s x b.
 Proof. apply functional_extensionality; intro y; unfold write; destruct (Nat.eqb x y); reflexivity. Qed.
 Lemma write_commute s x y a b : x <> y ->
@@ -164,6 +188,9 @@ Proof.
   destruct (Nat.eqb x y) eqn:H; [apply Nat.eqb_eq in H; subst|]; reflexivity.
 Qed.
 
+(** The basic substitution equation: replacing a variable syntactically is
+    equivalent to first evaluating its replacement in the original state,
+    then changing that variable's semantic value. *)
 Lemma eval_term_subst t : forall s x replacement,
   eval_term s (subst_term x replacement t) =
   eval_term (write s x (eval_term s replacement)) t.
@@ -174,6 +201,9 @@ Proof.
     rewrite (IH a s x replacement), IHts; reflexivity.
 Qed.
 
+(** Coincidence only needs agreement on variables actually used by a term.
+    The nested induction on argument lists supplies the recursive hypotheses
+    that ordinary induction on the nested [term] datatype does not provide. *)
 Lemma eval_term_coincidence t : forall s s',
   (forall x, In x (term_vars t) -> s x = s' x) -> eval_term s t = eval_term s' t.
 Proof.
@@ -192,12 +222,18 @@ Proof.
   intro Hfresh; apply eval_term_coincidence. intros y Hy; apply write_other; congruence.
 Qed.
 
+(** A framework world contains two label environments, rather than just one
+    program state. World names denote states; trace names denote nonempty
+    finite traces. The proof field is why a trace variable passes the purely
+    structural nonemptiness check in Syntax.v. *)
 Record world : Type := World {
   world_mapping : nat -> state;
   trace_mapping : nat -> trace;
   trace_mapping_nonempty : forall x, trace_mapping x <> []
 }.
 
+(** Evaluate inside out. In a nested assignment, both the old state and the
+    right-hand term come from the already evaluated previous update. *)
 Fixpoint eval_update (w : world) (u : update) : state :=
   match u with
   | Base x => world_mapping w x
@@ -232,6 +268,9 @@ Lemma label_prefix_length w u l :
   length (eval_label w (Join (StateLabel u) l)) = S (length (eval_label w l)).
 Proof. reflexivity. Qed.
 
+(** Reflection is independent of endpoint values: append is empty exactly
+    when both lists are empty. Consequently syntactic nonemptiness works
+    uniformly for every world, including joins of different endpoint states. *)
 Lemma label_nonemptyb_spec w l : label_nonemptyb l = true <-> label_admissible w l.
 Proof.
   unfold label_admissible. induction l as [|u|x|a IHa b IHb]; cbn.
@@ -243,6 +282,9 @@ Proof.
     + destruct (eval_label w a), (eval_label w b); cbn; intuition discriminate.
 Qed.
 
+(** Sorted environment updates are the semantic counterparts of label
+    substitution. A trace replacement must supply nonemptiness evidence so
+    that the new environment still inhabits [world]. *)
 Definition replace_world (w : world) (x : nat) (value : state) : world :=
   World (fun y => if Nat.eqb x y then value else world_mapping w y)
     (trace_mapping w) (trace_mapping_nonempty w).
@@ -253,6 +295,9 @@ Proof.
   intro y; destruct (Nat.eqb x y); [exact Hne|apply trace_mapping_nonempty].
 Defined.
 
+(** Substitution changes syntax on the left and the label environment on the
+    right. Formula syntax is untouched. Rules.v will transport both sequent
+    truth and ranks along exactly these environment changes. *)
 Lemma eval_world_substitution w x replacement u :
   eval_update w (subst_world_update x replacement u) =
   eval_update (replace_world w x (eval_update w replacement)) u.
@@ -283,6 +328,8 @@ Proof.
   - now rewrite IHl1, IHl2.
 Qed.
 
+(** These equations justify explicit parenthesis/unit rules while keeping
+    graph equality syntactic. They do not choose a normal form for a label. *)
 Lemma eval_rotate_label w path left l : eval_label w (rotate_label path left l) = eval_label w l.
 Proof.
   revert l; induction path as [|direction path IH]; intro l.
@@ -310,18 +357,29 @@ Definition overlap : trace -> trace -> trace -> Prop := @overlap_list state.
 Definition compose (R T : trace -> Prop) (tr : trace) : Prop :=
   exists a b, R a /\ T b /\ overlap a b tr.
 
+(** The base case is the successful true test, not a singleton identity
+    trace. Thus even zero iterations record [s;s], and a positive finite
+    unfolding ends in the final stutter supplied by its zero-power tail. *)
 Fixpoint finite_power (R : trace -> Prop) (n : nat) (tr : trace) : Prop :=
   match n with
   | 0 => exists s, tr = [s; s]
   | S n => compose R (finite_power R n) tr
   end.
 
+(** Both the suffix and the removed prefix are nonempty. Suffix modalities
+    therefore move strictly forward, and cannot succeed on a singleton. *)
 Definition proper_suffix (small big : trace) : Prop :=
   small <> [] /\ exists prefix, prefix <> [] /\ big = prefix ++ small.
 
 (** The guard of a test is evaluated on the two-state stutter [s;s]. The zero
     iteration case is the successful true test, also [s;s]. Quantification
     writes one uniform value to every state; D2 is checked in Syntax.v. *)
+(** Atoms inspect the first state. [First] restricts its entire body to that
+    singleton. [Suffix a b] chooses a later suffix satisfying [b], requiring
+    [a] at each strictly intermediate suffix, but not at the current trace.
+    Its dual is expressed by negating the corresponding failure condition.
+    Boxes/diamonds extend the current trace by whole program executions;
+    they test their body on the accumulated trace, not only its final state. *)
 Fixpoint formula_holds (a : formula) (tr : trace) : Prop :=
   match tr with
   | [] => False
@@ -404,6 +462,10 @@ Proof.
     + rewrite write_commute by exact Hux. apply (proj2 (IHa Hp (write s x v) u value Hbody)); exact H.
 Qed.
 
+(** Raw substitution is sound under [free_forb]. In the quantifier cases,
+    freshness of the binder in [t] keeps the replacement's evaluated value
+    fixed while writes are commuted. The public theorem below removes this
+    side condition by renaming conflicting binders first. *)
 Lemma raw_subst_correct a : pureb a = true -> forall s u t,
   free_forb u t a = true ->
   (fol_holds (raw_subst_fo u t a) s <-> fol_holds a (write s u (eval_term s t))).
@@ -444,6 +506,10 @@ Proof.
         rewrite eval_term_fresh by exact Hfresh. rewrite write_commute by congruence. exact H.
 Qed.
 
+(** Alpha-conversion is a semantic theorem about the raw renaming helper.
+    Freshness includes nested bound names, so the chosen new binder cannot
+    collide with a binder deeper in the body. [alpha_ex] is the existential
+    counterpart used by the same substitution algorithm. *)
 Lemma alpha_all body y z s : pureb body = true -> ~ In z (formula_vars body) -> z <> y ->
   (fol_holds (All z (raw_subst_fo y (Var z) body)) s <-> fol_holds (All y body) s).
 Proof.
@@ -474,6 +540,9 @@ Proof.
     apply (proj2 (fol_fresh body Hp (write s y v) z v Hfresh)); exact H.
 Qed.
 
+(** Lift a body substitution equation through a nonconflicting binder.
+    Factoring out this write-commutation argument keeps the fuel proof's
+    capture and no-capture branches focused on their different bodies. *)
 Lemma all_subst_congruence body result y u t : y <> u -> ~ In y (term_vars t) ->
   (forall s, fol_holds result s <-> fol_holds body (write s u (eval_term s t))) -> forall s,
   (fol_holds (All y result) s <-> fol_holds (All y body) (write s u (eval_term s t))).
@@ -498,6 +567,10 @@ Proof.
     rewrite write_commute by exact Hy; exact H.
 Qed.
 
+(** Induct on fuel rather than the original body: after alpha-renaming, the
+    recursive argument is newly constructed syntax. [raw_subst_size] proves
+    that it still fits the smaller fuel bound. At each binder, first handle
+    shadowing, then separate capture from direct descent. *)
 Lemma subst_fo_fuel_correct fuel : forall a, pureb a = true -> fol_size a <= fuel -> forall s u t,
   (fol_holds (subst_fo_fuel fuel u t a) s <-> fol_holds a (write s u (eval_term s t))).
 Proof.
@@ -549,6 +622,10 @@ Lemma subst_fo_correct a s u t : pureb a = true ->
   (fol_holds (subst_fo u t a) s <-> fol_holds a (write s u (eval_term s t))).
 Proof. intro Hp; apply subst_fo_fuel_correct; [exact Hp|lia]. Qed.
 
+(** This is the bridge from uniform-value trace quantification to ordinary
+    FOL. Pure bodies cannot observe the tail, so writing one value to every
+    state has precisely the usual first-state FOL meaning. This restriction
+    is essential for the quantifier instantiation rules. *)
 Lemma pure_head a : pureb a = true -> forall s tail,
   formula_holds a (s :: tail) <-> fol_holds a s.
 Proof.
@@ -572,6 +649,10 @@ Lemma pure_singleton a s tail : pureb a = true ->
   (formula_holds a (s :: tail) <-> formula_holds a [s]).
 Proof. intro H; rewrite !pure_head by exact H; reflexivity. Qed.
 
+(** Assertion truth explicitly requires a nonempty interpreted label.
+    Sequent denotation then guards the whole implication by admissibility of
+    every assertion label. An empty succedent is false, an empty antecedent
+    is true. Tags have no role in any of these truth definitions. *)
 Definition labelled_holds w o : Prop :=
   label_admissible w o.(occurrence_label) /\
   formula_holds o.(occurrence_formula) (eval_label w o.(occurrence_label)).
@@ -582,6 +663,10 @@ Definition right_holds w context := exists o, In o context /\ labelled_holds w o
 Definition denote j w := admissible j w -> left_holds w j.(antecedent) -> right_holds w j.(succedent).
 Definition Valid j := forall w, denote j w.
 
+(** A label-map evaluation equation transports assertion truth and then the
+    entire guarded sequent. The sequent proof must transport admissibility
+    as well as left/right truth; forgetting that guard would lose the exact
+    meaning of [denote] for arbitrary raw judgments. *)
 Lemma labelled_mapping f w w' :
   (forall l, eval_label w (f l) = eval_label w' l) -> forall o,
   (labelled_holds w (map_label_occurrence f o) <-> labelled_holds w' o).
@@ -615,6 +700,9 @@ Proof.
   rewrite <- map_app, Hadm, Hl, Hr; reflexivity.
 Qed.
 
+(** Truth is insensitive to tag renaming or erasure. These equations alone
+    do not justify cyclic trace routing: Rules.v separately proves how ranks
+    follow an explicit renaming and checks uniqueness of the resulting tags. *)
 Lemma denote_tag_renaming f j w : denote (rename_tags f j) w <-> denote j w.
 Proof.
   assert (forall o, labelled_holds w (rename_occurrence_tag f o) <-> labelled_holds w o) as Ho by (intro o; reflexivity).
@@ -657,6 +745,9 @@ Lemma valid_admissible j : Valid j <->
   forall w, admissible j w -> left_holds w j.(antecedent) -> right_holds w j.(succedent).
 Proof. reflexivity. Qed.
 
+(** The useful shape of a countermodel: all labels are admissible, all
+    antecedents hold, and every succedent fails. Rules.v starts its backward
+    semantic steps with this extraction rather than assuming admissibility. *)
 Lemma false_sequent j w : ~ denote j w ->
   admissible j w /\ left_holds w j.(antecedent) /\
   forall o, In o j.(succedent) -> ~ labelled_holds w o.
@@ -699,6 +790,9 @@ Proof.
     pose proof (overlap_length a b tr Ho). lia.
 Qed.
 
+(** Every execution contains at least one transition, including tests and
+    star-zero stutters. Overlap merges a shared state, not that transition.
+    Progress.v relies on this fact when constructing execution histories. *)
 Lemma program_length p : forall tr, program_holds p tr -> 2 <= length tr.
 Proof.
   induction p; intros tr H; cbn [program_holds] in H.
@@ -716,6 +810,9 @@ Lemma overlap_snoc prefix s start rest result :
   start = s /\ result = (prefix ++ [s]) ++ rest.
 Proof. apply overlap_list_snoc. Qed.
 
+(** Semantic equations for rule kernels. The assignment/test equations
+    expose the last state of the current trace and append the resulting
+    state. Their diamond versions share the same endpoint calculation. *)
 Lemma box_assignment prefix s x t a :
   formula_holds (Box (Assign x t) a) (prefix ++ [s]) <->
   formula_holds a ((prefix ++ [s]) ++ [write s x (eval_term s t)]).
@@ -770,6 +867,10 @@ Proof.
     split; [rewrite <- Htr; apply overlap_snoc; auto|exact Ha].
 Qed.
 
+(** Reassociating overlapping executions turns sequence into nested boxes.
+    Choice becomes conjunction for boxes and disjunction for diamonds. The
+    star equations unfold an arbitrary finite power into its zero case or
+    one execution followed by a smaller finite power. *)
 Lemma box_sequence a b body tr : tr <> [] ->
   (formula_holds (Box (Seq a b) body) tr <-> formula_holds (Box a (Box b body)) tr).
 Proof.
@@ -888,6 +989,9 @@ Proof.
     destruct result; [contradiction|]. cbn [formula_holds] in Hbad; tauto.
 Qed.
 
+(** Instantiate the preceding trace equations at evaluated labels. These
+    forms match the literal label trees in RULE_EXPANSIONS.md, including
+    both the old and new assignment states and both copies of a test state. *)
 Lemma assignment_label w sigma u x t body tag tag' :
   (labelled_holds w (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) tag) <->
    labelled_holds w (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tag')).
@@ -944,6 +1048,10 @@ Proof.
   intuition discriminate.
 Qed.
 
+(** [First] permits an arbitrary compound body at the singleton head. The
+    following pure-head law instead needs purity; the public At rule uses
+    its atom/equality special case. A compound temporal body cannot generally
+    be moved to the head without the explicit [First] operator. *)
 Lemma first_label w u sigma body tag tag' :
   labelled_holds w (Occ (Join (StateLabel u) sigma) (First body) tag) <->
   labelled_holds w (Occ (StateLabel u) body tag').
@@ -997,6 +1105,10 @@ Lemma suffix_clause a b tr : tr <> [] ->
       forall middle, proper_suffix suffix middle -> proper_suffix middle tr -> formula_holds a middle).
 Proof. destruct tr; cbn; tauto. Qed.
 
+(** One-state suffix unfolding: either [b] holds on the immediate tail, or
+    [a] holds there and the same suffix obligation continues on that tail.
+    The initial head state has no [a] obligation. The nonempty-tail premise
+    separates this recurrence from the singleton boundary lemmas below. *)
 Lemma suffix_step s tail a b : tail <> [] ->
   (formula_holds (Suffix a b) (s :: tail) <->
    formula_holds b tail \/ (formula_holds a tail /\ formula_holds (Suffix a b) tail)).
@@ -1024,6 +1136,8 @@ Lemma nonempty_neg a tr : tr <> [] ->
   (formula_holds (Neg a) tr <-> ~ formula_holds a tr).
 Proof. destruct tr; cbn; tauto. Qed.
 
+(** Make the negated dual definition usable as a rule equation; its later
+    one-step law is obtained from suffix unfolding and classical logic. *)
 Lemma dual_suffix_dual a b tr : tr <> [] ->
   (formula_holds (DualSuffix a b) tr <-> ~ formula_holds (Suffix (Neg a) (Neg b)) tr).
 Proof.
@@ -1096,6 +1210,14 @@ Proof. apply suffix_singleton. Qed.
 Lemma dual_suffix_singleton a b s : formula_holds (DualSuffix a b) [s].
 Proof. cbn; intros [suffix [Hp _]]; now apply (no_singleton_suffix s suffix). Qed.
 
+(** ** Freshness for the complete modal language
+
+    A constant overwrite of a fresh variable can identify distinct states,
+    so it cannot in general be reversed when transporting modal executions.
+    Instead apply an involution [f] at that variable in every state. This
+    transformation is its own inverse, preserves endpoint matches, and can
+    transport executions in both directions. Later [swap_values] chooses an
+    involution that installs a desired eigenvariable value at the head. *)
 Section StateSwitch.
 Context (v : nat) (f : domain M -> domain M) (Hf : forall d, f (f d) = d).
 Definition switch s := write s v (f (s v)).
@@ -1112,6 +1234,8 @@ Proof. apply eval_term_fresh. Qed.
 Lemma switch_map_involutive tr : map switch (map switch tr) = tr.
 Proof. apply map_involutive, switch_involutive. Qed.
 
+(** For an involution, a forward preservation theorem already gives an
+    equivalence: apply preservation twice and cancel the two switches. *)
 Lemma switch_predicate_iff (Q : trace -> Prop) :
   (forall tr, Q tr -> Q (map switch tr)) -> forall tr, Q (map switch tr) <-> Q tr.
 Proof.
@@ -1163,6 +1287,11 @@ Proof.
   split; [exact (overlap_list_map switch (s :: tail) execution result Hover)|apply Ha; exact Hbody].
 Qed.
 
+(** The mutual induction follows every formula and program constructor.
+    Freshness excludes assignment targets as well as read variables, so
+    writes commute with the switch. Quantifiers likewise have different
+    binders. The modal cases use reversible execution transport; suffix
+    cases use their one-step equations and induction on finite traces. *)
 Lemma switch_semantics :
   (forall a, ~ In v (formula_vars a) -> forall tr,
     formula_holds a (map switch tr) <-> formula_holds a tr) /\
@@ -1252,6 +1381,10 @@ Proof.
     setoid_rewrite (switch_power (program_holds a) (Ha Hfresh)); reflexivity.
 Qed.
 
+(** Switch every state in both label environments. Mapping a nonempty trace
+    preserves nonemptiness, so the environment remains a valid [world]. The
+    following lemmas lift the semantic switch through updates, labels and
+    whole contexts under the same syntactic freshness condition. *)
 Definition switch_world (w : world) : world.
 Proof.
   refine (World (fun x => switch (world_mapping w x))
@@ -1342,6 +1475,9 @@ Qed.
 
 End StateSwitch.
 
+(** Exchange two arbitrary model values and fix all other values. Classical
+    equality is used internally; the model interface still requires no
+    executable equality decision. Swapping also works when the values agree. *)
 Definition swap_values (a b d : domain M) : domain M :=
   if excluded_middle_informative (d = a) then b
   else if excluded_middle_informative (d = b) then a else d.
@@ -1371,6 +1507,10 @@ Proof.
   - rewrite write_commute by congruence; apply fol_fresh; assumption.
 Qed.
 
+(** If the head's current [v] value is exchanged with [d], evaluating the
+    fresh-variable instance in the switched world means evaluating the
+    quantified body with [u := d] in the original head state. Label freshness
+    is essential: an update mentioning [v] could otherwise overwrite it. *)
 Lemma eigen_instance w l u v body d s tail :
   eval_label w l = s :: tail -> ~ In v (label_vars l) ->
   pureb body = true -> ~ In v (formula_vars body) ->
@@ -1388,6 +1528,9 @@ Proof.
   apply fol_write_fresh; assumption.
 Qed.
 
+(** Arbitrary-term instantiation reduces via [pure_head] to the proved FOL
+    substitution theorem. It does not assert a substitution law for a modal
+    quantifier body or freeze a term's value across a changing program run. *)
 Lemma all_instantiation body u t tr : pureb body = true -> tr <> [] ->
   formula_holds (All u body) tr -> formula_holds (subst_fo u t body) tr.
 Proof.
@@ -1406,6 +1549,9 @@ Proof.
   rewrite subst_fo_correct by exact Hp. cbn [fol_holds]; eauto.
 Qed.
 
+(** For a pure observation, [Always] is exactly the observation at every
+    visited state. The complex benchmarks use this to turn finite-trace
+    safety induction into an object-language temporal validity theorem. *)
 Lemma always_pure_forall a tr : pureb a = true -> tr <> [] ->
   (formula_holds (Always a) tr <-> Forall (fun s => formula_holds a [s]) tr).
 Proof.
@@ -1432,6 +1578,8 @@ Qed.
 
 End Interpretation.
 
+(** Package a chosen model for the later [ForModel] functors. This module
+    type belongs to this particular syntax/semantics functor instance. *)
 Module Type INTERPRETATION.
   Parameter interpretation : model.
 End INTERPRETATION.

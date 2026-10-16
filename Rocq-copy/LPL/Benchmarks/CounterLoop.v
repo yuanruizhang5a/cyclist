@@ -1,3 +1,9 @@
+(** * A guarded decrement loop safe at every visited state
+
+    This is a direct semantic invariant proof, separate from the cyclic
+    prefix certificate in Cyclic.v. Prove one step safe, lift it to every
+    finite iteration count with InvariantSupport.v, then translate all-state
+    safety into the object-language [Always] postcondition. *)
 From Stdlib Require Import List ZArith Lia.
 From CyclistRocq.LPL.Benchmarks Require Import Support InvariantSupport.
 Import ListNotations Generation Cert.
@@ -6,6 +12,10 @@ Definition positive := Pred 2 [zero;x].
 Definition loop_step := Seq (Test positive) (Assign 0 (dec x)).
 Definition inv (s : state M) := (0 <= s 0%nat)%Z.
 
+(** Unfold the test/assignment executions and their overlap to expose all
+    three visited states: the guard stutter and the decremented state.
+    The strict guard gives exactly the arithmetic premise needed for [lia]
+    to show that subtracting one preserves nonnegativity. *)
 Lemma step_safe : trace_safe inv (program_holds M loop_step).
 Proof.
   intros s tail [testtrace [assigntrace [Htest [Hassign Ho]]]] Hinitial.
@@ -20,6 +30,9 @@ Proof.
   change (0 <= start 0%nat - 1)%Z; lia.
 Qed.
 
+(** [n] remains arbitrary. [change] uses definitional equality of the generic
+    trace-power helper and the model's finite-power semantics, allowing reuse
+    of the proved compositional safety lemma. *)
 Lemma every_finite_stop n s tail :
   finite_power M (program_holds M loop_step) n (s :: tail) -> inv s -> Forall inv (s :: tail).
 Proof.
@@ -29,6 +42,9 @@ Qed.
 
 Definition root := Jdg [assertion l0 nonnegative]
   [assertion l0 (Box (Star loop_step) (Always nonnegative))].
+(** The initial singleton label aligns the star execution with its result.
+    [always_pure_forall] then reduces the temporal claim to [Forall inv] over
+    the complete execution, including intermediate test and assignment states. *)
 Theorem guarded_counter_all_visited_nonnegative : Cyclic.Valid root.
 Proof.
   intros w Hadm Hleft.

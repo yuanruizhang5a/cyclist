@@ -1,3 +1,9 @@
+(** * Update evaluation and retained intermediate states
+
+    Updates describe individual states and evaluate inside out. These small
+    computations show dependent assignments and preservation of other
+    variables; explicit label components then retain the intermediate states.
+    The final atomic leaf proof is valid in every label environment. *)
 From Stdlib Require Import List ZArith.
 From CyclistRocq.LPL.Benchmarks Require Import Support.
 Import ListNotations Generation Cert.
@@ -18,6 +24,9 @@ Proof. reflexivity. Qed.
 Example every_intermediate_state_retained :
   map (fun s : state M => s 0) (eval_label M w (Join (Join l0 (StateLabel first_update)) (StateLabel second_update))) = [0%Z;1%Z;2%Z].
 Proof. reflexivity. Qed.
+(** Unlike the computations at [w], this goal makes no assumption on its
+    base state: the last update overwrites [x] with one. [close_atoms] requires
+    the shallow proof explicitly before the one-node certificate is built. *)
 Definition grounded := Jdg [] [assertion (StateLabel (AssignUpdate 0 one (AssignUpdate 0 zero u0))) (Equal x one)].
 Definition grounded_ax : Cyclic.axiom_instance.
 Proof.

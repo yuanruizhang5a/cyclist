@@ -1,3 +1,10 @@
+(** * Shared vocabulary for the integer benchmarks
+
+    This is a useful first example of instantiating the generic development.
+    It builds one signature/model kernel, shares it with generation and
+    certification, then defines short names and proof-carrying request helpers.
+    Booleans.v shows a small complete graph using these helpers; Cyclic.v
+    adds a real backlink and a manually supplied progress witness. *)
 From Stdlib Require Import List Bool Arith ZArith Lia String.
 From CyclistRocq.LPL Require Import Signature Semantics Rules RuleGeneration Certification.
 Import ListNotations.
@@ -5,6 +12,10 @@ Open Scope string_scope.
 Open Scope list_scope.
 
 Module ZSignature <: SIGNATURE.
+  (** Natural numbers here name symbols; they are not semantic values.
+      Functions 0/1 are constants, 2/3 are increment/decrement, 4 is addition;
+      function 5 deliberately has a constant interpretation. Predicates 0/1
+      are nonnegativity/zero, 2/3 are less-than/equality. *)
   Definition function_symbol := nat.
   Definition predicate_symbol := nat.
   Definition function_eq_dec := Nat.eq_dec.
@@ -12,6 +23,10 @@ Module ZSignature <: SIGNATURE.
   Definition function_arity f := match f with 0 | 1 => 0 | 2 | 3 | 5 => 1 | _ => 2 end.
   Definition predicate_arity p := match p with 0 | 1 => 1 | _ => 2 end.
 End ZSignature.
+(** Instantiate [MakeRules] only once. Its [Core.Pr.Sem] owns the model type;
+    including [Core.ForModel Model] supplies the chosen model's rule API.
+    Passing this same [ZKernel] to both consumers avoids distinct inductive
+    types from repeated generative functor applications. *)
 Module ZKernel.
   Module Core := MakeRules ZSignature.
   Module Model <: Core.Pr.Sem.INTERPRETATION.
@@ -30,6 +45,9 @@ End ZKernel.
 Module Export Generation := MakeRuleGeneration ZSignature ZKernel.
 Module Export Cert := MakeCertification ZSignature ZKernel.
 
+(** Program variables [x]/[y], world names [u0]/[u1], and tags below are
+    different syntactic roles even when their underlying numbers coincide.
+    [assertion] is untagged; [traced] attaches an explicit occurrence tag. *)
 Definition x := Var 0.
 Definition y := Var 1.
 Definition zero := Fun 0 [].
@@ -45,10 +63,16 @@ Definition l0 := StateLabel u0.
 Definition l1 := StateLabel u1.
 Definition assertion l a := Occ l a None.
 Definition traced l a t := Occ l a (Some t).
+(** Constant environments are simple admissibility witnesses. They assign
+    a nonempty singleton to each trace variable; they need not satisfy the
+    antecedents of every benchmark. Nonvacuity here concerns label domains. *)
 Definition constant_state (z : Z) : state M := fun _ => z.
 Definition constant_world (z : Z) : world M.
 Proof. refine (World M (fun _ => constant_state z) (fun _ => [constant_state z]) _); discriminate. Defined.
 
+(** A benchmark first proves that a requested generation result is [Some],
+    usually by [vm_compute; reflexivity], then extracts its verified record.
+    These helpers do not discover a rule or synthesize its semantic proof. *)
 Definition someb {A} (value : option A) := match value with Some _ => true | None => false end.
 Definition require_rule (value : option Cyclic.rule_instance) (H : someb value = true) : Cyclic.rule_instance.
 Proof. destruct value as [r|]; [exact r|discriminate]. Defined.
@@ -56,6 +80,9 @@ Definition require_axiom (value : option Cyclic.axiom_instance) (H : someb value
 Proof. destruct value as [a|]; [exact a|discriminate]. Defined.
 Definition requested j req (H : someb (generate_requested j req) = true) := require_rule (generate_requested j req) H.
 Definition generated_axiom j (H : someb (generate_axiom j) = true) := require_axiom (generate_axiom j) H.
+(** Scripts explicitly select a premise index. The fallback only totalizes
+    this convenience function; later builder/checker equations still verify
+    the real premise judgments and reject an incorrect script. *)
 Definition premise_at r k := match nth_error r.(Cyclic.rule_premises) k with
   | Some p => p.(Cyclic.premise_judgment) | None => r.(Cyclic.rule_conclusion) end.
 

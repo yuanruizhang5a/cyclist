@@ -1,3 +1,15 @@
+(** * Executable examples of every public rule/request family
+
+    Compare these expected ordered premise lists with RULE_EXPANSIONS.md.
+    Each example computes a fixed request and checks its exact shape; semantic
+    soundness comes from the kernel record the generator returned. Most
+    principals are at position 1, after a nonempty surrounding context, to
+    demonstrate that generation is not limited to the head of a sequent.
+
+    The second part gives rejected requests and syntax, followed by assumption
+    audits and explicit finite-scan/weakening regressions. These computations
+    check the generator interface; they do not establish proof-search
+    completeness or decide whether rejected goals are false. *)
 From Stdlib Require Import List Bool Arith ZArith String.
 From CyclistRocq.LPL.Benchmarks Require Import Support.
 Import ListNotations Generation Cert.
@@ -5,6 +17,9 @@ Open Scope string_scope.
 Open Scope list_scope.
 Fixpoint judgments_eqb a b := match a,b with
   | [],[] => true | x::xs,y::ys => judgment_eqb x y && judgments_eqb xs ys | _,_ => false end.
+(** Ignore proof fields when checking premise shape; retain full judgment
+    syntax, including context order, labels and tags. A failed request also
+    makes the shape check false, so an empty expected list cannot hide it. *)
 Definition has_shape j req expected := match generate_requested j req with
   | Some r => judgments_eqb (map Cyclic.premise_judgment r.(Cyclic.rule_premises)) expected
   | None => false end.
@@ -22,6 +37,9 @@ Definition gamma := [assertion l1 (First Truth)].
 Definition delta := [assertion l1 Falsity].
 Definition lhs f := Jdg (gamma ++ [f]) delta.
 Definition rhs f := Jdg gamma (delta ++ [f]).
+(** Left schemes: assignment exposes an updated state, sequence nests its
+    modalities, and choice/star retain the catalog's two separate premises.
+    Boolean and temporal schemes below preserve the same context split. *)
 Example b_assign_l : has_shape (lhs (assertion joined (Box p a))) (Local OnLeft 1 "B.Assign.L") ([Jdg (gamma ++ [assertion after a]) delta]) = true.
 Proof. vm_compute; reflexivity. Qed.
 Example b_seq_l : has_shape (lhs (assertion sigma (Box (Seq p q) a))) (Local OnLeft 1 "B.Seq.L") ([Jdg (gamma ++ [assertion sigma (Box p (Box q a))]) delta]) = true.
@@ -50,6 +68,9 @@ Example suffix_l : has_shape (lhs (assertion (Join (StateLabel u) sigma) (Suffix
 Proof. vm_compute; reflexivity. Qed.
 Example dualsuffix_l : has_shape (lhs (assertion (Join (StateLabel u) sigma) (DualSuffix a b))) (Local OnLeft 1 "DualSuffix.L") ([Jdg (gamma ++ [assertion sigma b;assertion sigma a]) delta;Jdg (gamma ++ [assertion sigma b;assertion sigma (DualSuffix a b)]) delta]) = true.
 Proof. vm_compute; reflexivity. Qed.
+(** Right schemes: conjunction/box-choice branch into premises, whereas
+    disjunction/diamond-choice put both alternatives in one succedent. The
+    literal label trees also check retention of assignment/test states. *)
 Example b_assign_r : has_shape (rhs (assertion joined (Box p a))) (Local OnRight 1 "B.Assign.R") ([Jdg gamma (delta ++ [assertion after a])]) = true.
 Proof. vm_compute; reflexivity. Qed.
 Example b_seq_r : has_shape (rhs (assertion sigma (Box (Seq p q) a))) (Local OnRight 1 "B.Seq.R") ([Jdg gamma (delta ++ [assertion sigma (Box p (Box q a))])]) = true.
@@ -78,6 +99,9 @@ Example suffix_r : has_shape (rhs (assertion (Join (StateLabel u) sigma) (Suffix
 Proof. vm_compute; reflexivity. Qed.
 Example dualsuffix_r : has_shape (rhs (assertion (Join (StateLabel u) sigma) (DualSuffix a b))) (Local OnRight 1 "DualSuffix.R") ([Jdg gamma (delta ++ [assertion sigma b]);Jdg gamma (delta ++ [assertion sigma a;assertion sigma (DualSuffix a b)])]) = true.
 Proof. vm_compute; reflexivity. Qed.
+(** Test rules have explicit guard occurrences at the stutter label. Some
+    schemes require that guard in the input context; later negative examples
+    check that a missing or different guard cannot be consumed accidentally. *)
 Example b_test_r : has_shape (rhs (assertion joined (Box (Test b) a))) (Local OnRight 1 "B.Test.R") ([Jdg (gamma ++ [assertion guard_label b]) (delta ++ [assertion stutter a])]) = true.
 Proof. vm_compute; reflexivity. Qed.
 Example b_test_l : has_shape (Jdg (gamma ++ [assertion joined (Box (Test b) a);assertion guard_label b]) delta) (Local OnLeft 1 "B.Test.L") ([Jdg (gamma ++ [assertion stutter a]) delta]) = true.
@@ -94,6 +118,9 @@ Example impl_r : has_shape (rhs (assertion sigma (Impl a b))) (Local OnRight 1 "
 Proof. vm_compute; reflexivity. Qed.
 Example impl_l : has_shape (lhs (assertion sigma (Impl a b))) (Local OnLeft 1 "Impl.L") ([Jdg gamma (assertion sigma a :: delta);Jdg (gamma ++ [assertion sigma b]) delta]) = true.
 Proof. vm_compute; reflexivity. Qed.
+(** Parameterized requests explicitly choose weakening positions, quantifier
+    terms/eigenvariables, sorted substitutions, cut contexts, permutations and
+    companion tag mappings. These are caller inputs rather than guessed data. *)
 Example weakening_onleft : has_shape (lhs (assertion sigma (First a))) (Weaken OnLeft 1) ([Jdg gamma delta]) = true.
 Proof. vm_compute; reflexivity. Qed.
 Example weakening_onright : has_shape (rhs (assertion sigma (First a))) (Weaken OnRight 1) ([Jdg gamma delta]) = true.
@@ -124,6 +151,11 @@ Example exact_backlink : has_shape (tagged_goal) (BacklinkExact tagged_goal) ([t
 Proof. vm_compute; reflexivity. Qed.
 Example tag_backlink : has_shape (tagged_goal) (BacklinkTags [(0,7)] retagged_goal) ([retagged_goal]) = true.
 Proof. vm_compute; reflexivity. Qed.
+(** Rejected syntax cannot obtain a generated rule merely because its outer
+    constructor matches. In particular purity is recursive, tags belong only
+    to traceable succedents, and eigenvariable freshness includes update
+    targets in labels. A malformed instantiating term is rejected even when
+    the bound variable is unused in the body. *)
 Example reject_empty_complete : someb (generate_axiom (Jdg [] [assertion Empty Truth])) = false.
 Proof. vm_compute; reflexivity. Qed.
 Example reject_malformed_arity : judgment_wfb (Jdg [] [assertion l0 (Pred 0 [])]) = false.
@@ -180,6 +212,9 @@ Print Assumptions trace_substitution_rule.
 Print Assumptions tag_renaming_backlink.
 Print Assumptions raw_check_sound.
 
+(** Finally exercise the public finite scan, not only selected requests, and
+    isolate the empty-context weakening case. Removing the only succedent
+    still leaves one open premise [Jdg [] []]; it never becomes an axiom. *)
 Example finite_scan_finds_non_head_rule :
   existsb (fun r => String.eqb r.(Cyclic.rule_name) "B.Choice.R")
     (generate_rules (rhs (assertion sigma (Box (Choice p q) a)))) = true.

@@ -1,3 +1,15 @@
+(** * Semantic ranks for cyclic traces
+
+    Read Semantics.v first. This module describes counterexample histories,
+    assigns them a mathematical minimum measure, and proves the inequalities
+    needed by traced rules. It finishes by instantiating Framework.THEORY.
+    Rules.v packages these inequalities into proof-producing countersteps.
+
+    A trace is a list of states; a history is a list of such traces. Its
+    measure sums their lengths. A premise may describe a longer accumulated
+    trace yet have smaller rank because an outer execution-history component
+    has been removed. No execution enumeration or program evaluator is used
+    to compute these semantic minima. *)
 From Stdlib Require Import List Bool Arith Lia Classical_Prop.
 From Stdlib Require Import Logic.ClassicalDescription Logic.ConstructiveEpsilon.
 From CyclistRocq.LPL Require Import Signature Syntax Semantics.
@@ -8,6 +20,8 @@ Module MakeProgress (S : SIGNATURE).
 Module Export Sem := MakeSemantics S.
 
 Module ForModel (I : INTERPRETATION).
+(** Fix the model once for the framework instance. [trace] is just a local
+    abbreviation for the semantic state-list type at that model. *)
 Definition M := I.interpretation.
 Definition trace := Sem.trace M.
 
@@ -20,11 +34,18 @@ Fixpoint execution_history (prefix rest : trace) : list trace :=
     | s :: tail => execution_history (prefix ++ [s]) tail
     end.
 
+(** Record the successive accumulated prefixes produced by one execution
+    that starts at the current trace's last state. [rest <> []] ensures an
+    actual transition, including the stutters of tests and zero iterations. *)
 Definition execution_sequence (tr : trace) (p : program) (history : list trace) : Prop :=
   exists s rest result, program_holds M p (s :: rest) /\
     rest <> [] /\ overlap M tr (s :: rest) result /\
     history = execution_history tr rest.
 
+(** A box fails through an execution and a failing body. Join their histories
+    by overlapping the shared final trace once; this use of [overlap_list]
+    is at the level of lists of traces, not labels. For any non-box formula,
+    failure is represented by the singleton history containing its trace. *)
 Fixpoint counterexample (a : formula) (tr : trace) (history : list trace) : Prop :=
   match a with
   | Box p body => exists run final_run rest,
@@ -40,8 +61,11 @@ Definition sequence_measure (history : list trace) : nat :=
 Definition measure_possible a tr n :=
   exists history, counterexample a tr history /\ sequence_measure history = n.
 
-(** A mathematical minimum using only standard-library classical excluded
-    middle. The fallback 0 is confined to empty counterexample sets. *)
+(** Classical existence checks and the standard least-number construction
+    give a mathematical minimum in [nat], even if a program has infinitely
+    many executions. The fallback 0 is confined to empty counterexample sets.
+    [minimum_spec] supplies both attainment and minimality when a witness
+    exists; later false-trace lemmas always establish that existence first. *)
 Definition minimum_counterexample a tr : nat :=
   match excluded_middle_informative (exists n, measure_possible a tr n) with
   | left H => proj1_sig (epsilon_smallest (measure_possible a tr)
@@ -102,6 +126,10 @@ Proof.
   - cbn in Hleft; inversion Hleft; subst. eexists; reflexivity.
 Qed.
 
+(** These two directions connect histories back to truth: a counterexample
+    refutes the formula, and a false formula on a nonempty trace has a
+    counterexample. Their proofs recurse through boxes rather than assuming
+    that every semantic failure has already been supplied as finite data. *)
 Lemma counterexample_false a tr history : tr <> [] ->
   counterexample a tr history -> ~ formula_holds M a tr.
 Proof.
@@ -126,6 +154,9 @@ Proof.
     exists (x :: prefix). cbn in *; now rewrite <- Hp.
 Qed.
 
+(** For a false box, extract a failing execution from its universal meaning,
+    recurse on the body, and overlap its counterexample with the execution
+    history. [program_length] supplies the nonempty sequence of steps. *)
 Lemma counterexample_exists a tr : tr <> [] -> ~ formula_holds M a tr ->
   exists history, counterexample a tr history.
 Proof.
@@ -166,6 +197,8 @@ Proof.
   exists (sequence_measure history), history; auto.
 Qed.
 
+(** Non-box counterexamples have exactly one component, so their minimum is
+    the length of that trace. Suffix descent will use this simple case. *)
 Lemma nonbox_minimum a tr :
   (forall p b, a <> Box p b) -> tr <> [] -> ~ formula_holds M a tr ->
   minimum_counterexample a tr = length tr.
@@ -177,6 +210,9 @@ Proof.
   exfalso; eapply Hshape; reflexivity.
 Qed.
 
+(** Assignments and tests have a unique execution-history shape: the old
+    accumulated trace followed by the trace with one appended state. For a
+    test the shape is available exactly when its guard holds on [s;s]. *)
 Lemma assignment_execution prefix s x t run :
   execution_sequence (prefix ++ [s]) (Assign x t) run <->
   run = [prefix ++ [s]; (prefix ++ [s]) ++ [write M s x (eval_term M s t)]].
@@ -223,6 +259,10 @@ Proof.
     exists [tr], next, tail; auto.
 Qed.
 
+(** Factor the unique-step case once. A box counterexample contributes
+    [length tr] plus the body's counterexample measure at [next]. To prove
+    equality of minima, compare an attained source minimum with an attained
+    body minimum in both directions; an upper bound alone would not suffice. *)
 Lemma atomic_minimum p tr next (G : Prop) body :
   tr <> [] -> next <> [] ->
   (forall run, execution_sequence tr p run <-> G /\ run = [tr;next]) ->
@@ -247,6 +287,10 @@ Proof.
   change (length tr + sequence_measure rest = minimum_counterexample (Box p body) tr) in Hmeasure. lia.
 Qed.
 
+(** Removing this positive [length tr] contribution proves strict descent.
+    Notice that the premise label retains both old and new states: the rank
+    argument is about counterexample histories, not about shortening that
+    label or pretending an assignment has a singleton execution. *)
 Lemma assignment_decrease prefix s x t body :
   ~ formula_holds M (Box (Assign x t) body) (prefix ++ [s]) ->
   minimum_counterexample body ((prefix ++ [s]) ++ [write M s x (eval_term M s t)]) <
@@ -276,6 +320,9 @@ Proof.
   destruct prefix; cbn in *; lia.
 Qed.
 
+(** Regrouping sequence executions preserves the entire accumulated history.
+    The shared middle trace is overlapped once, so nesting two boxes neither
+    duplicates that history component nor changes its summed measure. *)
 Lemma execution_history_concat tr first second :
   overlap_list (execution_history tr first) (execution_history (tr ++ first) second)
     (execution_history tr (first ++ second)).
@@ -336,6 +383,9 @@ Proof.
   split; [exists second, final, rest; auto|exact Hfirst].
 Qed.
 
+(** A measure-preserving map of counterexample witnesses gives nonincrease
+    of minima: transport an attained source minimum, then bound the target
+    minimum by that particular witness. *)
 Lemma minimum_transport a b tr : tr <> [] -> ~ formula_holds M a tr ->
   (forall history, counterexample a tr history -> counterexample b tr history) ->
   ~ formula_holds M b tr /\ minimum_counterexample b tr <= minimum_counterexample a tr.
@@ -364,6 +414,9 @@ Proof.
     try (exists s, steps, result; auto); auto.
 Qed.
 
+(** Choose a branch from a minimum source counterexample. Picking merely any
+    false branch could give a larger minimum. Rules.v uses this joint result
+    (branch falsity and its rank bound) to select one premise for an edge. *)
 Lemma choice_nonincrease tr a b body : tr <> [] ->
   ~ formula_holds M (Box (Choice a b) body) tr ->
   (~ formula_holds M (Box a body) tr /\
@@ -382,6 +435,9 @@ Proof.
     apply Hmin; exists history; auto.
 Qed.
 
+(** Split the finite iteration count into zero and successor cases. Zero
+    becomes [Test Truth]; a successor becomes one body execution followed by
+    the remaining star. Unfolding itself claims no strict progress. *)
 Lemma counterexample_star tr a body history :
   counterexample (Box (Star a) body) tr history ->
   counterexample (Box (Test Truth) body) tr history \/
@@ -416,6 +472,11 @@ Proof.
     apply Hmin; exists history; auto.
 Qed.
 
+(** Continuing suffix obligations are non-box formulas. Both false ranks
+    therefore equal their trace lengths, and removing one head state is a
+    strict decrease. The caller must prove that the continuation is actually
+    present and false on the chosen premise; the first suffix-right branch
+    has no such recursive continuation. *)
 Lemma suffix_decrease s tail a b : tail <> [] ->
   ~ formula_holds M (Suffix a b) (s :: tail) ->
   ~ formula_holds M (Suffix a b) tail ->
@@ -434,6 +495,12 @@ Proof.
   cbn; lia.
 Qed.
 
+(** ** Rank preservation for fresh eigenvariables
+
+    Lift Semantics.v's reversible state switch to every state of every
+    history component. It transports executions and failures without changing
+    list lengths. Equal sets of possible measures then give equal minima,
+    including the documented fallback if both sets are empty. *)
 Section CounterSwitch.
 Context (v : nat) (f : domain M -> domain M) (Hf : forall d, f (f d) = d).
 Let T := switch M v f.
@@ -517,6 +584,10 @@ Qed.
 Lemma minimum_switch v f (Hf : forall d, f (f d) = d) a tr : ~ In v (formula_vars a) ->
   minimum_counterexample a (map (switch M v f) tr) = minimum_counterexample a tr.
 Proof. intro Hfresh; apply minimum_extensional; intro n; apply (measure_switch v f Hf); exact Hfresh. Qed.
+(** Turn semantic formula ranks into the interface expected by the graph
+    framework. A well-formed succedent has unique tags, so looking up a tag
+    identifies one occurrence. The empty-list fallback only totalizes lookup;
+    it is not a substitute for proving decrease on real trace elements. *)
 Definition occurrence_rank (o : occurrence) (w : world M) :=
   minimum_counterexample o.(occurrence_formula) (eval_label M w o.(occurrence_label)).
 
@@ -530,6 +601,9 @@ Fixpoint rank_in_context (context : list occurrence) (w : world M) (tag : nat) :
       end
   end.
 
+(** Syntactic label substitution and its matching environment transformation
+    produce identical interpreted traces, hence identical occurrence ranks.
+    This is the rank half of the substitution rules in Rules.v. *)
 Lemma rank_label_mapping f w w' :
   (forall l, eval_label M w (f l) = eval_label M w' l) -> forall context tag,
   rank_in_context (map (map_label_occurrence f) context) w tag = rank_in_context context w' tag.

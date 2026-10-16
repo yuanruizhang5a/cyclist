@@ -1,22 +1,22 @@
 {
-  "run_utc": "20261016T165938090755Z",
+  "run_utc": "20261016T172216122771Z",
   "compiler": "The Rocq Prover, version 9.1.0\ncompiled with OCaml 4.14.1",
   "common_command": [
     "make",
     "lpl-common"
   ],
   "common_exit_status": 0,
-  "common_elapsed_seconds": 0.0020554929978970904,
+  "common_elapsed_seconds": 0.0020020150004711468,
   "common_source_sha256": {
-    "LPL/Certification.v": "6f4f24a5473b241a282af182717d1e9a814a4e1375cf0848a9fd95617edc8747",
-    "LPL/Progress.v": "32db4ea369832a2193411fd723df8acedec1fd192d27e31b1b58549aac84dbc3",
-    "LPL/RuleGeneration.v": "e4101a455505ccac3ec5dacd6ddb2a3ab9d8821179686f3ec35c66dae8adaf79",
-    "LPL/Rules.v": "a25d25cff97f5386b722dd0365a8774ef45e79d339f88dfeb22fc7b9b1eb1690",
-    "LPL/Semantics.v": "13cd0327b9b7b7aeb5807dc007529e59875869e73ee7481aebd220715ccef587",
-    "LPL/Signature.v": "212d0de06fea08b29e8c9fd6d80d8eee7218ce75522ec684b7fc85e17f3ba8b1",
-    "LPL/Syntax.v": "c49862456d465ef406caa50fbfac0ebcfd1a596b78ebd60196301d2e488c042d",
-    "LPL/Benchmarks/Support.v": "3be7b8def58126018d485dfb3deb51fcf2a8cf0980f1b1e602804e727aeb223a",
-    "LPL/Benchmarks/InvariantSupport.v": "a1e6e1bf5d40c0cb67f9df94180fb7733d933236db8b5d835e65c4d785641bbe"
+    "LPL/Certification.v": "2de42c9fb1a7cb845809469183c89324c1cb30c71479b4c3aa6ca9bc8e714a14",
+    "LPL/Progress.v": "834e5329482050da537cb7cb02db44bf1bb379f7f6758aca7c1aa35a675624ec",
+    "LPL/RuleGeneration.v": "313be79ed7d43235aa6140a42939210dde517c43938f7f00a8977b059f65107a",
+    "LPL/Rules.v": "73a6aa302cc51110c1587c73209289846ac6e585bdcd1ad229f3ba42ade3d6a3",
+    "LPL/Semantics.v": "5d116842b16294e8137ab8be856e742bb04784cd8ab4d60a54f4d90dff8de19f",
+    "LPL/Signature.v": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+    "LPL/Syntax.v": "a2aaca9e60756a715b40f887a75f2af49c218c3e660c54ae201d5f1d0a1d2768",
+    "LPL/Benchmarks/Support.v": "aeb0e00570d5c39d0815b6f390efba14d9aa72d3dd2cd4166b9093191f203739",
+    "LPL/Benchmarks/InvariantSupport.v": "2e49d6bdb952b766e18c02a05c19bec66c74303c4dd89aff8acb186a75c966bc"
   },
   "framework_sha256": {
     "Cyclic/Framework.v": "b9f93e89931a196bb1d2f7649f240cb65920ed972fa02a2ae4af46a2e7a3ce02",
@@ -37,11 +37,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Labels.v"
       ],
-      "elapsed_seconds": 0.465295216999948,
+      "elapsed_seconds": 0.4694951530000253,
       "exit_status": 0,
       "evidence": "D1/D4, units, differing states, overlap; 1-node certificate",
-      "source_sha256": "fcad49c4cd0f58dd6f675ff7e3e4fa90a05c8e4a1a1983f81e8336dae836bc62",
-      "log": "benchmark-logs/20261016T165938090755Z/Labels.txt"
+      "source_sha256": "8f530b5f27beac1719c3864e64a7d6344d14621f7cfcb8b7f69b7da881bf3a4c",
+      "log": "benchmark-logs/20261016T172216122771Z/Labels.txt"
     },
     {
       "benchmark": "Signatures",
@@ -57,11 +57,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Signatures.v"
       ],
-      "elapsed_seconds": 6.95816005099914,
+      "elapsed_seconds": 6.95345469199674,
       "exit_status": 0,
       "evidence": "arbitrary models and independent Boolean signature; leaf certificates",
-      "source_sha256": "9e1c7dad007e2ff2d359ca88a42008d5317cbdc0913bade5921a7ad19c0a9a9e",
-      "log": "benchmark-logs/20261016T165938090755Z/Signatures.txt"
+      "source_sha256": "431d9f67ef018e48ea63bb6c5476d3b48dd04f32eaa445d60f708c00b55cbfe5",
+      "log": "benchmark-logs/20261016T172216122771Z/Signatures.txt"
     },
     {
       "benchmark": "Updates",
@@ -77,11 +77,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Updates.v"
       ],
-      "elapsed_seconds": 0.47532526700160815,
+      "elapsed_seconds": 0.45635758500066004,
       "exit_status": 0,
       "evidence": "identity, changed/dependent assignments, intermediate states; pure certificate",
-      "source_sha256": "aeb5607e52157474e6e45c0ba4155b723b887871454f3ea3f0e18580ad982717",
-      "log": "benchmark-logs/20261016T165938090755Z/Updates.txt"
+      "source_sha256": "b58fd24b97edcf591f7170eedd0e3c8a61a063b61b8011d6d1e4bb80998e74f1",
+      "log": "benchmark-logs/20261016T172216122771Z/Updates.txt"
     },
     {
       "benchmark": "Tests",
@@ -97,11 +97,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Tests.v"
       ],
-      "elapsed_seconds": 0.5314227369999571,
+      "elapsed_seconds": 0.5313030220022483,
       "exit_status": 0,
       "evidence": "successful/failed and trace-sensitive tests; 2-node certificate",
-      "source_sha256": "f3f5e5b6a38bb2f88683cbad008c33357ddcc7abbded9b18807865c76a44d0e7",
-      "log": "benchmark-logs/20261016T165938090755Z/Tests.txt"
+      "source_sha256": "c7357af2ac448c1d80af9cda930523f09bfdc9a2213b130dc9dc4273be871cfc",
+      "log": "benchmark-logs/20261016T172216122771Z/Tests.txt"
     },
     {
       "benchmark": "RegularPrograms",
@@ -117,11 +117,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/RegularPrograms.v"
       ],
-      "elapsed_seconds": 0.4534123669982364,
+      "elapsed_seconds": 0.456425678999949,
       "exit_status": 0,
       "evidence": "sequence, choice, zero/one/nested finite iteration; semantic validity",
-      "source_sha256": "1db45e7a59e7a8dd7efcc7c204cd33572f32d1aa5f7efb931308a10f9f918ee2",
-      "log": "benchmark-logs/20261016T165938090755Z/RegularPrograms.txt"
+      "source_sha256": "436003485d739e5a7125ce3adff8e596086ec9ea26ccb4f1cf6cae7073da7d3d",
+      "log": "benchmark-logs/20261016T172216122771Z/RegularPrograms.txt"
     },
     {
       "benchmark": "Booleans",
@@ -137,11 +137,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Booleans.v"
       ],
-      "elapsed_seconds": 0.51372035699751,
+      "elapsed_seconds": 0.5513341820005735,
       "exit_status": 0,
       "evidence": "mixed modal Boolean formula; 3-node certificate",
-      "source_sha256": "6a3123bf858fbce14f480b79a3efc751afef9b672433fe26503ded0469d4fb8e",
-      "log": "benchmark-logs/20261016T165938090755Z/Booleans.txt"
+      "source_sha256": "47c8f1ccdfa5f589c76d576b96e206fc718caa26e1ab4148b85502f130e8d841",
+      "log": "benchmark-logs/20261016T172216122771Z/Booleans.txt"
     },
     {
       "benchmark": "Quantifiers",
@@ -157,11 +157,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Quantifiers.v"
       ],
-      "elapsed_seconds": 0.6157585490000201,
+      "elapsed_seconds": 0.5264900919974025,
       "exit_status": 0,
       "evidence": "capture avoidance, shadowing, eigenvariables; 2-node certificate",
-      "source_sha256": "131041455d11844d13447c2c8ecc7679a3604e93cf6a3cb16e65df7d6c86430a",
-      "log": "benchmark-logs/20261016T165938090755Z/Quantifiers.txt"
+      "source_sha256": "0d8c8b4786c9070ab25be8c5b3538a5ed25b9ac1fee62e1958ad3004833e0519",
+      "log": "benchmark-logs/20261016T172216122771Z/Quantifiers.txt"
     },
     {
       "benchmark": "Temporal",
@@ -177,11 +177,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Temporal.v"
       ],
-      "elapsed_seconds": 0.4680343539985188,
+      "elapsed_seconds": 0.46953950399984024,
       "exit_status": 0,
       "evidence": "immediate/postponed suffix, dual, first, next-at-end, sum measure; certificate",
-      "source_sha256": "5885dad08e1c0606b1ef836e15764b4ad1549d2574a1e3099a386530bcb19629",
-      "log": "benchmark-logs/20261016T165938090755Z/Temporal.txt"
+      "source_sha256": "8eab1f91c2e5874980f0c8ee34e658871813a4c47245d52b5bde88591fa132a4",
+      "log": "benchmark-logs/20261016T172216122771Z/Temporal.txt"
     },
     {
       "benchmark": "AssignmentChange",
@@ -197,11 +197,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/AssignmentChange.v"
       ],
-      "elapsed_seconds": 0.550556170001073,
+      "elapsed_seconds": 0.5338597579975612,
       "exit_status": 0,
       "evidence": "changed next-state value; 6-node certificate, 1 distinct tag",
-      "source_sha256": "61ea3f41454011f1263fe6050d04522c2749235661e3554db38ee9fde504178c",
-      "log": "benchmark-logs/20261016T165938090755Z/AssignmentChange.txt"
+      "source_sha256": "fc99b90b0007a44b30f4a0e6d5502e8193bd55c6b0c5340e3b09d45dd26b1f10",
+      "log": "benchmark-logs/20261016T172216122771Z/AssignmentChange.txt"
     },
     {
       "benchmark": "RuleCoverage",
@@ -217,11 +217,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/RuleCoverage.v"
       ],
-      "elapsed_seconds": 0.9922235620033462,
+      "elapsed_seconds": 1.014112890999968,
       "exit_status": 0,
       "evidence": "50 exact rule/request premise shapes, positive/negative syntax checks",
-      "source_sha256": "6d42b11c99de46b576c7c80a08be0eaf057622cac352d426738aac5ec6431034",
-      "log": "benchmark-logs/20261016T165938090755Z/RuleCoverage.txt"
+      "source_sha256": "b24bdb8549a8fb574260b5608fff6ab5c1e267a2fb4683849599e6df948f596c",
+      "log": "benchmark-logs/20261016T172216122771Z/RuleCoverage.txt"
     },
     {
       "benchmark": "CheckerNegative",
@@ -237,11 +237,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/CheckerNegative.v"
       ],
-      "elapsed_seconds": 0.3485619579987542,
+      "elapsed_seconds": 0.34351176400014083,
       "exit_status": 0,
       "evidence": "open/dangling/mismatched graphs, absent tags, closed nonprogressing cycle",
-      "source_sha256": "e758b23f906bdf8153ffc231f8b3fe7e7244c597f8c34749fddec461d6c88296",
-      "log": "benchmark-logs/20261016T165938090755Z/CheckerNegative.txt"
+      "source_sha256": "d39ae25ffc5d9dbf820872993e0d7fe7e16b1efb7e105280faf147cab399ac8f",
+      "log": "benchmark-logs/20261016T172216122771Z/CheckerNegative.txt"
     },
     {
       "benchmark": "Cyclic",
@@ -257,11 +257,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/Cyclic.v"
       ],
-      "elapsed_seconds": 0.7561439679993782,
+      "elapsed_seconds": 0.743909757999063,
       "exit_status": 0,
       "evidence": "11-node star cycle, real backlink, 1 distinct tag, explicit potential",
-      "source_sha256": "f3eb103d7d2d1fbdf8926a87b4b19c1fff1279dc50470ac29d7b942fde56877b",
-      "log": "benchmark-logs/20261016T165938090755Z/Cyclic.txt"
+      "source_sha256": "68b3af26991e6f01334fb82aaef14a335ce85eb62ca9ab7726e889275a4f7d2c",
+      "log": "benchmark-logs/20261016T172216122771Z/Cyclic.txt"
     },
     {
       "benchmark": "CyclicTags",
@@ -277,11 +277,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/CyclicTags.v"
       ],
-      "elapsed_seconds": 0.9135296929998731,
+      "elapsed_seconds": 0.9039658949986915,
       "exit_status": 0,
       "evidence": "12-node star cycle, explicit tag-renaming backlink, 2 distinct tags",
-      "source_sha256": "66e6f82b567b5b3078c1cc2cd2bcfb440e9b7dd5a876ace865e47f64a7932e22",
-      "log": "benchmark-logs/20261016T165938090755Z/CyclicTags.txt"
+      "source_sha256": "ba6a28137bc785c9e9314ec50a11c16d7dc458be2e17fe7aa1f1e74f14c33247",
+      "log": "benchmark-logs/20261016T172216122771Z/CyclicTags.txt"
     },
     {
       "benchmark": "CounterLoop",
@@ -297,11 +297,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/CounterLoop.v"
       ],
-      "elapsed_seconds": 0.4570890849972784,
+      "elapsed_seconds": 0.5823552770016249,
       "exit_status": 0,
       "evidence": "guarded integer decrement loop, every visited state and finite stopping point",
-      "source_sha256": "bd3259c2715f7083bdbdb4e652529e9a176c70f07dfa699eadf6f6fb303d1fb9",
-      "log": "benchmark-logs/20261016T165938090755Z/CounterLoop.txt"
+      "source_sha256": "332527066c7ee22c17891668ab7d00f19ef722a7b552f48e9577c8efaeed0a6f",
+      "log": "benchmark-logs/20261016T172216122771Z/CounterLoop.txt"
     },
     {
       "benchmark": "NestedProgram",
@@ -317,11 +317,11 @@
         "CyclistRocq",
         "LPL/Benchmarks/NestedProgram.v"
       ],
-      "elapsed_seconds": 2.884530266001093,
+      "elapsed_seconds": 2.859105665000243,
       "exit_status": 0,
       "evidence": "nested sequence/choice/star, arbitrary uninterpreted predicate of unchanged variable",
-      "source_sha256": "19ac8661c3ba2f6156bc263a16b5ffdd7735a8de2c91a6ba717d504e23c99dd0",
-      "log": "benchmark-logs/20261016T165938090755Z/NestedProgram.txt"
+      "source_sha256": "4b216ad4eda623435492a67bc9be5903fdbf5cd9cad2d3ba36fb8948f18d7725",
+      "log": "benchmark-logs/20261016T172216122771Z/NestedProgram.txt"
     }
   ]
 }

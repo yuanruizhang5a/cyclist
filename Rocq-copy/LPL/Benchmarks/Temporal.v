@@ -1,3 +1,9 @@
+(** * Temporal operators on finite traces
+
+    Immediate and postponed suffix witnesses illustrate the one-step suffix
+    equation. Next cannot postpone, and at a singleton it is false. Dual
+    suffix has the complementary singleton boundary. These are finite-trace
+    facts, not imported laws for infinite temporal streams. *)
 From Stdlib Require Import List ZArith.
 From CyclistRocq.LPL.Benchmarks Require Import Support.
 Import ListNotations Generation Cert.
@@ -23,12 +29,20 @@ Proof.
   apply (proj2 (dual_suffix_step M s1 [s0] Falsity iszero ltac:(discriminate))).
   split; [reflexivity|right; apply dual_suffix_singleton].
 Qed.
+(** [First] evaluates its complete body on a singleton, so even an original
+    two-state stutter cannot make the nested [Next] true. *)
 Example compound_first_state : ~ formula_holds M (First (Conj Truth (Next Truth))) [s0;s0].
 Proof. intros [_ H]; exact (next_singleton M Truth s0 H). Qed.
+(** The accumulated traces have lengths 1, 2 and 3. Their rank measure is
+    1+2+3, not the number of history components. This checks the convention
+    underlying Progress.v's minimum-counterexample inequalities. *)
 Example sum_of_component_lengths : sequence_measure (execution_history [s0] [s1;s0]) = 6.
 Proof. reflexivity. Qed.
 Example execution_count_is_different : List.length (execution_history [s0] [s1;s0]) = 3.
 Proof. reflexivity. Qed.
+(** A suffix assertion at a singleton cannot hold. Used as an antecedent,
+    it closes the sequent even with an empty succedent. The generated
+    singleton-suffix axiom is certified as a one-node graph. *)
 Definition root := Jdg [assertion l0 (Suffix Truth iszero)] [].
 Definition ax := generated_axiom root ltac:(vm_compute; reflexivity).
 Theorem singleton_suffix_closes : Cyclic.Valid root.

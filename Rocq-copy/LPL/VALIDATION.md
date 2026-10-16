@@ -6,6 +6,21 @@ explicit reflection for the FOL grammar and well-formedness predicates, plus
 proofs that capture-avoiding and sorted label substitutions preserve their
 syntax invariants. The API and semantic conventions are in [README.md](README.md).
 
+## Learner comments
+
+All 24 `.v` files now include reading guides and explanations of their central
+definitions, proof strategies, module connections and benchmark steps. A
+[comment audit](validation-logs/20261016T172216122771Z/CommentAudit.json) compares
+each file with its version before annotation, removing nested comments and
+preserving quoted strings: all code-token sequences are unchanged. It also
+confirms that every current source hash matches the new successful benchmark
+run and all 13 `Cyclic/` files retain their original bytes.
+
+The benchmark build below was rerun after annotation. The independent kernel,
+existing-theory regression and initial scope records are preserved from the
+implementation verification; the comment update changes no definitions or
+proof terms.
+
 ## Proof obligations
 
 | Obligation | Implemented evidence |
@@ -37,9 +52,9 @@ make lpl
 make lpl-benchmarks
 ```
 
-All **15/15** isolated units passed in the final source run
-`20261016T165938090755Z`. Every unit used the unchanged 600-second limit;
-the slowest took 6.958 seconds. [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
+All **15/15** isolated units passed after annotation in run
+`20261016T172216122771Z`. Every unit used the unchanged 600-second limit;
+the slowest took 6.953 seconds. [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
 contains individual commands, timings, logs and assumptions. Its JSON includes
 hashes of all 24 LPL source files, including common dependencies. A final
 `make -n lpl` reported that the build was current.
@@ -49,7 +64,7 @@ it are documented in the report; the cyclic certificate was retained.
 
 ## Independent kernel check
 
-The final compiled sources were also checked independently with:
+The implementation was also checked independently before annotation with:
 
 ```sh
 timeout --signal=KILL 600s rocq check -silent -Q . CyclistRocq \
@@ -80,7 +95,7 @@ The commands, timings and retained output paths are in
 The final additional changes affect LPL syntax proofs and documentation;
 neither regression imports LPL.
 
-## Scope and assumptions audit
+## Initial scope and assumptions audit
 
 The [source audit](validation-logs/20261016T165938090755Z/SourceAudit.json)
 compares against the preserved [baseline](validation-logs/20261016T165938090755Z/Baseline.json):
@@ -88,7 +103,8 @@ compares against the preserved [baseline](validation-logs/20261016T165938090755Z
 - All **13 files** in `Cyclic/`, including generated artifacts, match exactly;
   the directory contains no additional files.
 - All **29 pre-existing non-LPL `.v` sources** retain their original bytes.
-- All 24 LPL source hashes match the final successful benchmark run.
+- All 24 initial LPL source hashes matched that implementation benchmark run;
+  the comment audit above records the current sources.
 - No admitted proofs, project-defined axioms, custom tactics, external-library
   imports, or project FirstOrder/LTL imports occur in LPL sources.
 - `git diff --check` passes. Changes outside `LPL/` are the explicit build-file

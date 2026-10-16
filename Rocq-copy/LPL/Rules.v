@@ -1,3 +1,19 @@
+(** * Theorem-backed local rule kernels
+
+    Every rule record must provide two proofs: validity follows from valid
+    premises, and a false conclusion yields one false premise/world respecting
+    all trace pairs on that selected edge. Ordinary logical soundness alone
+    does not establish the second, rank-sensitive obligation.
+
+    Read the common context/local-rule helpers first, then one simple Boolean
+    rule. The [_base] modal rules establish semantics; [enhance_right] and
+    [redecorate] add proved principal trace pairs. Later sections handle
+    changed worlds for substitution/eigenvariables, backlinks, and manual
+    pure leaves. RULE_EXPANSIONS.md fixes the ordered premises of each rule.
+
+    Most constructors end with [Defined] so local generation can compute
+    their conclusions, premises and edge metadata. Their proof obligations
+    are still checked by Rocq, not trusted assertions. *)
 From Stdlib Require Import List Bool Arith Lia String Classical_Prop Permutation.
 From Stdlib Require Import Logic.ClassicalDescription Logic.ClassicalEpsilon.
 From CyclistRocq.LPL Require Import Signature Syntax Semantics Progress.
@@ -12,6 +28,9 @@ Module Export P := Pr.ForModel I.
 
 Definition context_tags (context : list occurrence) := judgment_tags (Jdg [] context).
 
+(** Tag uniqueness allows a list lookup to be replaced by the rank of a known
+    tagged member. Many edge proofs use this to reason about formulas rather
+    than the mechanics of [rank_in_context]. *)
 Lemma rank_context_occ context w o tag :
   NoDup (context_tags context) -> In o context -> occurrence_tag o = Some tag ->
   rank_in_context context w tag = occurrence_rank o w.
@@ -33,6 +52,9 @@ Definition occurrence_eqb a b := if occurrence_eq_dec a b then true else false.
 Lemma occurrence_eqb_spec a b : occurrence_eqb a b = true <-> a = b.
 Proof. unfold occurrence_eqb; destruct (occurrence_eq_dec a b); intuition discriminate. Qed.
 
+(** Retain a context pair only for an exactly unchanged occurrence in both
+    succedents. The pair contains tags, not list indices, and carries no
+    progress: its rank is equal because its formula and label are unchanged. *)
 Fixpoint retained_pairs (source target : list occurrence) : list (nat * nat) :=
   match source with
   | [] => []
@@ -78,6 +100,10 @@ Proof.
   - intros a b H; inversion H.
 Qed.
 
+(** Finite semantic selection by classical truth cases. This is used in
+    soundness proofs to return a dependent witness (index, judgment, failure
+    proof); it is not an executable strategy for proving object-language
+    goals or for deciding arbitrary predicate truth. *)
 Definition false_premise (targets : list judgment) (w : world M)
     (H : ~ (forall j, In j targets -> denote M j w)) :
     { k : nat & { j : judgment | nth_error targets k = Some j /\ ~ denote M j w }}.
@@ -92,7 +118,12 @@ Proof.
 Defined.
 
 (** A finite local semantic inference, with all retained context pairs proved
-    simultaneously. This constructor performs no proof search. *)
+    simultaneously. [Hlocal] reasons at one world; the first record field
+    lifts it to validity. Its contrapositive supplies a false premise for the
+    second field. Source and premise well-formedness ensure that admissibility
+    cannot make the required countermodel implication vacuous.
+    The world stays unchanged here; substitution and eigenvariable rules use
+    other constructors below. This constructor performs no proof search. *)
 Definition local_rule (name : string) (source : judgment) (targets : list judgment)
     (Hsource : judgment_wfb source = true)
     (Htargets : Forall (fun j => judgment_wfb j = true) targets)
@@ -146,6 +177,11 @@ Proof.
   intro Hwf; unfold denote. pose proof (judgment_wfb_admissible M j w Hwf); tauto.
 Qed.
 
+(** Split a context as [pre ++ principal :: post] to support any occurrence
+    position while preserving order. In [alternatives : list (list occurrence)],
+    the outer list enumerates premises; each inner list replaces the principal
+    within that premise. Thus [[]] means one context-only premise, whereas
+    [] would mean no premises. *)
 Definition right_conclusion lhs pre post principal := Jdg lhs (pre ++ principal :: post).
 Definition right_targets lhs pre post alternatives :=
   map (fun replacement => Jdg lhs (pre ++ replacement ++ post)) alternatives.
@@ -153,6 +189,10 @@ Definition left_conclusion pre post rhs principal := Jdg (pre ++ principal :: po
 Definition left_targets pre post rhs alternatives :=
   map (fun replacement => Jdg (pre ++ replacement ++ post) rhs) alternatives.
 
+(** For a right rule, if neither surrounding succedent context is already
+    true, the premise disjunctions must establish the principal. For a left
+    rule, a true principal supplies one true replacement context. These two
+    helpers factor out sequent bookkeeping from each logical decomposition. *)
 Definition right_many (name : string) (lhs pre post : list occurrence) (principal : occurrence) (alternatives : list (list occurrence))
     (Hs : judgment_wfb (right_conclusion lhs pre post principal) = true)
     (Ht : Forall (fun j => judgment_wfb j = true) (right_targets lhs pre post alternatives))
@@ -233,6 +273,10 @@ Proof.
   rewrite formula_impl by exact Hne; tauto.
 Qed.
 
+(** First examples of the helpers: right conjunction has two singleton
+    replacement premises, while left conjunction has one two-occurrence
+    replacement premise. Compare disjunction below for the opposite pattern.
+    Unchanged context tags are already routed by [local_rule]. *)
 Definition conjunction_right (lhs pre post : list occurrence) (l : label) (a b : formula) (tag ta tb : option nat)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ l (Conj a b) tag)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true) (right_targets lhs pre post [[Occ l a ta]; [Occ l b tb]])) : Cyclic.rule_instance.
@@ -297,6 +341,10 @@ Proof.
   intros w H; exists []; split; [cbn; auto|constructor].
 Defined.
 
+(** Specialize context replacement to one occurrence, then to semantic
+    equivalence of formulas or labelled assertions. These helpers establish
+    ordinary soundness and retained-context routing; they do not yet route
+    a changed principal trace occurrence. *)
 Definition right_one (name : string) (lhs pre post : list occurrence) (principal replacement : occurrence)
     (Hs : judgment_wfb (right_conclusion lhs pre post principal) = true)
     (Ht : Forall (fun j => judgment_wfb j = true) (right_targets lhs pre post [[replacement]]))
@@ -352,6 +400,9 @@ Definition left_label_equivalent (name : string) (pre post rhs : list occurrence
     (Heq : forall w, labelled_holds M w principal <-> labelled_holds M w replacement) : Cyclic.rule_instance :=
   left_one name pre post rhs principal replacement Hs Ht (fun w H => proj1 (Heq w) H).
 
+(** The [_base] suffix marks a semantically proved rule before principal
+    rank metadata is strengthened. Assignment expands a final state update
+    into old/new label components; it does not discard the existing prefix. *)
 Definition box_assignment_right_base lhs pre post sigma u x t body ta tb Hs Ht :=
   right_label_equivalent "B.Assign.R" lhs pre post
     (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)
@@ -381,6 +432,9 @@ Definition first_left pre post rhs u sigma body ta tb Hs Ht :=
     (Occ (Join (StateLabel u) sigma) (First body) ta) (Occ (StateLabel u) body tb) Hs Ht
     (fun w => first_label M w u sigma body ta tb).
 
+(** The manuscript's At rule only exposes atoms/equalities at the head.
+    [First] above is the separate rule for an explicit singleton observation
+    of an arbitrary compound formula. *)
 Definition atomb a := match a with Pred _ _ | Equal _ _ => true | _ => false end.
 Lemma atomb_pure a : atomb a = true -> pureb a = true.
 Proof. destruct a; cbn; congruence. Qed.
@@ -393,6 +447,9 @@ Definition atom_head_left pre post rhs u sigma body ta tb Hs Ht (Ha : atomb body
     (Occ (Join (StateLabel u) sigma) body ta) (Occ (StateLabel u) body tb) Hs Ht
     (fun w => pure_head_label M w u sigma body ta tb (atomb_pure body Ha)).
 
+(** A changed principal can be followed only if both occurrences carry tags.
+    Valid pairs require nonincrease; progressing pairs additionally require
+    strict decrease. The edge also includes all unchanged context pairs. *)
 Definition continuation_pairs (a b : occurrence) :=
   match a.(occurrence_tag), b.(occurrence_tag) with
   | Some x, Some y => [(x,y)]
@@ -430,6 +487,9 @@ Proof.
     rewrite (rank_context_occ _ _ b _ (wf_unique _ Ht) Hb Htb). apply Hlt; reflexivity.
 Qed.
 
+(** A false sequent has true antecedents and no true succedent, including its
+    principal. These lemmas preserve that fact when replacing a false right
+    principal by a selected false continuation. *)
 Lemma false_right_parts lhs pre post principal w :
   ~ denote M (right_conclusion lhs pre post principal) w ->
   left_holds M w lhs /\ ~ right_holds M w pre /\
@@ -539,6 +599,9 @@ Definition enhance_right (r : Cyclic.rule_instance) lhs pre post principal repla
         (progress = true -> occurrence_rank replacement w < occurrence_rank principal w))
     : Cyclic.rule_instance.
 Proof.
+  (* Select a replacement together with its falsity and rank bounds before
+     choosing the premise record. The resulting single edge respects every
+     context pair and the principal pair at the same world. *)
   set (edge_for := fun target => continuation_edge r.(Cyclic.rule_conclusion) target principal
     (nth (List.length pre) target.(succedent) principal) progress).
   apply (redecorate r edge_for). intros w Hfalse.
@@ -595,6 +658,11 @@ Proof.
     apply right_singleton in Hall; exact (proj2 Hall).
 Defined.
 
+(** Preserve the catalog's two-premise left box-choice/star schemes. A true
+    conjunctive principal makes either singleton replacement true; choosing
+    the first suffices for the local soundness proof because both premises
+    are assumed valid. This is the specified rule, not a one-premise rewrite
+    that inserts both conjuncts into the antecedent. *)
 Definition left_two_conjunctive (name : string) (pre post rhs : list occurrence) (l : label)
     (a b c : formula) (ta tb tc : option nat)
     (Hs : judgment_wfb (left_conclusion pre post rhs (Occ l a ta)) = true)
@@ -621,6 +689,10 @@ Definition box_star_left pre post rhs l a body ta tb tc Hs Ht :=
   left_two_conjunctive "B.Star.L" pre post rhs l (Box (Star a) body) (Box (Test Truth) body) (Box a (Box (Star a) body))
     ta tb tc Hs Ht (fun tr Hne => box_star M a body tr Hne).
 
+(** Public traced box rules. Sequence, choice and star only preserve or
+    decrease rank weakly; assignment proves strict decrease. In each call
+    to [enhance_right], its final Boolean records this distinction. A missing
+    continuation tag still produces no principal pair. *)
 Definition box_sequence_right (lhs pre post : list occurrence) (l : label) (a b : program) (body : formula)
     (ta tb : option nat)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ l (Box (Seq a b) body) ta)) = true)
@@ -699,6 +771,9 @@ Proof.
     split; [exact Hrank|discriminate|exact Hrank|discriminate].
 Defined.
 
+(** Negation/implication can move an assertion across the sequent. Only
+    unchanged succedent context occurrences retain trace pairs; truth
+    equivalence by itself does not justify tracing through a side change. *)
 Definition negation_right lhs pre post l a ta tb Hs Ht :=
   local_rule "Not.R" (right_conclusion lhs pre post (Occ l (Neg a) ta))
     [Jdg (lhs ++ [Occ l a tb]) (pre ++ post)] Hs Ht
@@ -755,6 +830,10 @@ Definition implication_left pre post rhs l a b ta tb tc Hs Ht :=
       rewrite left_app, left_cons;
       rewrite (labelled_impl w l a b ta tb tc (wellformed_left_principal _ _ _ _ w Hs)); tauto)).
 
+(** A successful test observes its guard on the two-state stutter at [u].
+    For box-right that guard is an antecedent assumption; the specified
+    box-left and diamond schemes place/remove guard occurrences explicitly.
+    The accumulated body label gains the second copy of the test state. *)
 Definition box_test_right_base lhs pre post sigma u guard body ta tb Hs Ht :=
   local_rule "B.Test.R"
     (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta))
@@ -804,6 +883,9 @@ Definition diamond_test_left pre post rhs sigma u guard body ta tb Hs Ht :=
       rewrite left_app, !left_cons in Hraw;
       rewrite left_app, left_cons, (diamond_test_label M w sigma u guard body ta tb None); tauto)).
 
+(** Diamonds use the existential program equations. They are public formula
+    constructors and have their own rules, but are not traceable principals
+    under this logic's tag policy; only unchanged context traces are routed. *)
 Definition diamond_sequence_right lhs pre post l a b body ta tb Hs Ht :=
   right_equivalent "D.Seq.R" lhs pre post l (Diamond (Seq a b) body) (Diamond a (Diamond b body)) ta tb Hs Ht
     (fun tr Hne => diamond_sequence M a b body tr Hne).
@@ -850,6 +932,9 @@ Definition diamond_star_left pre post rhs l a body ta tb tc Hs Ht :=
   left_two_disjunctive "D.Star.L" pre post rhs l (Diamond (Star a) body) (Diamond (Test Truth) body)
     (Diamond a (Diamond (Star a) body)) ta tb tc Hs Ht (fun tr Hne => diamond_star M a body tr Hne).
 
+(** The one-step suffix laws apply after exposing an initial state and a
+    nonempty tail. Keep the exact two ordered premises from the catalog;
+    the right rules' first premises contain no recursive principal. *)
 Definition suffix_right_base (lhs pre post : list occurrence) (u : update) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) = true)
@@ -915,6 +1000,9 @@ Proof.
     rewrite left_cons, left_singleton; auto.
 Defined.
 
+(** A proper suffix cannot exist on a singleton label. Such an antecedent
+    makes the sequent valid directly, so this is an axiom rather than a rule
+    with an invented successor or trace continuation. *)
 Definition suffix_singleton_axiom j (Hwf : judgment_wfb j = true) o u a b
     (Hin : In o j.(antecedent)) (Hl : o.(occurrence_label) = StateLabel u)
     (Hf : o.(occurrence_formula) = Suffix a b) : Cyclic.axiom_instance.
@@ -975,6 +1063,10 @@ Proof.
     intro H; first [apply Hbad; split; assumption|apply Hbad'; split; assumption].
 Qed.
 
+(** Upgrade only the continuing right-suffix edge to strict principal
+    progress. The other premise receives retained context pairs alone.
+    [redecorate_sameworld] reuses the base rule's selected false premise,
+    and the local edge proof handles whichever premise it selected. *)
 Definition suffix_right (lhs pre post : list occurrence) (u : update) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) = true)
@@ -1031,6 +1123,9 @@ Proof.
     + apply retained_edge_respects; assumption.
 Defined.
 
+(** A test also gives strict principal descent, now with a guard added to
+    the premise antecedent. This needs the test-specific minimum theorem,
+    rather than merely treating a repeated state as unchanged syntax. *)
 Definition box_test_right (lhs pre post : list occurrence) (sigma : label) (u : update) (guard body : formula)
     (ta tb : option nat)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta)) = true)
@@ -1065,6 +1160,10 @@ Definition identity_edge j : Cyclic.edge_info :=
 Lemma identity_pair_equal a b tags : In (a,b) (Cyclic.identity_pairs tags) -> a = b.
 Proof. unfold Cyclic.identity_pairs; rewrite in_map_iff; intros [t [H _]]; inversion H; reflexivity. Qed.
 
+(** The substituted judgment is the conclusion, and [original] the premise.
+    Backward countermodel propagation must therefore change the world using
+    [transform]. [Hmap] preserves every interpreted label exactly, giving
+    truth equivalence and equality of ranks for all identity tag pairs. *)
 Definition label_substitution_rule (name : string) (original : judgment) (f : label -> label)
     (transform : world M -> world M)
     (Hmap : forall w l, eval_label M w (f l) = eval_label M (transform w) l)
@@ -1108,6 +1207,10 @@ Definition trace_substitution_rule original x replacement (Hne : label_nonemptyb
     (fun w l => eval_trace_label_substitution M w x replacement
       (proj1 (label_nonemptyb_spec M w replacement) Hne) l) Hs Ht.
 
+(** Freshness has two obligations for a cyclic eigenvariable rule: preserve
+    the truth of surrounding contexts and preserve ranks of their tagged
+    succedent occurrences. Semantics.v proves the first; these switch lemmas
+    use Progress.v to supply the second. *)
 Lemma occurrence_rank_switch v f (Hf : forall d, f (f d) = d) o w :
   ~ In v (occurrence_vars o) ->
   occurrence_rank o (switch_world M v f w) = occurrence_rank o w.
@@ -1137,6 +1240,10 @@ Proof.
   intros Hfresh o Hin Hv; apply Hfresh; apply in_flat_map; exists o; auto.
 Qed.
 
+(** For a one-premise rule it can be easier to prove the backward semantic
+    step first. Classical contradiction then derives ordinary soundness from
+    it. Concrete callers and the generator still supply syntax/edge checks;
+    this general semantic helper does not impose those syntactic policies. *)
 Definition counter_rule (name : string) (source target : judgment) (edge : Cyclic.edge_info)
     (Hcounter : forall w, ~ denote M source w ->
       { w' : world M | ~ denote M target w' /\ Cyclic.respects_edge source target w w' edge })
@@ -1150,6 +1257,9 @@ Proof.
     exists 0, {| Cyclic.premise_judgment := target; Cyclic.premise_edge := edge |}, w'; auto.
 Defined.
 
+(** Term-instantiation rules use the public capture-avoiding substitution
+    and its pure-head semantic theorem. No term instantiation is inferred
+    from an execution or guessed by these constructors. *)
 Definition universal_left pre post rhs l u body t Hpure Hs Ht :=
   left_one "All.L" pre post rhs (Occ l (All u body) None) (Occ l (subst_fo u t body) None) Hs Ht
     (fun w H => conj (proj1 H) (all_instantiation M body u t _ Hpure (proj1 H) (proj2 H))).
@@ -1157,6 +1267,11 @@ Definition existential_right lhs pre post l u body t Hpure Hs Ht :=
   right_one "Ex.R" lhs pre post (Occ l (Ex u body) None) (Occ l (subst_fo u t body) None) Hs Ht
     (fun w Hne H => conj Hne (ex_instantiation M body u t _ Hpure Hne (proj2 H))).
 
+(** Eigenvariable rules change the countermodel world. A failing universal
+    supplies a value [d]; swap it with the principal head's current [v] value
+    in every state. Freshness for contexts, body and principal label makes
+    the instance fail while preserving all context truths and trace ranks.
+    Existential-left below uses the corresponding satisfying witness. *)
 Definition universal_right (lhs pre post : list occurrence) (l : label) (u v : nat) (body : formula)
     (Hpure : pureb body = true)
     (Hfresh : eigen_freshb v (Jdg lhs (pre ++ post)) l body = true)
@@ -1186,6 +1301,8 @@ Proof.
   { intro Hall; apply Hprincipal; split; [unfold label_admissible; cbn; rewrite Hlabel_eval; discriminate|].
     change (formula_holds M (All u body) (eval_label M w l)); rewrite Hlabel_eval.
     apply (pure_head M (All u body) Hpure); exact Hall. }
+  (* This choice is mathematical countermodel evidence, not a generator
+     choosing a quantifier term. The model's inhabitant makes [epsilon] total. *)
   set (d := epsilon (inhabits (domain_inhabitant M)) (fun d => ~ fol_holds M body (write M s u d))).
   assert (~ fol_holds M body (write M s u d)) as Hbad.
   { unfold d; apply epsilon_spec; now apply not_all_ex_not. }
@@ -1269,10 +1386,16 @@ Proof.
     intros o tag Hin Htag; apply Hr_fresh; exact Hin.
 Defined.
 
+(** A backlink record is an ordinary nonprogressing semantic rule. Only the
+    graph builder's [AddBacklink] connects it to an earlier companion node;
+    the global checker, not this local equality, establishes cyclic progress. *)
 Definition exact_backlink j Hwf :=
   local_rule "Backlink.exact" j [j] Hwf (Forall_cons _ Hwf (Forall_nil _))
     (fun w Hall => Hall j (or_introl eq_refl)).
 
+(** Logical content stays exact and only tags change. Well-formedness of
+    both judgments rejects collisions introduced by [f]; each advertised
+    old/new tag pair follows the same interpreted formula and label. *)
 Definition tag_renaming_backlink j f (Hs : judgment_wfb j = true)
     (Ht : judgment_wfb (rename_tags f j) = true) : Cyclic.rule_instance.
 Proof.
@@ -1298,6 +1421,8 @@ Proof.
     + intros a b H; inversion H.
 Defined.
 
+(** Lists are not silently quotiented by permutation. Explicit evidence for
+    left/right permutations justifies exchange and preserves tagged ranks. *)
 Definition exchange_rule source target Hs Ht
     (Hl : Permutation source.(antecedent) target.(antecedent))
     (Hr : Permutation source.(succedent) target.(succedent)) :=
@@ -1311,6 +1436,9 @@ Definition exchange_rule source target Hs Ht
       specialize (Hraw Htargetleft); destruct Hraw as [o [Hin Ho]];
       exists o; split; [apply (Permutation_in o (Permutation_sym Hr)); exact Hin|exact Ho])).
 
+(** Cut combines two context partitions and has two premises. A classical
+    case split on the cut assertion proves the semantic implication; the
+    newly inserted cut occurrence receives no invented principal trace. *)
 Definition cut_rule gamma sigma delta lambda cutformula Hs Ht :=
   local_rule "Cut" (Jdg (gamma ++ sigma) (delta ++ lambda))
     [Jdg gamma (cutformula :: delta); Jdg (sigma ++ [cutformula]) lambda] Hs Ht
@@ -1323,6 +1451,9 @@ Definition cut_rule gamma sigma delta lambda cutformula Hs Ht :=
       rewrite right_cons in R1; rewrite left_app, left_singleton in R2;
       rewrite left_app, right_app; tauto)).
 
+(** Structural closing shapes. Each constructor still requires a complete
+    well-formed judgment, so an invalid or empty assertion label cannot close
+    merely because its formula looks like truth, falsehood or identity. *)
 Definition truth_right_axiom j (Hwf : judgment_wfb j = true) o (Hin : In o j.(succedent))
     (Hf : o.(occurrence_formula) = Truth) : Cyclic.axiom_instance.
 Proof.
@@ -1366,6 +1497,10 @@ Definition atom_terminalb j :=
     | StateLabel _, Pred _ _ | StateLabel _, Equal _ _ => true
     | _, _ => false end) (j.(antecedent) ++ j.(succedent)).
 
+(** Here the caller supplies the actual shallow sequent proof in Rocq.
+    The shape checks restrict the interface but do not decide pure truth.
+    [close_atoms] is the manuscript's narrower atom/equality boundary;
+    [close_pure] separately permits compound pure formulas at state updates. *)
 Definition close_pure j (_ : judgment_wfb j = true) (_ : pure_terminalb j = true)
     (H : forall w, left_holds M w j.(antecedent) -> right_holds M w j.(succedent))
     : Cyclic.axiom_instance.

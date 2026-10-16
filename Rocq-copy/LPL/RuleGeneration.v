@@ -1,3 +1,15 @@
+(** * Verified generation of one local inference
+
+    This is the executable front end to Rules.v, not a proof-search driver.
+    [generate_axiom] recognizes structural closing shapes; [generate_rules]
+    scans eligible occurrences; [generate_requested] checks explicit caller
+    choices. Successful results already contain semantic soundness proofs.
+
+    To read the dense constructor cases, compare a rule's literal source and
+    ordered target lists with RULE_EXPANSIONS.md and its kernel in Rules.v.
+    [verified_build] supplies syntax evidence, then [ensure_rule] checks that
+    the result really belongs to the caller's requested judgment. A [None]
+    result means no verified candidate was generated, not semantic falsity. *)
 From Stdlib Require Import List Bool Arith String Lia Permutation.
 From CyclistRocq.LPL Require Import Signature Rules.
 Import ListNotations.
@@ -5,15 +17,23 @@ Open Scope string_scope.
 Open Scope list_scope.
 
 Module MakeRuleGeneration (S : SIGNATURE) (Kernel : KERNEL S).
+(** Reuse the same instantiated kernel as Certification.v. Applying the
+    syntax/rule functors again would create distinct inductive types, even
+    with the same signature and model; aliases preserve their identity. *)
 Module Export Sem := Kernel.Core.Pr.Sem.
 Module Export Syn := Sem.Syn.
 Module Export P := Kernel.P.
 Module Export K := Kernel.
 
+(** Dependent Boolean branching turns a successful computation into evidence
+    available to the constructor. The false branch cannot construct a rule
+    requiring that side condition, and therefore returns [None]. *)
 Definition guard (b : bool) (build : b = true -> option Cyclic.rule_instance)
     : option Cyclic.rule_instance.
 Proof. destruct b eqn:H; [exact (build eq_refl)|exact None]. Defined.
 
+(** Check every premise as well as the source. The resulting [Forall] proof
+    is passed to an already proved kernel, never accepted as an axiom. *)
 Definition verified_build source targets
     (build : judgment_wfb source = true -> Forall (fun j => judgment_wfb j = true) targets -> Cyclic.rule_instance)
     : option Cyclic.rule_instance.
@@ -23,6 +43,9 @@ Proof.
   apply Some, (build eq_refl). apply Forall_forall; intros j Hin; apply (proj1 (forallb_forall _ _) Ht j Hin).
 Defined.
 
+(** Semantic rule records alone do not enforce the object-language policy.
+    This final boundary also checks trace-pair endpoints and that progressing
+    pairs belong to the valid pairs, using the unchanged framework's checker. *)
 Definition rule_wfb r := judgment_wfb r.(Cyclic.rule_conclusion) &&
   forallb (fun p => judgment_wfb p.(Cyclic.premise_judgment) &&
     Cyclic.edge_info_wfb r.(Cyclic.rule_conclusion) p.(Cyclic.premise_judgment) p.(Cyclic.premise_edge))
@@ -48,10 +71,19 @@ Proof.
   apply andb_true_iff. exact (proj1 (forallb_forall _ _) Hps p Hin).
 Qed.
 
+(** New subformulas receive deterministic fresh tags only when traceable.
+    An unfolding may instead continue the principal's existing tag. Distinct
+    offsets separate new siblings when both appear in the same premise;
+    [rule_wfb] remains the final uniqueness check. *)
 Definition tag_for j offset a := if traceableb a then Some (fresh_name (judgment_tags j) + offset) else None.
 Definition continue_tag (tag : option nat) a := if traceableb a then tag else None.
 Definition fresh_eigen j l a := fresh_name (judgment_vars j ++ label_vars l ++ formula_vars a).
 
+(** Generate at one selected right occurrence. [pre]/[post] preserve the
+    surrounding context. Inner label matches are intentional: assignment and
+    test rules require an exposed final state, whereas temporal rules require
+    an exposed initial state. Callers can request explicit label algebra to
+    present these shapes; no normalization is attempted here. *)
 Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list occurrence) : list (option Cyclic.rule_instance) :=
   let j := right_conclusion lhs pre post o in
   let l := o.(occurrence_label) in
@@ -119,6 +151,10 @@ Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list oc
     | _ => [] end
   end.
 
+(** Left generation mirrors the same catalog, including its two-premise
+    box-choice/star rules. A few test schemes consume a separately positioned
+    guard occurrence; [ensure_rule] checks the reconstructed source exactly,
+    preventing a near match from silently changing the caller's context. *)
 Definition left_at (pre : list occurrence) (o : occurrence) (post rhs : list occurrence) : list (option Cyclic.rule_instance) :=
   let j := left_conclusion pre post rhs o in
   let l := o.(occurrence_label) in
@@ -179,6 +215,9 @@ Definition left_at (pre : list occurrence) (o : occurrence) (post rhs : list occ
     | _ => [] end
   end.
 
+(** Move one occurrence at a time from [rest] into [pre]. This finite scan
+    preserves order and covers non-head positions. It enumerates local
+    alternatives only; it never recurses into newly generated proof goals. *)
 Fixpoint scan_right lhs pre rest : list (option Cyclic.rule_instance) :=
   match rest with
   | [] => []
@@ -195,6 +234,9 @@ Fixpoint accepted_rules j candidates :=
   | candidate :: rest => match ensure_rule j candidate with
     | Some r => r :: accepted_rules j rest | None => accepted_rules j rest end
   end.
+(** Stop at the manual pure boundary. Generic Boolean/quantifier kernels are
+    still available by explicit request, but this scan does not become a
+    tactic for solving arbitrary pure-FOL sequents. *)
 Definition generate_rules j :=
   if pure_terminalb j then [] else
   accepted_rules j (scan_left [] j.(antecedent) j.(succedent) ++ scan_right j.(antecedent) [] j.(succedent)).
@@ -208,6 +250,8 @@ Proof.
   destruct (ensure_rule j candidate) as [r'|] eqn:H; [intros [->|Hin]|intro Hin];
     [eapply ensure_rule_spec; exact H|apply IH; exact Hin|apply IH; exact Hin].
 Qed.
+(** These guarantees describe successful candidates, not completeness of the
+    scan. Semantic soundness is already stored in each returned rule record. *)
 Theorem generate_rules_spec j r : In r (generate_rules j) -> r.(Cyclic.rule_conclusion) = j /\ judgment_wfb j = true /\
   Forall (fun p => judgment_wfb p.(Cyclic.premise_judgment) = true /\
     Cyclic.edge_info_wfb j p.(Cyclic.premise_judgment) p.(Cyclic.premise_edge) = true) r.(Cyclic.rule_premises).
@@ -217,6 +261,10 @@ Definition ensure_axiom j candidate :=
   match candidate with None => None | Some a =>
     if judgment_eqb a.(Cyclic.axiom_conclusion) j then Some a else None end.
 
+(** The axiom scans carry inclusion proofs while traversing a sublist, so a
+    discovered matching occurrence comes with its membership in the original
+    judgment. Only identity, false-left, truth-right and singleton suffix-left
+    are recognized; arbitrary atomic truth needs a caller's shallow proof. *)
 Fixpoint identity_scan j (Hwf : judgment_wfb j = true) o (Hl : In o j.(antecedent)) context
     (Hsub : forall r, In r context -> In r j.(succedent)) : option Cyclic.axiom_instance.
 Proof.
@@ -254,6 +302,9 @@ Proof.
   - exact (right_axiom_scan j Hwf rest (fun o Hin => Hsub o (or_intror Hin))).
 Defined.
 
+(** The decision returns the equality proof [Hwf] needed by every axiom
+    constructor. Weakening is deliberately absent: it always leaves one
+    premise, even when that premise is the empty-context sequent. *)
 Definition generate_axiom (j : judgment) : option Cyclic.axiom_instance :=
   match Bool.bool_dec (judgment_wfb j) true with
   | left Hwf => ensure_axiom j (first_axiom (left_axiom_scan j Hwf j.(antecedent) (fun o Hin => Hin))
@@ -274,6 +325,10 @@ Proof.
 Qed.
 
 Inductive side := OnLeft | OnRight.
+(** Requests make all non-enumerable choices explicit: instantiating terms,
+    eigenvariables, substitutions, cut partitions and backlink companions.
+    Positions are zero-based. The label-algebra requests also take an explicit
+    tree path; supplying an original judgment fixes the intended premise. *)
 Inductive rule_request :=
 | Local (location : side) (position : nat) (name : string)
 | Weaken (location : side) (position : nat)
@@ -288,6 +343,9 @@ Inductive rule_request :=
 | RotateLabels (original : judgment) (path : list bool) (rotate_left : bool)
 | UnitLabels (original : judgment) (path : list bool) (on_left insert : bool).
 
+(** Finite tag mappings use the first matching pair and otherwise leave a
+    tag unchanged. The generated target's well-formedness rejects collisions;
+    [generate_requested] also checks the entire supplied companion judgment. *)
 Fixpoint rename_lookup renaming x :=
   match renaming with [] => x | (a,b)::rest => if Nat.eqb x a then b else rename_lookup rest x end.
 
@@ -304,6 +362,9 @@ Fixpoint named_candidate name candidates :=
   | Some r :: rest => if String.eqb name r.(Cyclic.rule_name) then Some r else named_candidate name rest
   end.
 
+(** Recover the exact context split at the requested position, then dispatch
+    only the requested scheme. Even an unused term is checked for arity: a
+    vacuous quantifier body must not accept a malformed request parameter. *)
 Definition requested_at j location n request :=
   let context := match location with OnLeft => j.(antecedent) | OnRight => j.(succedent) end in
   match at_position context n with
@@ -352,6 +413,10 @@ Definition requested_at j location n request :=
     end
   end.
 
+(** Non-positional requests construct their literal source and premise
+    judgments here. For substitution the original is the premise and its
+    substituted image is the conclusion. The public wrapper below checks
+    that this constructed conclusion equals [j]. *)
 Definition raw_requested j request :=
   match request with
   | Local location n _ | Weaken location n | Instantiate location n _ | Eigen location n _ | ExchangeAdjacent location n =>
@@ -379,6 +444,10 @@ Definition raw_requested j request :=
         (fun Hs Ht => tag_renaming_backlink j (rename_lookup renaming) Hs (Forall_inv Ht))
   end.
 
+(** Tag-renaming needs an extra companion comparison because its kernel can
+    construct a renamed judgment directly from [j]. Exact backlinks instead
+    reconstruct the source from their companion and are checked by the same
+    [ensure_rule] conclusion equality as every other request. *)
 Definition generate_requested j request :=
   match request with
   | BacklinkTags renaming companion =>
