@@ -29,7 +29,31 @@ FILES := \
 	SP/Benchmarks.v \
 	SP/Examples.v \
 	SP/Tests.v \
-	SP/Search.v
+	SP/Search.v \
+	LPL/Signature.v \
+	LPL/Syntax.v \
+	LPL/Semantics.v \
+	LPL/Progress.v \
+	LPL/Rules.v \
+	LPL/RuleGeneration.v \
+	LPL/Certification.v \
+	LPL/Benchmarks/Support.v \
+	LPL/Benchmarks/InvariantSupport.v \
+	LPL/Benchmarks/Labels.v \
+	LPL/Benchmarks/Signatures.v \
+	LPL/Benchmarks/Updates.v \
+	LPL/Benchmarks/Tests.v \
+	LPL/Benchmarks/RegularPrograms.v \
+	LPL/Benchmarks/Booleans.v \
+	LPL/Benchmarks/Quantifiers.v \
+	LPL/Benchmarks/Temporal.v \
+	LPL/Benchmarks/AssignmentChange.v \
+	LPL/Benchmarks/RuleCoverage.v \
+	LPL/Benchmarks/CheckerNegative.v \
+	LPL/Benchmarks/Cyclic.v \
+	LPL/Benchmarks/CyclicTags.v \
+	LPL/Benchmarks/CounterLoop.v \
+	LPL/Benchmarks/NestedProgram.v
 
 VOS := $(FILES:.v=.vo)
 
@@ -119,3 +143,34 @@ SP/Tests.vo: SP/Tests.v SP/RuleGeneration.vo SP/Benchmarks.vo
 
 SP/Search.vo: SP/Search.v SP/GraphSearch.vo SP/Benchmarks.vo
 	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+
+# LPL has no proof-search dependency. Benchmarks are independently limited.
+LPL_COMMON := LPL/Signature.v LPL/Syntax.v LPL/Semantics.v LPL/Progress.v LPL/Rules.v LPL/RuleGeneration.v LPL/Certification.v LPL/Benchmarks/Support.v LPL/Benchmarks/InvariantSupport.v
+LPL_BENCHMARKS := LPL/Benchmarks/Labels.v LPL/Benchmarks/Signatures.v LPL/Benchmarks/Updates.v LPL/Benchmarks/Tests.v LPL/Benchmarks/RegularPrograms.v LPL/Benchmarks/Booleans.v LPL/Benchmarks/Quantifiers.v LPL/Benchmarks/Temporal.v LPL/Benchmarks/AssignmentChange.v LPL/Benchmarks/RuleCoverage.v LPL/Benchmarks/CheckerNegative.v LPL/Benchmarks/Cyclic.v LPL/Benchmarks/CyclicTags.v LPL/Benchmarks/CounterLoop.v LPL/Benchmarks/NestedProgram.v
+.PHONY: lpl lpl-common lpl-benchmarks
+lpl-common: $(LPL_COMMON:.v=.vo)
+lpl: lpl-common $(LPL_BENCHMARKS:.v=.vo)
+lpl-benchmarks: lpl-common
+	python3 LPL/run_benchmarks.py
+
+LPL/Signature.vo: LPL/Signature.v
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Syntax.vo: LPL/Syntax.v LPL/Signature.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Semantics.vo: LPL/Semantics.v LPL/Syntax.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Progress.vo: LPL/Progress.v LPL/Semantics.vo Cyclic/Framework.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Rules.vo: LPL/Rules.v LPL/Progress.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/RuleGeneration.vo: LPL/RuleGeneration.v LPL/Rules.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Certification.vo: LPL/Certification.v LPL/Rules.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Benchmarks/Support.vo: LPL/Benchmarks/Support.v LPL/RuleGeneration.vo LPL/Certification.vo
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Benchmarks/InvariantSupport.vo: LPL/Benchmarks/InvariantSupport.v
+	$(ROCQCOMPILE) $(ROCQFLAGS) $<
+LPL/Benchmarks/CyclicTags.vo: LPL/Benchmarks/Cyclic.vo
+LPL/Benchmarks/%.vo: LPL/Benchmarks/%.v LPL/Benchmarks/Support.vo LPL/Benchmarks/InvariantSupport.vo
+	timeout --signal=KILL 600s $(ROCQCOMPILE) $(ROCQFLAGS) $<

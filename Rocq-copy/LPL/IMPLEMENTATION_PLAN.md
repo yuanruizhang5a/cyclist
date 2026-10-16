@@ -1,9 +1,15 @@
 # First-order labelled process logic in Rocq: implementation plan
 
-Status: implementation plan. The user decisions for D1–D4 are
-recorded in Section 3, and the double-line rule expansions are documented in
-`RULE_EXPANSIONS.md`. D1 uses the user's clarified direct-juxtaposition label
-mapping. No Rocq implementation has been started.
+Status: implemented and verified on Rocq 9.1.0. See [README.md](README.md)
+for the shared-kernel API and [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
+for the timed verification record, assumptions, and exact benchmark evidence.
+The independent kernel check, regression builds, and source-scope audit are
+recorded in [VALIDATION.md](VALIDATION.md).
+The user decisions for D1–D4 remain controlling; the double-line expansions
+remain documented in `RULE_EXPANSIONS.md`. Explicit, proved label-algebra
+helpers are also recorded there. The cyclic certificates preserve a first-state
+observation; the two complex all-visited-state invariants are separate direct
+semantic proofs. The generic framework remains byte-for-byte unchanged.
 
 ## 1. Scope and controlling requirements
 

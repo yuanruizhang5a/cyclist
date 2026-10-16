@@ -1,0 +1,34 @@
+[
+  {
+    "command": [
+      "timeout",
+      "--signal=KILL",
+      "600s",
+      "rocq",
+      "compile",
+      "-Q",
+      ".",
+      "CyclistRocq",
+      "LTL/Examples.v"
+    ],
+    "seconds": 2.266244784999799,
+    "exit": 0,
+    "log": "validation-logs/20261016T165938090755Z/LTL-Examples.v.txt"
+  },
+  {
+    "command": [
+      "timeout",
+      "--signal=KILL",
+      "600s",
+      "rocq",
+      "compile",
+      "-Q",
+      ".",
+      "CyclistRocq",
+      "FirstOrder/Search.v"
+    ],
+    "seconds": 134.5890916699991,
+    "exit": 0,
+    "log": "validation-logs/20261016T165938090755Z/FirstOrder-Search.v.txt"
+  }
+]

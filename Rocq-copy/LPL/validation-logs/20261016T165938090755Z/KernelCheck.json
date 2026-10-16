@@ -1,0 +1,20 @@
+{
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "check",
+    "-silent",
+    "-Q",
+    ".",
+    "CyclistRocq",
+    "CyclistRocq.LPL.Syntax",
+    "CyclistRocq.LPL.Benchmarks.CyclicTags",
+    "CyclistRocq.LPL.Benchmarks.Quantifiers",
+    "CyclistRocq.LPL.Benchmarks.NestedProgram"
+  ],
+  "seconds": 26.08218830199985,
+  "exit": 0,
+  "log": "validation-logs/20261016T165938090755Z/KernelCheck.txt"
+}

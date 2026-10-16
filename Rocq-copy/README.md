@@ -148,9 +148,28 @@ The public entry points are `SP.Search.search`, `SP.Search.solvedb`, and
 The exact coverage and benchmark outcomes are recorded in
 `SP/SP_IMPLEMENTATION_AUDIT.md`.
 
+## Labelled process-logic instance
+
+`LPL/` implements the agreed first-order labelled process logic with arbitrary
+signatures/models, capture-avoiding pure-FOL quantifiers, finite program traces,
+explicit updates and nonempty assertion labels, theorem-backed rules, checked
+local generation, and a local certification bridge. It has no proof-search or
+solver dependency. Run `make -C Rocq-copy lpl` from the repository root, or
+`make -C Rocq-copy lpl-benchmarks` to regenerate timed results.
+
+The 15 isolated benchmark units include two real star cycles with explicit
+backlinks/witnesses, assignment change, quantified and mixed Boolean proofs,
+all requested rule-family shapes, rejected generators/graphs, a guarded counter
+loop, and nested iteration preserving an uninterpreted predicate. See
+[LPL/README.md](LPL/README.md) and
+[LPL/BENCHMARK_RESULTS.md](LPL/BENCHMARK_RESULTS.md) for exact evidence and scope.
+
 ## Trusted assumptions
 
 There are no `Admitted` proofs or project-defined axioms.  The LTL least-future
 counterexample construction uses Rocq's standard classical informative
 excluded middle.  `Print Assumptions eventually_or_always_not.` reports that
 standard-library assumption explicitly.
+LPL additionally reports standard-library definite/indefinite description and
+functional extensionality for mathematical counterexample minima and freshness
+transport. Its linked benchmark logs record the exported theorem assumptions.

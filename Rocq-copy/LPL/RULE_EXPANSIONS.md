@@ -316,6 +316,29 @@ new trace-element family merely because its rule is derived from box rules.
 
 ## Implementation and verification gate
 
+### Explicit label-algebra helper
+
+The implementation additionally exposes a caller-selected reassociation at a
+specified binary-label path. This is an ordinary one-premise structural
+consequence of D1's list append associativity (no change to formula meaning):
+
+```text
+Gamma => Delta
+-------------------------------- Label.Assoc
+rotate_path(Gamma) => rotate_path(Delta)
+```
+
+At the selected path, a left rotation replaces `a ◇ (b ◇ c)` by
+`(a ◇ b) ◇ c`; a right rotation performs the inverse. A nonmatching path
+leaves that label unchanged. The caller supplies both the premise judgment
+and the path/direction; no normalization search is performed. This helper
+does not add a double-line display to the manuscript inventory above.
+
+`Label.Unit` has the same one-premise context scheme and a caller-selected
+path. It inserts or removes `epsilon ◇ a` or `a ◇ epsilon` at that path,
+using the proved D1 unit laws. Removing a nonmatching unit leaves the label
+unchanged. Complete-label admissibility is checked on both judgments.
+
 Before implementing a covered rule family:
 
 1. Match its explicit scheme to the inventory entry and intended FOPL
