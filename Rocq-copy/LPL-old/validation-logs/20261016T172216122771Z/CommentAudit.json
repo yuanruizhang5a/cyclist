@@ -1,0 +1,219 @@
+{
+  "benchmark_run_utc": "20261016T172216122771Z",
+  "comparison": "Remove nested Rocq comments outside quoted strings; compare non-whitespace code token sequences, preserving quoted strings exactly.",
+  "source_count": 24,
+  "all_code_tokens_unchanged": true,
+  "all_sources_annotated": true,
+  "benchmark_source_hashes_match": true,
+  "benchmarks_passed": 15,
+  "cyclic_directory_unchanged": true,
+  "cyclic_sha256": {
+    "Cyclic/.Relations.aux": "56046d584ff4916dcba4b490d819abb2525c2aa198305b3448639782f63fb8f6",
+    "Cyclic/Framework.vos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Cyclic/explanations-1.md": "1bd17e3a0f6ddb290c073fb6a47238be1759c93371a56359adb7db868dff00a6",
+    "Cyclic/Relations.vos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Cyclic/Relations.v": "85f1f25747e3eb661f24f50b6a9e6aae3cbcb173169bb7bfb6d06ac7addeb90f",
+    "Cyclic/Relations.vo": "02118ae0f8cbb07ee7d45edefe3f1df8fe925718eedd70cc124bf053fe1002fe",
+    "Cyclic/.Framework.aux": "4cf4363112e22ef8b61d158cde7879fa9ceab830270c5350a901506f52121b66",
+    "Cyclic/Framework.vok": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Cyclic/Relations.glob": "d6376dab4ebb2200ce58619a07405328542309894e8ae8f2402f8e484d630148",
+    "Cyclic/Framework.vo": "008c3becbbc3ed9c9d656c3eda10db11b545ef6d31082519aeabff38a68fec8b",
+    "Cyclic/Framework.glob": "185c9310c5065909026586cd93ae92e5e92a670e024d0f84890369cec27db630",
+    "Cyclic/Framework.v": "b9f93e89931a196bb1d2f7649f240cb65920ed972fa02a2ae4af46a2e7a3ce02",
+    "Cyclic/Relations.vok": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources": [
+    {
+      "source": "LPL/Benchmarks/AssignmentChange.v",
+      "baseline_sha256": "61ea3f41454011f1263fe6050d04522c2749235661e3554db38ee9fde504178c",
+      "current_sha256": "fc99b90b0007a44b30f4a0e6d5502e8193bd55c6b0c5340e3b09d45dd26b1f10",
+      "code_token_sha256": "1ae66f1d4eceae6f00a8824454e3da53e1f2efa3aab580359270c8b00c7d42f8",
+      "code_tokens_unchanged": true,
+      "added_lines": 20
+    },
+    {
+      "source": "LPL/Benchmarks/Booleans.v",
+      "baseline_sha256": "6a3123bf858fbce14f480b79a3efc751afef9b672433fe26503ded0469d4fb8e",
+      "current_sha256": "47c8f1ccdfa5f589c76d576b96e206fc718caa26e1ab4148b85502f130e8d841",
+      "code_token_sha256": "95b38f8f5d811cf10a1677068c88919c4a0af02add8fccd01b947aba91eefba2",
+      "code_tokens_unchanged": true,
+      "added_lines": 9
+    },
+    {
+      "source": "LPL/Benchmarks/CheckerNegative.v",
+      "baseline_sha256": "e758b23f906bdf8153ffc231f8b3fe7e7244c597f8c34749fddec461d6c88296",
+      "current_sha256": "d39ae25ffc5d9dbf820872993e0d7fe7e16b1efb7e105280faf147cab399ac8f",
+      "code_token_sha256": "980f41487a8a49ec4781fec00e373d2804b833319700ba28241cf03ebbb32da4",
+      "code_tokens_unchanged": true,
+      "added_lines": 17
+    },
+    {
+      "source": "LPL/Benchmarks/CounterLoop.v",
+      "baseline_sha256": "bd3259c2715f7083bdbdb4e652529e9a176c70f07dfa699eadf6f6fb303d1fb9",
+      "current_sha256": "332527066c7ee22c17891668ab7d00f19ef722a7b552f48e9577c8efaeed0a6f",
+      "code_token_sha256": "4d77f07911cf222de1b5c36f8c7c85ed4f6fb6f9c9bf6364129c17fd2ba36549",
+      "code_tokens_unchanged": true,
+      "added_lines": 16
+    },
+    {
+      "source": "LPL/Benchmarks/Cyclic.v",
+      "baseline_sha256": "f3eb103d7d2d1fbdf8926a87b4b19c1fff1279dc50470ac29d7b942fde56877b",
+      "current_sha256": "68b3af26991e6f01334fb82aaef14a335ce85eb62ca9ab7726e889275a4f7d2c",
+      "code_token_sha256": "16520d2b9dc743c3f1935f489fd29643e2c094005386fb8acdf04c0b2f94a349",
+      "code_tokens_unchanged": true,
+      "added_lines": 27
+    },
+    {
+      "source": "LPL/Benchmarks/CyclicTags.v",
+      "baseline_sha256": "66e6f82b567b5b3078c1cc2cd2bcfb440e9b7dd5a876ace865e47f64a7932e22",
+      "current_sha256": "ba6a28137bc785c9e9314ec50a11c16d7dc458be2e17fe7aa1f1e74f14c33247",
+      "code_token_sha256": "37490ee618e35d6439a7515e6de859b905ee6bb490e6b56b54da3117a8710ddf",
+      "code_tokens_unchanged": true,
+      "added_lines": 12
+    },
+    {
+      "source": "LPL/Benchmarks/InvariantSupport.v",
+      "baseline_sha256": "a1e6e1bf5d40c0cb67f9df94180fb7733d933236db8b5d835e65c4d785641bbe",
+      "current_sha256": "2e49d6bdb952b766e18c02a05c19bec66c74303c4dd89aff8acb186a75c966bc",
+      "code_token_sha256": "65c138852716529a2fa1c8393775cfeb0d5aff368f29786437958ddab5f610b8",
+      "code_tokens_unchanged": true,
+      "added_lines": 15
+    },
+    {
+      "source": "LPL/Benchmarks/Labels.v",
+      "baseline_sha256": "fcad49c4cd0f58dd6f675ff7e3e4fa90a05c8e4a1a1983f81e8336dae836bc62",
+      "current_sha256": "8f530b5f27beac1719c3864e64a7d6344d14621f7cfcb8b7f69b7da881bf3a4c",
+      "code_token_sha256": "23beecd44a7a133d1b7418baf77261a79a902c4e59daf4e241685e67fd323d0f",
+      "code_tokens_unchanged": true,
+      "added_lines": 16
+    },
+    {
+      "source": "LPL/Benchmarks/NestedProgram.v",
+      "baseline_sha256": "19ac8661c3ba2f6156bc263a16b5ffdd7735a8de2c91a6ba717d504e23c99dd0",
+      "current_sha256": "4b216ad4eda623435492a67bc9be5903fdbf5cd9cad2d3ba36fb8948f18d7725",
+      "code_token_sha256": "9a685c39c16b92ef85cd50efaf41d89b63321e3ff4134083bbf7248e0e12bbc1",
+      "code_tokens_unchanged": true,
+      "added_lines": 22
+    },
+    {
+      "source": "LPL/Benchmarks/Quantifiers.v",
+      "baseline_sha256": "131041455d11844d13447c2c8ecc7679a3604e93cf6a3cb16e65df7d6c86430a",
+      "current_sha256": "0d8c8b4786c9070ab25be8c5b3538a5ed25b9ac1fee62e1958ad3004833e0519",
+      "code_token_sha256": "e4822fe57051f34323d430711624a459b4cd0d8e4326c211c18e5935a9c493a0",
+      "code_tokens_unchanged": true,
+      "added_lines": 15
+    },
+    {
+      "source": "LPL/Benchmarks/RegularPrograms.v",
+      "baseline_sha256": "1db45e7a59e7a8dd7efcc7c204cd33572f32d1aa5f7efb931308a10f9f918ee2",
+      "current_sha256": "436003485d739e5a7125ce3adff8e596086ec9ea26ccb4f1cf6cae7073da7d3d",
+      "code_token_sha256": "a8d3debeb48260115a934e623df3e62bb79e8b00b32b75af1862e9ce490afda5",
+      "code_tokens_unchanged": true,
+      "added_lines": 14
+    },
+    {
+      "source": "LPL/Benchmarks/RuleCoverage.v",
+      "baseline_sha256": "6d42b11c99de46b576c7c80a08be0eaf057622cac352d426738aac5ec6431034",
+      "current_sha256": "b24bdb8549a8fb574260b5608fff6ab5c1e267a2fb4683849599e6df948f596c",
+      "code_token_sha256": "c3814508793a777b3d61d5d58a1fcba4349ded05f2b5862c33cc5dcba7c89615",
+      "code_tokens_unchanged": true,
+      "added_lines": 35
+    },
+    {
+      "source": "LPL/Benchmarks/Signatures.v",
+      "baseline_sha256": "9e1c7dad007e2ff2d359ca88a42008d5317cbdc0913bade5921a7ad19c0a9a9e",
+      "current_sha256": "431d9f67ef018e48ea63bb6c5476d3b48dd04f32eaa445d60f708c00b55cbfe5",
+      "code_token_sha256": "6bb09649b02c92877e7d9ca00a7c589435ab673e3b851278c9743ceac6bbbd22",
+      "code_tokens_unchanged": true,
+      "added_lines": 19
+    },
+    {
+      "source": "LPL/Benchmarks/Support.v",
+      "baseline_sha256": "3be7b8def58126018d485dfb3deb51fcf2a8cf0980f1b1e602804e727aeb223a",
+      "current_sha256": "aeb0e00570d5c39d0815b6f390efba14d9aa72d3dd2cd4166b9093191f203739",
+      "code_token_sha256": "1b9353f8d0ff938b340d392367475d8381ff16afa535754abb71bcaba2f651a3",
+      "code_tokens_unchanged": true,
+      "added_lines": 27
+    },
+    {
+      "source": "LPL/Benchmarks/Temporal.v",
+      "baseline_sha256": "5885dad08e1c0606b1ef836e15764b4ad1549d2574a1e3099a386530bcb19629",
+      "current_sha256": "8eab1f91c2e5874980f0c8ee34e658871813a4c47245d52b5bde88591fa132a4",
+      "code_token_sha256": "c9f2130bbf461b2446be0fbb20fec64dfe277fa36c7ce139e7a4196e7abe8a1f",
+      "code_tokens_unchanged": true,
+      "added_lines": 14
+    },
+    {
+      "source": "LPL/Benchmarks/Tests.v",
+      "baseline_sha256": "f3f5e5b6a38bb2f88683cbad008c33357ddcc7abbded9b18807865c76a44d0e7",
+      "current_sha256": "c7357af2ac448c1d80af9cda930523f09bfdc9a2213b130dc9dc4273be871cfc",
+      "code_token_sha256": "e93dd366bf1a2a65a49f923c9e22f6d6d1048d1fdde5fbc13c1d8807d02270cb",
+      "code_tokens_unchanged": true,
+      "added_lines": 11
+    },
+    {
+      "source": "LPL/Benchmarks/Updates.v",
+      "baseline_sha256": "aeb5607e52157474e6e45c0ba4155b723b887871454f3ea3f0e18580ad982717",
+      "current_sha256": "b58fd24b97edcf591f7170eedd0e3c8a61a063b61b8011d6d1e4bb80998e74f1",
+      "code_token_sha256": "06d8b6f15320f8cd7b6327b4a71e5fc79a6def3392cc1944ac4703ab312a853d",
+      "code_tokens_unchanged": true,
+      "added_lines": 9
+    },
+    {
+      "source": "LPL/Certification.v",
+      "baseline_sha256": "6f4f24a5473b241a282af182717d1e9a814a4e1375cf0848a9fd95617edc8747",
+      "current_sha256": "2de42c9fb1a7cb845809469183c89324c1cb30c71479b4c3aa6ca9bc8e714a14",
+      "code_token_sha256": "3d50becb6a5a6ecdf02fe3630f85d83638cf831e123fe5ab5cb260dd0dedb042",
+      "code_tokens_unchanged": true,
+      "added_lines": 21
+    },
+    {
+      "source": "LPL/Progress.v",
+      "baseline_sha256": "32db4ea369832a2193411fd723df8acedec1fd192d27e31b1b58549aac84dbc3",
+      "current_sha256": "834e5329482050da537cb7cb02db44bf1bb379f7f6758aca7c1aa35a675624ec",
+      "code_token_sha256": "a1fa53d847dbdc6ab4186d621aad89e0a73609139417b83f28c5b7880ac5b123",
+      "code_tokens_unchanged": true,
+      "added_lines": 74
+    },
+    {
+      "source": "LPL/RuleGeneration.v",
+      "baseline_sha256": "e4101a455505ccac3ec5dacd6ddb2a3ab9d8821179686f3ec35c66dae8adaf79",
+      "current_sha256": "313be79ed7d43235aa6140a42939210dde517c43938f7f00a8977b059f65107a",
+      "code_token_sha256": "4b1e74dfdc8a5a323442e28c69849bf62d299d315da380255ef28d3c6b04aa6f",
+      "code_tokens_unchanged": true,
+      "added_lines": 69
+    },
+    {
+      "source": "LPL/Rules.v",
+      "baseline_sha256": "a25d25cff97f5386b722dd0365a8774ef45e79d339f88dfeb22fc7b9b1eb1690",
+      "current_sha256": "73a6aa302cc51110c1587c73209289846ac6e585bdcd1ad229f3ba42ade3d6a3",
+      "code_token_sha256": "639fe8f565c89e8965f8e210cacecd77bd6e97daf2cb08ab8bbd5af51d12741a",
+      "code_tokens_unchanged": true,
+      "added_lines": 135
+    },
+    {
+      "source": "LPL/Semantics.v",
+      "baseline_sha256": "13cd0327b9b7b7aeb5807dc007529e59875869e73ee7481aebd220715ccef587",
+      "current_sha256": "5d116842b16294e8137ab8be856e742bb04784cd8ab4d60a54f4d90dff8de19f",
+      "code_token_sha256": "b367dc5f355d350990213fb3d3a8eb1fede779e2df3788b6965ce427d0ebeb40",
+      "code_tokens_unchanged": true,
+      "added_lines": 148
+    },
+    {
+      "source": "LPL/Signature.v",
+      "baseline_sha256": "212d0de06fea08b29e8c9fd6d80d8eee7218ce75522ec684b7fc85e17f3ba8b1",
+      "current_sha256": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+      "code_token_sha256": "40b46a1d8d3c9b0eeec0aa34c829ae28d18c01b7687286c69218bcf06fa9b29e",
+      "code_tokens_unchanged": true,
+      "added_lines": 12
+    },
+    {
+      "source": "LPL/Syntax.v",
+      "baseline_sha256": "c49862456d465ef406caa50fbfac0ebcfd1a596b78ebd60196301d2e488c042d",
+      "current_sha256": "a2aaca9e60756a715b40f887a75f2af49c218c3e660c54ae201d5f1d0a1d2768",
+      "code_token_sha256": "3bfa79322653a60e1f89aaf44465f5b24e2158024c4d1338c4b6bc2442ecd1be",
+      "code_tokens_unchanged": true,
+      "added_lines": 77
+    }
+  ]
+}

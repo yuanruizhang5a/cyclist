@@ -1,0 +1,8 @@
+Axioms:
+Description.constructive_definite_description :
+  forall (A : Type) (P : A -> Prop), (exists ! x : A, P x) -> {x : A | P x}
+Classical_Prop.classic : forall P : Prop, P \/ ~ P
+Axioms:
+Description.constructive_definite_description :
+  forall (A : Type) (P : A -> Prop), (exists ! x : A, P x) -> {x : A | P x}
+Classical_Prop.classic : forall P : Prop, P \/ ~ P
