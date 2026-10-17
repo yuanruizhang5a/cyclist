@@ -18,13 +18,17 @@ Import ListNotations.
 
 Module MakeProgress (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn).
 Export Syn Sem.
+(** Fix an interpretation once so that ranks and the cyclic framework use
+    the very same model. The outer functor shares the existing syntax and
+    semantics modules; [ForModel] supplies their remaining model parameter. *)
 Module ForModel (I : Sem.INTERPRETATION).
 Definition M := I.interpretation.
 Definition trace := Sem.trace M.
 
 (** [execution_history prefix rest] includes the initial prefix and each
     subsequent accumulated trace. Its measure is the SUM of their lengths,
-    never merely the number of transitions. *)
+    never merely the number of transitions. For example, prefix [[s]] and
+    rest [[t;u]] produce [[[s];[s;t];[s;t;u]]], with measure [1+2+3]. *)
 Fixpoint execution_history (prefix rest : trace) : list trace :=
   prefix :: match rest with
     | [] => []
@@ -55,6 +59,9 @@ Fixpoint counterexample (a : formula) (tr : trace) (history : list trace) : Prop
 Definition sequence_measure (history : list trace) : nat :=
   fold_right (fun tr n => length tr + n) 0 history.
 
+(** Collect attainable measures as a predicate on natural numbers. Keeping
+    the actual history existential lets the minimum range over arbitrarily
+    many executions without requiring a list of all possible executions. *)
 Definition measure_possible a tr n :=
   exists history, counterexample a tr history /\ sequence_measure history = n.
 
@@ -98,6 +105,9 @@ Lemma execution_history_head prefix rest :
   exists tail, execution_history prefix rest = prefix :: tail.
 Proof. destruct rest; eexists; reflexivity. Qed.
 
+(** The last accumulated prefix is exactly a semantic execution result.
+    This connects the explicit history representation to the overlap
+    relation used by the box clause in Semantics.v. *)
 Lemma execution_history_result tr p history :
   execution_sequence tr p history ->
   exists execution, program_holds M p execution /\ overlap M tr execution (last history []).
@@ -109,6 +119,9 @@ Proof.
   exists prefix, s', tail. repeat split; auto. rewrite <- app_assoc. reflexivity.
 Qed.
 
+(** A counterexample history always starts with the trace it refutes.
+    This is the boundary fact that lets a box execution history overlap
+    its body's counterexample at one shared accumulated trace. *)
 Lemma counterexample_head a tr history : counterexample a tr history ->
   exists tail, history = tr :: tail.
 Proof.
@@ -220,6 +233,9 @@ Proof.
     split; [apply overlap_snoc; auto|exact Hrun].
 Qed.
 
+(** In this helper, "atomic" means a uniquely specified one-step history
+    under condition [G]. It applies to tests; arbitrary nondeterministic
+    atomic programs use [atomic_minimum_successor] below instead. *)
 Lemma atomic_counterexample p tr next (G : Prop) body history :
   (forall run, execution_sequence tr p run <-> G /\ run = [tr;next]) ->
   (counterexample (Box p body) tr history <->
@@ -456,6 +472,9 @@ Proof.
   cbn; lia.
 Qed.
 
+(** Equal sets of attainable measures have equal minima, including the
+    empty-set fallback. This compares measures only; histories themselves
+    need not have equal syntax or equal state lists. *)
 Lemma minimum_extensional a tr b tr' :
   (forall n, measure_possible a tr n <-> measure_possible b tr' n) ->
   minimum_counterexample a tr = minimum_counterexample b tr'.
@@ -515,6 +534,9 @@ Proof.
   apply overlap_list_snoc in Hjoin as [_ Hhistory].
   assert (history = (prefix ++ [s]) :: rest) as ->.
   { rewrite Hhead, Hhistory; reflexivity. }
+  (* The attained source measure is [length current + measure rest]. The
+     body's minimum is at most [measure rest], and the current trace is
+     nonempty, so removing that component gives a strict decrease. *)
   destruct (minimum_spec _ _ (false_minimum_exists _ _ Hnext Hbad)) as [_ Htarget].
   assert (minimum_counterexample body ((prefix ++ [s]) ++ [next]) <= sequence_measure rest) as Hbound.
   { apply Htarget; exists rest; auto. }
@@ -524,9 +546,14 @@ Proof.
   rewrite length_app in Hmeasure; cbn in Hmeasure; lia.
 Qed.
 
+(** Tags identify occurrences; the occurrence's formula and interpreted
+    label determine its rank. Renaming the tag alone cannot change it. *)
 Definition occurrence_rank (o : occurrence) (w : world M) :=
   minimum_counterexample o.(occurrence_formula) (eval_label M w o.(occurrence_label)).
 
+(** Look up the first matching tag, falling back to 0 if absent. The syntax
+    checker enforces uniqueness on well-formed succedents, and Rules.v proves
+    that lookup then equals the rank of the intended occurrence. *)
 Fixpoint rank_in_context (context : list occurrence) (w : world M) (tag : nat) : nat :=
   match context with
   | [] => 0

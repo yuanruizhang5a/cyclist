@@ -9,12 +9,17 @@ From Stdlib Require Import List Arith.
 Import ListNotations.
 
 (** Generic finite-trace invariant lemmas, independent of the LPL signature. *)
+(** These definitions mirror [overlap_list], [compose] and [finite_power]
+    in Semantics.v. Equal definition bodies let the safety proofs apply by
+    conversion, without translating executions between representations. *)
 Definition trace_join {A} (a b c : list A) :=
   exists prefix s tail, a = prefix ++ [s] /\ b = s :: tail /\ c = prefix ++ s :: tail.
 Definition trace_compose {A} (R T : list A -> Prop) tr :=
   exists a b, R a /\ T b /\ trace_join a b tr.
 Section Powers.
 Context {A : Type}.
+(** Iteration counts executions of [R]; the zero case is still the two-state
+    stutter. Consequently safety must also cover that repeated initial state. *)
 Fixpoint trace_power (R : list A -> Prop) n tr :=
   match n with 0 => exists s, tr = [s;s]
   | S n => trace_compose R (trace_power R n) tr end.
@@ -27,6 +32,9 @@ Definition trace_safe {A} (Inv : A -> Prop) (R : list A -> Prop) :=
 Lemma join_head {A} (a b c : list A) : trace_join a b c ->
   exists s tail tail', a = s :: tail /\ c = s :: tail'.
 Proof. intros [[|x prefix] [s [tail [-> [-> ->]]]]]; cbn; eauto. Qed.
+(** Combining two all-state invariants is valid even though their shared
+    endpoint occurs only once in the overlapped result. No new state is
+    introduced by joining the lists. *)
 Lemma join_Forall {A} (Inv : A -> Prop) a b c : trace_join a b c ->
   Forall Inv a -> Forall Inv b -> Forall Inv c.
 Proof.
@@ -71,6 +79,10 @@ Context (M : Sem.model).
 Variable Inv : state M -> Prop.
 Hypothesis action_preserves : forall action payload s t,
   interpret_action M action payload s t -> Inv s -> Inv t.
+(** Structural induction lifts one hypothesis about every atomic action to
+    every program. Tests merely repeat a state, sequence and choice use the
+    generic closure lemmas, and star uses induction on its finite count.
+    The theorem is conditional on [action_preserves] for this chosen [Inv]. *)
 Theorem program_safe p : trace_safe Inv (program_holds M p).
 Proof.
   induction p.
@@ -85,13 +97,20 @@ Qed.
 End Model.
 
 (** The bridge needs a proved first-state property; arbitrary extensions are
-    not assumed to have it. FOPL pure bodies and PPL atoms can supply it. *)
+    not assumed to have it. FOPL pure bodies and PPL atoms can supply it.
+    Under this hypothesis, checking [a] on the current trace and every proper
+    suffix is equivalent to checking [a] on each visited state's singleton.
+    This theorem interprets [Always]; [program_safe] above establishes the
+    separate invariant-preservation fact for executions. *)
 Theorem always_head_forall M a :
   (forall s tail, formula_holds M a (s::tail) <-> formula_holds M a [s]) ->
   forall tr, tr<>[] ->
   (formula_holds M (Always a) tr <-> Forall (fun s => formula_holds M a [s]) tr).
 Proof.
   intros Hhead tr; induction tr as [|s tail IH]; intro Hne; [contradiction|].
+  (* A singleton has no proper suffix. With a nonempty tail, [suffix_step]
+     separates the current head observation from the remaining suffix
+     obligation, allowing the induction hypothesis to establish [Forall]. *)
   destruct tail as [|t tail].
   - unfold Always, Eventually; rewrite !nonempty_neg by discriminate.
     change (~ (~ formula_holds M a [s] \/ formula_holds M (Suffix Truth (Neg a)) [s]) <-> Forall (fun s => formula_holds M a [s]) [s]).

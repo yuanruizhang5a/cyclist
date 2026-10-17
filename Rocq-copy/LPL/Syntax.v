@@ -9,6 +9,10 @@ From Stdlib Require Import List Bool Arith Lia.
 From CyclistRocq.LPL Require Import Signature.
 Import ListNotations.
 Module MakeSyntax (L : LANGUAGE).
+(** Formulas contain programs in modalities; programs contain formulas in
+    tests. The mutual definition permits both kinds of nesting. [Extension]
+    and [Coextension] receive meanings from an instance, so their names alone
+    do not make them quantifiers in this generic module. *)
 Inductive formula : Type :=
 | Truth | Falsity
 | Atom (p : L.atom_symbol) (args : list L.argument)
@@ -31,10 +35,16 @@ with program : Type :=
 | Choice (a b : program)
 | Star (body : program).
 
+(** A combined induction principle supplies hypotheses for both syntax
+    trees. It is needed when a property crosses from a modality into its
+    program and then back into a test formula. *)
 Scheme formula_mut := Induction for formula Sort Prop
   with program_mut := Induction for program Sort Prop.
 Combined Scheme formula_program_mutind from formula_mut, program_mut.
 
+(** [decide equality] handles constructors; recursive calls and LANGUAGE's
+    decisions handle their fields. [Defined] keeps these decisions reducible
+    so Boolean checkers can compute with them. *)
 Fixpoint formula_eq_dec (a b : formula) : {a = b} + {a <> b}
 with program_eq_dec (a b : program) : {a = b} + {a <> b}.
 Proof.
@@ -45,6 +55,9 @@ Proof.
       try apply L.action_argument_eq_dec; apply L.action_eq_dec.
 Defined.
 
+(** Purity here means membership in a syntactic nonmodal fragment. It does
+    not by itself prove that a formula observes only the first state:
+    extension interpretations are arbitrary until an instance supplies laws. *)
 Fixpoint pureb (a : formula) : bool :=
   match a with
   | Truth | Falsity | Atom _ _ | BinaryAtom _ _ => true
@@ -75,6 +88,9 @@ with program_wfb (p : program) : bool :=
   | Star a => program_wfb a
   end.
 
+(** One greater than the largest used number is fresh, including when the
+    list is empty. The same helper serves world names and occurrence tags;
+    callers supply the list belonging to the intended namespace. *)
 Definition fresh_name (names : list nat) := Datatypes.S (fold_right Nat.max 0 names).
 
 Lemma occursb_false x names : existsb (Nat.eqb x) names = false <-> ~ In x names.
@@ -92,10 +108,17 @@ Proof.
   intro Hin; specialize (Hbound _ Hin); unfold fresh_name in Hbound; lia.
 Qed.
 
+(** Derived temporal notation, using the strict suffix semantics. [Next]
+    selects the immediate nonempty tail because [Falsity] rules out any
+    intermediate suffix. [Eventually] also allows the current trace. *)
 Definition Next a := Suffix Falsity a.
 Definition Eventually a := Disj a (Suffix Truth a).
 Definition Always a := Neg (Eventually (Neg a)).
 
+(** Labels are trees describing state lists. [Join] is plain concatenation:
+    [Join (StateLabel u) (StateLabel u)] records two copies of the state.
+    [StateLabel] and [TraceLabel] use separate environments, so the same
+    numeric name may safely occur in both sorts. *)
 Inductive label : Type :=
 | Empty
 | StateLabel (u : L.world_term)
@@ -122,6 +145,10 @@ Fixpoint label_nonemptyb (l : label) : bool :=
   | Join a b => label_nonemptyb a || label_nonemptyb b
   end.
 
+(** World substitution enters only world terms; trace substitution replaces
+    only whole trace variables. Neither operation changes formula payloads.
+    Relations and contexts are handled later by mapping these operations
+    over every label in a judgment. *)
 Fixpoint subst_world_label (x : nat) (replacement : L.world_term) (l : label) : label :=
   match l with
   | StateLabel u => StateLabel (L.subst_world x replacement u)
@@ -164,6 +191,8 @@ Fixpoint unit_label (path : list bool) (on_left insert : bool) (l : label) : lab
     | _ => l end
   end.
 
+(** These are the only formula shapes allowed to carry cyclic trace tags.
+    This policy concerns proof progress, separately from formula truth. *)
 Definition traceableb (a : formula) : bool :=
   match a with Box _ _ | Suffix _ _ | DualSuffix _ _ => true | _ => false end.
 
@@ -198,6 +227,10 @@ Proof.
     try apply label_eq_dec; try apply L.relation_eq_dec.
   apply list_eq_dec; apply label_eq_dec.
 Defined.
+(** Read [Rdg R Gamma Delta] as [R ; Gamma => Delta]: relational assumptions,
+    formula assumptions, and formula alternatives to establish. Lists retain
+    their order and multiplicity, which matters to positional rule requests
+    and exact graph-label comparisons. *)
 Record judgment : Type := Rdg {
   relations : list relation_atom;
   antecedent : list occurrence;
@@ -206,6 +239,8 @@ Record judgment : Type := Rdg {
 Definition Jdg := Rdg [].
 Definition map_label_occurrence (f : label -> label) o :=
   Occ (f o.(occurrence_label)) o.(occurrence_formula) o.(occurrence_tag).
+(** Map relations as well as assertion labels. Leaving relation labels out
+    would make a purported whole-judgment substitution semantically wrong. *)
 Definition map_labels (f : label -> label) j :=
   Rdg (map (map_relation f) j.(relations))
     (map (map_label_occurrence f) j.(antecedent)) (map (map_label_occurrence f) j.(succedent)).
@@ -220,9 +255,15 @@ Proof. decide equality; apply list_eq_dec; [apply occurrence_eq_dec|apply occurr
 Definition judgment_eqb a b := if judgment_eq_dec a b then true else false.
 Lemma judgment_eqb_spec a b : judgment_eqb a b = true <-> a=b.
 Proof. unfold judgment_eqb; destruct (judgment_eq_dec a b); intuition discriminate. Qed.
+(** A backlink compares all logical syntax after erasing tags only. It still
+    compares relation contexts, label trees and formula order exactly. Tag
+    routing across that backlink needs its own proved rule in Rules.v. *)
 Definition erase_tag o := Occ o.(occurrence_label) o.(occurrence_formula) None.
 Definition erase_tags j := Rdg j.(relations) (map erase_tag j.(antecedent)) (map erase_tag j.(succedent)).
 Definition backlink_eqb a b := judgment_eqb (erase_tags a) (erase_tags b).
+(** [right] selects the succedent policy: a tag on the left is rejected,
+    and a tag on the right requires a traceable formula. [None] is allowed
+    on either side, even for a formula that could otherwise be traced. *)
 Definition occurrence_wfb (right : bool) o :=
   label_wfb o.(occurrence_label) && label_nonemptyb o.(occurrence_label) &&
   formula_wfb o.(occurrence_formula) &&
@@ -261,6 +302,10 @@ Proof.
     rewrite H. split; [intros [Hn Hd]; constructor; assumption | intro Hd; inversion Hd; auto].
 Qed.
 
+(** This inductive predicate is the proof-facing version of [pureb]. Its
+    constructors support induction over pure formulas; [pureb_spec] bridges
+    it to the executable test. The historical constructor names [PureAll]
+    and [PureEx] refer to generic extension slots here. *)
 Inductive pure_formula : formula -> Prop :=
 | PureTruth : pure_formula Truth
 | PureFalsity : pure_formula Falsity
@@ -284,6 +329,9 @@ Proof.
       rewrite ?IHpure_formula, ?IHpure_formula1, ?IHpure_formula2; reflexivity.
 Qed.
 
+(** Freshness covers every world term in assertion labels and relational
+    arguments. Formula and action payloads have their own language-specific
+    sorts; this check is specifically for the world-label namespace. *)
 Fixpoint label_world_names l := match l with
   | Empty | TraceLabel _ => [] | StateLabel u => L.world_support u
   | Join a b => label_world_names a ++ label_world_names b end.
@@ -295,7 +343,10 @@ Lemma world_freshb_spec x j : world_freshb x j = true <-> ~ In x (judgment_world
 Proof. unfold world_freshb; rewrite negb_true_iff; apply occursb_false. Qed.
 
 (** Propositional specifications for the reflected boundary. Payload
-    validity belongs to the language; recursive structure belongs here. *)
+    validity belongs to the language; recursive structure belongs here.
+    Each [_spec] theorem turns a successful Boolean check into a [Prop]
+    usable in proofs, and conversely. Thus generation can compute checks
+    while soundness proofs reason with conjunctions, [Forall] and [NoDup]. *)
 Fixpoint formula_wf a : Prop := match a with
   | Truth | Falsity => True
   | Atom p args => L.atom_wfb p args = true

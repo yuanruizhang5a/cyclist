@@ -9,6 +9,10 @@ From CyclistRocq.LPL Require Import Signature Syntax.
 Import ListNotations.
 Module MakeSemantics (L : LANGUAGE) (Syn : SYNTAX L).
 Export Syn.
+(** Overlap merges one shared endpoint: [[s;t]] followed by [[t;u]] gives
+    [[s;t;u]]. The existential decomposition also proves that both inputs
+    are nonempty and that their boundary states agree. This generic list
+    relation will later be reused for lists of traces in Progress.v. *)
 Definition overlap_list {A : Type} (a b c : list A) : Prop :=
   exists prefix s tail, a = prefix ++ [s] /\ b = s :: tail /\ c = prefix ++ s :: tail.
 
@@ -126,6 +130,10 @@ Proof.
         destruct (overlap_list_head _ _ _ Hab) as [x [r [r' [_ ->]]]]; discriminate.
 Qed.
 
+(** A model supplies meanings and the laws needed by the generic proofs.
+    It need not provide finite states, decidable truth or deterministic
+    actions. Extension meanings receive the child's entire trace predicate,
+    allowing an instance to interpret recursive syntax compositionally. *)
 Record model : Type := Model {
   carrier : Type;
   carrier_inhabitant : carrier;
@@ -135,10 +143,16 @@ Record model : Type := Model {
   interpret_coextension : L.binder -> (list carrier -> Prop) -> list carrier -> Prop;
   interpret_action : L.action_symbol -> L.action_argument -> carrier -> carrier -> Prop;
   interpret_atomic_trace : L.action_symbol -> L.action_argument -> list carrier -> Prop;
+  (** This law connects two presentations of an atomic step: a binary state
+      relation for relational rules, and a length-two execution trace for
+      program semantics. Neither presentation alone implies determinism. *)
   atomic_trace_law : forall action payload tr, interpret_atomic_trace action payload tr <->
     exists s t, tr = [s;t] /\ interpret_action action payload s t;
   interpret_world_term : (nat -> carrier) -> L.world_term -> carrier;
   interpret_relation : L.relation_symbol -> list (list carrier) -> Prop;
+  (** Names are interpreted by lookup; a term depends only on its declared
+      support; syntactic substitution agrees with updating that lookup.
+      These laws justify freshness and substitution rules later. *)
   world_name_law : forall rho x, interpret_world_term rho (L.world_name x) = rho x;
   world_support_law : forall rho rho' u,
     (forall x, In x (L.world_support u) -> rho x = rho' x) ->
@@ -152,6 +166,9 @@ Section Interpretation.
 Context (M : model).
 Definition state := carrier M.
 Definition trace := list state.
+(** A [world] is a label environment, rather than one program state.
+    World variables map to states; trace variables map to nonempty traces.
+    The proof field makes the latter invariant available for every lookup. *)
 Record world : Type := World {
   world_mapping : nat -> state;
   trace_mapping : nat -> trace;
@@ -159,6 +176,9 @@ Record world : Type := World {
 }.
 Definition eval_update (w : world) (u : L.world_term) : state :=
   interpret_world_term M (world_mapping w) u.
+(** Label evaluation is total even for [Empty]. Assertion admissibility
+    separately excludes an empty complete label. In particular, [Join]
+    appends without testing or merging its endpoints. *)
 Fixpoint eval_label (w : world) (l : label) : trace :=
   match l with
   | Empty => []
@@ -278,15 +298,17 @@ Fixpoint finite_power (R : trace -> Prop) (n : nat) (tr : trace) : Prop :=
 Definition proper_suffix (small big : trace) : Prop :=
   small <> [] /\ exists prefix, prefix <> [] /\ big = prefix ++ small.
 
-(** The guard of a test is evaluated on the two-state stutter [s;s]. The zero
-    iteration case is the successful true test, also [s;s]. Quantification
-    writes one uniform value to every state; D2 is checked in Syntax.v. *)
 (** Atoms inspect the first state. [First] restricts its entire body to that
     singleton. [Suffix a b] chooses a later suffix satisfying [b], requiring
     [a] at each strictly intermediate suffix, but not at the current trace.
     Its dual is expressed by negating the corresponding failure condition.
     Boxes/diamonds extend the current trace by whole program executions;
     they test their body on the accumulated trace, not only its final state. *)
+(** These mutually recursive functions return propositions, not Boolean
+    evaluation results. Every formula, even [Truth] and [Neg a], is false
+    on the empty trace. Consequently Boolean and modal equivalences below
+    explicitly assume nonemptiness. Tests observe their guard on [s;s];
+    any quantifier behavior is supplied by an extension interpretation. *)
 Fixpoint formula_holds (a : formula) (tr : trace) : Prop :=
   match tr with
   | [] => False
@@ -328,6 +350,9 @@ Definition labelled_holds w o : Prop :=
   label_admissible w o.(occurrence_label) /\
   formula_holds o.(occurrence_formula) (eval_label w o.(occurrence_label)).
 Definition relation_admissible w r := Forall (label_admissible w) (relation_labels r).
+(** Action relations require singleton endpoint labels, while custom
+    relations receive the full evaluated argument traces. A longer label
+    cannot be silently treated as an action's first or last state. *)
 Definition relation_holds w r := match r with
   | ActionRelation action payload source target =>
       exists s t, eval_label w source = [s] /\ eval_label w target = [t] /\
@@ -340,9 +365,17 @@ Definition admissible j w :=
   Forall (relation_admissible w) j.(relations).
 Definition left_holds w context := Forall (labelled_holds w) context.
 Definition right_holds w context := exists o, In o context /\ labelled_holds w o.
+(** Sequent truth is an implication under admissibility and relational
+    assumptions: every antecedent must hold, and some succedent must hold.
+    [Valid] quantifies over label environments for the fixed model [M].
+    It does not quantify over all models; the module remains parameterized
+    so the same proofs can be instantiated for each model. *)
 Definition denote j w := admissible j w -> relations_hold w j.(relations) ->
   left_holds w j.(antecedent) -> right_holds w j.(succedent).
 Definition Valid j := forall w, denote j w.
+(** A single equality of evaluated labels transports all semantic layers:
+    relations, labelled assertions, admissibility, then the whole sequent.
+    This factors the common argument used by both sorts of substitution. *)
 Lemma relation_mapping f w w' :
   (forall l, eval_label w (f l) = eval_label w' l) -> forall r,
   relation_holds w (map_relation f r) <-> relation_holds w' r.
@@ -442,6 +475,10 @@ Lemma valid_admissible j : Valid j <-> forall w, admissible j w ->
 Proof. reflexivity. Qed.
 Lemma false_relations j w : ~ denote j w -> relations_hold w j.(relations).
 Proof. unfold denote; tauto. Qed.
+(** Classically, failure of the implication exposes a countermodel: labels
+    are admissible, relational assumptions and antecedents hold, and every
+    succedent is false. Rules.v repeatedly uses this decomposition when
+    sending a countermodel backward to a premise. *)
 Lemma false_sequent j w : ~ denote j w ->
   admissible j w /\ left_holds w j.(antecedent) /\
   forall o, In o j.(succedent) -> ~ labelled_holds w o.
@@ -511,9 +548,10 @@ Lemma overlap_snoc prefix s start rest result :
   start = s /\ result = (prefix ++ [s]) ++ rest.
 Proof. apply overlap_list_snoc. Qed.
 
-(** Semantic equations for rule kernels. The assignment/test equations
-    expose the last state of the current trace and append the resulting
-    state. Their diamond versions share the same endpoint calculation. *)
+(** Semantic equations for test rules. Splitting the current trace as
+    [prefix ++ [s]] exposes its last state. A successful test appends one
+    more [s], retaining the stutter in the accumulated trace. Boxes require
+    the body when the guard holds; diamonds require both guard and body. *)
 Lemma box_test prefix s guard a :
   formula_holds (Box (Test guard) a) (prefix ++ [s]) <->
   (formula_holds guard [s;s] -> formula_holds a ((prefix ++ [s]) ++ [s])).
@@ -663,9 +701,9 @@ Proof.
     destruct result; [contradiction|]. cbn [formula_holds] in Hbad; tauto.
 Qed.
 
-(** Instantiate the preceding trace equations at evaluated labels. These
-    forms match the literal label trees in RULE_EXPANSIONS.md, including
-    both the old and new assignment states and both copies of a test state. *)
+(** Instantiate the test equations at evaluated labels. These forms match
+    the literal label trees in RULE_EXPANSIONS.md, including both copies of
+    a test state. Tags may differ because they do not affect truth. *)
 Lemma box_test_label w sigma u guard body ta tb tg :
   labelled_holds w (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta) <->
   (labelled_holds w (Occ (Join (StateLabel u) (StateLabel u)) guard tg) ->
@@ -694,10 +732,10 @@ Proof.
   intuition discriminate.
 Qed.
 
-(** [First] permits an arbitrary compound body at the singleton head. The
-    following pure-head law instead needs purity; the public At rule uses
-    its atom/equality special case. A compound temporal body cannot generally
-    be moved to the head without the explicit [First] operator. *)
+(** [First] permits an arbitrary compound body at the singleton head.
+    [atom_head_label] below establishes the same reduction without [First]
+    only for the two atomic shapes. Extending that result to all [pureb]
+    formulas requires laws about an instance's extension interpretations. *)
 Lemma first_label w u sigma body tag tag' :
   labelled_holds w (Occ (Join (StateLabel u) sigma) (First body) tag) <->
   labelled_holds w (Occ (StateLabel u) body tag').
@@ -857,15 +895,13 @@ Proof. apply suffix_singleton. Qed.
 Lemma dual_suffix_singleton a b s : formula_holds (DualSuffix a b) [s].
 Proof. cbn; intros [suffix [Hp _]]; now apply (no_singleton_suffix s suffix). Qed.
 
-(** ** Freshness for the complete modal language
+(** ** Fresh world-label environments
 
-    A constant overwrite of a fresh variable can identify distinct states,
-    so it cannot in general be reversed when transporting modal executions.
-    Instead apply an involution [f] at that variable in every state. This
-    transformation is its own inverse, preserves endpoint matches, and can
-    transport executions in both directions. Later [swap_values] chooses an
-    involution that installs a desired eigenvariable value at the head. *)
-(** Fresh world names affect neither existing assertions nor relations. *)
+    Updating a fresh world name changes how labels are interpreted, without
+    rewriting semantic states or formula payloads. The support law shows
+    that existing labels keep exactly the same traces. Hence even modal
+    formulas keep their meanings without any transformation of executions.
+    [eval_fresh_name] then lets an atomic rule name a chosen successor. *)
 Lemma eval_update_fresh w x value u : ~ In x (L.world_support u) ->
   eval_update (replace_world w x value) u = eval_update w u.
 Proof.
@@ -920,6 +956,10 @@ Proof.
       by (intros l Hl; eapply fresh_relation_label; eauto);
     apply (relation_fresh w x value r Hlabels); exact H.
 Qed.
+(** Atomic modalities quantify over successors of the current last state.
+    The atomic-trace law and [overlap_snoc] eliminate the execution/result
+    witnesses. These equations are the common semantic basis of all four
+    atomic-action rules; no unique successor is assumed. *)
 Lemma box_atomic prefix s action payload body :
   formula_holds (Box (Atomic action payload) body) (prefix ++ [s]) <->
   forall next, interpret_action M action payload s next ->

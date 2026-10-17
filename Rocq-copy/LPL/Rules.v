@@ -8,8 +8,8 @@
     Read the common context/local-rule helpers first, then one simple Boolean
     rule. The [_base] modal rules establish semantics; [enhance_right] and
     [redecorate] add proved principal trace pairs. Later sections handle
-    changed worlds for substitution/eigenvariables, backlinks, and manual
-    pure leaves. RULE_EXPANSIONS.md fixes the ordered premises of each rule.
+    changed worlds for substitution/eigenvariables, backlinks, and structural
+    axioms. RULE_EXPANSIONS.md fixes the ordered premises of each rule.
 
     Most constructors end with [Defined] so local generation can compute
     their conclusions, premises and edge metadata. Their proof obligations
@@ -25,6 +25,8 @@ Module MakeRulesForModel (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn)
     (Pr : PROGRESS L Syn Sem) (I : Sem.INTERPRETATION).
 Import Syn Sem.
 Module Export P := Pr.ForModel I.
+(** Reuse the syntax helper to extract tags from any chosen occurrence list
+    by placing that list in the succedent of a temporary judgment. *)
 Definition context_tags (context : list occurrence) := judgment_tags (Jdg [] context).
 
 (** Tag uniqueness allows a list lookup to be replaced by the rank of a known
@@ -149,6 +151,9 @@ Proof.
       rewrite Forall_forall in Htargets. apply Htargets; eapply nth_error_In; eauto.
 Defined.
 
+(** Project the world selected by a rule's dependent counterstep witness.
+    [local_rule_world] records that ordinary local rules keep the world;
+    later decoration proofs use it to reuse the selected false premise. *)
 Definition counter_world r w H :=
   proj1_sig (projT2 (projT2 (r.(Cyclic.rule_counter_step) w H))).
 
@@ -161,6 +166,9 @@ Proof.
   reflexivity.
 Qed.
 
+(** Antecedents behave as conjunctions; succedents behave as disjunctions.
+    These four equations turn list bookkeeping into propositional reasoning
+    so each rule can concentrate on its principal connective. *)
 Lemma left_app w a b : left_holds M w (a ++ b) <-> left_holds M w a /\ left_holds M w b.
 Proof. apply Forall_app. Qed.
 Lemma left_cons w o rest : left_holds M w (o :: rest) <-> labelled_holds M w o /\ left_holds M w rest.
@@ -179,6 +187,10 @@ Qed.
 Section RelationContext.
 Context (R : list relation_atom).
 Local Notation Jdg := (Rdg R).
+(** [pre] and [post] surround the selected principal occurrence. Each inner
+    list in [alternatives] replaces that occurrence in one premise; the outer
+    list orders the premises. For example, [[a];[b]] means two premises,
+    whereas [[a;b]] means one premise containing both occurrences. *)
 Definition right_conclusion lhs pre post principal := Jdg lhs (pre ++ principal :: post).
 Definition right_targets lhs pre post alternatives :=
   map (fun replacement => Jdg lhs (pre ++ replacement ++ post)) alternatives.
@@ -397,9 +409,9 @@ Definition left_label_equivalent (name : string) (pre post rhs : list occurrence
     (Heq : forall w, labelled_holds M w principal <-> labelled_holds M w replacement) : Cyclic.rule_instance :=
   left_one name pre post rhs principal replacement Hs Ht (fun w H => proj1 (Heq w) H).
 
-(** The [_base] suffix marks a semantically proved rule before principal
-    rank metadata is strengthened. Assignment expands a final state update
-    into old/new label components; it does not discard the existing prefix. *)
+(** Head-observation rules change the label according to a proved semantic
+    equation. [First] explicitly restricts the body to the initial state;
+    the suffix component of the original label is therefore discarded. *)
 Definition first_right lhs pre post u sigma body ta tb Hs Ht :=
   right_label_equivalent "First.R" lhs pre post
     (Occ (Join (StateLabel u) sigma) (First body) ta) (Occ (StateLabel u) body tb) Hs Ht
@@ -533,6 +545,9 @@ Proof.
   apply Hedge; try assumption; eapply nth_error_In; exact Hnth.
 Defined.
 
+(** Select an indexed member satisfying [Q] from a finite list, using
+    classical cases on [Q]. The returned index identifies the exact premise
+    stored in a rule record; it is distinct from a formula occurrence tag. *)
 Definition finite_selection {A : Type} (xs : list A) (Q : A -> Prop)
     (H : exists x, In x xs /\ Q x) :
     { k : nat & { x : A | nth_error xs k = Some x /\ Q x }}.
@@ -614,6 +629,9 @@ Proof.
   exists k, p, w; auto.
 Defined.
 
+(** [_base] rules use semantic equations and retain unchanged context pairs.
+    The public box-right rules below additionally prove principal rank
+    bounds before adding a continuation pair. *)
 Definition box_sequence_right_base lhs pre post l a b body ta tb Hs Ht :=
   right_equivalent "B.Seq.R" lhs pre post l (Box (Seq a b) body) (Box a (Box b body)) ta tb Hs Ht
     (fun tr Hne => box_sequence M a b body tr Hne).
@@ -667,8 +685,9 @@ Definition box_star_left pre post rhs l a body ta tb tc Hs Ht :=
     ta tb tc Hs Ht (fun tr Hne => box_star M a body tr Hne).
 
 (** Public traced box rules. Sequence, choice and star only preserve or
-    decrease rank weakly; assignment proves strict decrease. In each call
-    to [enhance_right], its final Boolean records this distinction. A missing
+    decrease rank weakly; atomic steps and tests later prove strict decrease.
+    The [progress] Boolean passed to [enhance_right] records whether strict
+    decrease is required. A missing
     continuation tag still produces no principal pair. *)
 Definition box_sequence_right (lhs pre post : list occurrence) (l : label) (a b : program) (body : formula)
     (ta tb : option nat)
@@ -725,7 +744,10 @@ Defined.
 
 (** Negation/implication can move an assertion across the sequent. Only
     unchanged succedent context occurrences retain trace pairs; truth
-    equivalence by itself does not justify tracing through a side change. *)
+    equivalence by itself does not justify tracing through a side change.
+    In the compact [ltac] bodies, [Hall] supplies premise denotations;
+    [denote_wf] removes their admissibility guards; context equations expose
+    conjunctions/disjunctions; [tauto] finishes the connective argument. *)
 Definition negation_right lhs pre post l a ta tb Hs Ht :=
   local_rule "Not.R" (right_conclusion lhs pre post (Occ l (Neg a) ta))
     [Jdg (lhs ++ [Occ l a tb]) (pre ++ post)] Hs Ht
@@ -845,6 +867,9 @@ Definition diamond_sequence_left pre post rhs l a b body ta tb Hs Ht :=
   left_equivalent "D.Seq.L" pre post rhs l (Diamond (Seq a b) body) (Diamond a (Diamond b body)) ta tb Hs Ht
     (fun tr Hne => diamond_sequence M a b body tr Hne).
 
+(** A disjunctive semantic equation becomes one right premise with both
+    alternatives, or two left premises with one alternative each. Compare
+    [right_two_equivalent] for the conjunctive box equations. *)
 Definition right_two_disjunctive (name : string) (lhs pre post : list occurrence) (l : label)
     (a b c : formula) (ta tb tc : option nat)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ l a ta)) = true)
@@ -1159,6 +1184,10 @@ Definition trace_substitution_rule original x replacement (Hne : label_nonemptyb
     (fun w l => eval_trace_label_substitution M w x replacement
       (proj1 (label_nonemptyb_spec M w replacement) Hne) l) Hs Ht.
 
+(** For rules that change worlds, build a unary rule from countermodel
+    propagation directly. Classical double-negation elimination derives
+    ordinary validity: a false source would give a false target, contradicting
+    validity of that target in every world, including the chosen new world. *)
 Definition counter_rule (name : string) (source target : judgment) (edge : Cyclic.edge_info)
     (Hcounter : forall w, ~ denote M source w ->
       { w' : world M | ~ denote M target w' /\ Cyclic.respects_edge source target w w' edge })
@@ -1172,6 +1201,9 @@ Proof.
     exists 0, {| Cyclic.premise_judgment := target; Cyclic.premise_edge := edge |}, w'; auto.
 Defined.
 
+(** This unary identity inference supplies the logical step for a backlink.
+    A graph node separately chooses its companion index, and the graph's
+    global trace check must still establish progress around cycles. *)
 Definition exact_backlink j Hwf :=
   local_rule "Backlink.exact" j [j] Hwf (Forall_cons _ Hwf (Forall_nil _))
     (fun w Hall => Hall j (or_introl eq_refl)).
@@ -1270,7 +1302,12 @@ Defined.
 
 End RelationContext.
 
-(** ** Atomic actions and explicit relational assumptions *)
+(** ** Atomic actions and explicit relational assumptions
+
+    Box-right and diamond-left introduce a fresh name for a successor and
+    add its action relation to the premise. Box-left and diamond-right use
+    an explicitly supplied relation in the conclusion and remove it in the
+    premise. Freshness must preserve both assertion and relation contexts. *)
 Lemma occurrence_rank_fresh source o w x value :
   world_freshb x source = true -> In o (source.(antecedent) ++ source.(succedent)) ->
   occurrence_rank o (replace_world M w x value) = occurrence_rank o w.
@@ -1311,6 +1348,9 @@ Proof.
     apply (labelled_fresh M w x value o Hnames); exact Ho.
 Qed.
 
+(** The two-world counterpart of [continuation_edge_respects]. The caller
+    proves retained-context rank bounds across the world change, then adds
+    the principal bound between those same worlds. *)
 Lemma continuation_edge_worlds source target a b progress w w' :
   judgment_wfb source = true -> judgment_wfb target = true ->
   In a source.(succedent) -> In b target.(succedent) ->
@@ -1341,6 +1381,8 @@ Proof.
     rewrite (rank_context_occ _ _ b _ (wf_unique _ Ht) Hb Htb); apply Hlt; reflexivity.
 Qed.
 
+(** An action relation names only its singleton endpoints. Its body label
+    instead retains the entire old prefix and appends the new state. *)
 Definition action_relation action payload u v :=
   ActionRelation action payload (StateLabel u) (StateLabel v).
 Definition action_label sigma u v := Join (Join sigma (StateLabel u)) (StateLabel v).
@@ -1374,6 +1416,10 @@ Proof.
   apply (proj2 (diamond_atomic M (eval_label M w sigma) (eval_update M w u) action payload body)); exists (eval_update M w v); auto.
 Qed.
 
+(** To refute a right box, choose a failing successor from a minimum source
+    counterexample. This choice gives both body falsity and strict descent;
+    an arbitrary failing successor would not suffice for the rank bound.
+    The fresh name [y] denotes that successor in the premise world. *)
 Definition box_atomic_right R lhs pre post sigma u action payload body y ta tb
     (Hs : judgment_wfb (right_conclusion R lhs pre post
       (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta)) = true)
@@ -1401,6 +1447,8 @@ Proof.
   set (next := epsilon (inhabits (carrier_inhabitant M)) Q).
   assert (Q next) as [Hstep [Hbody Hrank]].
   { unfold next; apply epsilon_spec; apply atomic_minimum_successor; exact Hbad. }
+  (* [epsilon] chooses a semantic state using classical existence. The
+     rule generator computes only syntax and never evaluates this choice. *)
   set (w' := replace_world M w y next).
   assert (eval_label M w' (Join sigma (StateLabel u)) = eval_label M w sigma ++ [eval_update M w u]) as Hprefix.
   { unfold w'; rewrite eval_label_fresh; [reflexivity|].
@@ -1417,6 +1465,9 @@ Proof.
     { unfold source; cbn [right_conclusion antecedent succedent]; rewrite !in_app_iff; cbn; tauto. }
     pose proof (fresh_occurrence source y principal Hfresh Hmember) as Hnames.
     apply Hnames; cbn [principal occurrence_label label_world_names]; apply in_app_iff; auto. }
+  (* Rebuild the premise countermodel: old relations and contexts survive
+     freshness, the new relation holds by [Hstep], and the new body is false
+     by [Hbody]. Then prove every pair on its single edge at these worlds. *)
   exists w'; split.
   - intro Hden; pose proof (proj1 (denote_wf target w' Ht) Hden) as Hraw.
     assert (relations_hold M w' target.(relations)) as Hrelations.
@@ -1442,6 +1493,9 @@ Proof.
     + intros _; unfold occurrence_rank; cbn [principal replacement occurrence_label occurrence_formula]; rewrite Hlabel; exact Hrank.
 Defined.
 
+(** A true box supplies its body at the successor named by the selected
+    relation. No fresh world is needed, and only unchanged succedent tags
+    are routed. The consumed relation sits between [Rpre] and [Rpost]. *)
 Definition box_atomic_left Rpre Rpost pre post rhs sigma u v action payload body ta tb
     (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action payload u v :: Rpost)
       (pre ++ Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta :: post) rhs) = true)
@@ -1462,6 +1516,9 @@ Proof.
     split; [exact Hpre|]. split; [eapply box_action_use; eauto|exact Hpost].
 Defined.
 
+(** The selected action relation witnesses the diamond's existential step.
+    A true body in the premise therefore establishes the conclusion's
+    diamond; the surrounding right context supplies the other cases. *)
 Definition diamond_atomic_right Rpre Rpost lhs pre post sigma u v action payload body ta tb
     (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action payload u v :: Rpost) lhs
       (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post)) = true)
@@ -1482,6 +1539,10 @@ Proof.
   right; left; eapply diamond_action_use; eauto.
 Defined.
 
+(** A true left diamond already supplies a successor with a true body.
+    Name that state with fresh [y] and add its relation in the premise.
+    Unlike box-right, this step routes only unchanged right occurrences,
+    so it needs no minimum-rank choice for the left principal. *)
 Definition diamond_atomic_left R pre post rhs sigma u action payload body y ta tb
     (Hs : judgment_wfb (Rdg R
       (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post) rhs) = true)
@@ -1543,7 +1604,10 @@ Proof.
 Defined.
 
 (** Relations can be explicitly weakened, exchanged, or contracted without
-    attaching formula-occurrence tags to them. *)
+    attaching formula-occurrence tags to them. Read the definitions backward
+    from conclusion to premise: weakening removes one assumption; contraction
+    duplicates one. Soundness follows because true conclusion assumptions
+    imply true premise assumptions, while formula contexts stay identical. *)
 Definition relation_structural source target Hs Ht
     (Hformula_left : source.(antecedent) = target.(antecedent))
     (Hformula_right : source.(succedent) = target.(succedent))

@@ -94,6 +94,9 @@ Proof.
   destruct g as [root [|first rest]]; simpl; [discriminate|lia].
 Qed.
 
+(** The framework always starts at node index 0. The graph also stores a
+    separate root judgment; structural checking proves that it agrees with
+    that node, so validity of node 0 proves the advertised theorem. *)
 Lemma structural_root_label g :
   Cyclic.structural_check g = true ->
   Cyclic.label_at g 0 = g.(Cyclic.graph_root).
@@ -315,6 +318,10 @@ Lemma trace_transitionb_sound tw i j e :
   Cyclic.trace_transition tw i j e.
 Proof.
   unfold Cyclic.trace_transitionb, Cyclic.trace_transition.
+  (* The four cases are source/target tags present or absent. With two
+     tags, the edge must route the pair and either mark strict rank progress
+     or decrease the witness potential. Losing a selected tag is rejected;
+     starting one is allowed; two absent tags require potential descent. *)
   destruct (Cyclic.witness_tag tw i) as [a|];
     destruct (Cyclic.witness_tag tw j) as [b|]; simpl.
   - intros H.
@@ -415,6 +422,9 @@ Proof.
       (raw_check_witness g tw Hcheck) Hedge Hlive).
 Defined.
 
+(** The certificate retains the same graph and witness, so its executable
+    check is exactly the original [Hcheck]. Reflection added semantic proofs
+    without replacing the finite data that was checked. *)
 Lemma certify_raw_check_check g tw Hcheck :
   Cyclic.check_certificate (certify_raw_check g tw Hcheck) = true.
 Proof. exact Hcheck. Qed.
@@ -445,6 +455,9 @@ Definition empty_trace_witness : Cyclic.trace_witness :=
   {| Cyclic.witness_tag := fun _ => None;
      Cyclic.witness_potential := fun _ => 0 |}.
 
+(** A single axiom node has no outgoing edges and needs no selected trace
+    tag or potential decrease. This example shows the full certification
+    path without the additional bookkeeping of a cyclic graph. *)
 Definition axiom_graph (a : Cyclic.axiom_instance) : Cyclic.graph :=
   {| Cyclic.graph_root := a.(Cyclic.axiom_conclusion);
      Cyclic.graph_nodes :=
@@ -467,6 +480,9 @@ Proof.
     unfold Cyclic.node_wfb, axiom_graph. simpl.
     exact HeqT.
   }
+  (* All graph lists now have at most one element. Unfolding the finite
+     checkers reduces the goal to reflexive root/conclusion comparisons;
+     the axiom's semantic theorem remains stored in its node payload. *)
   unfold axiom_graph in Hnode.
   unfold Cyclic.raw_check, Cyclic.structural_check, axiom_graph,
     Cyclic.node_wfb, Cyclic.all_nodes_wfb_from, Cyclic.all_reachableb,

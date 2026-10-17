@@ -80,13 +80,16 @@ Definition continue_tag (tag : option nat) a := if traceableb a then tag else No
 
 
 (** Generate at one selected right occurrence. [pre]/[post] preserve the
-    surrounding context. Inner label matches are intentional: assignment and
-    test rules require an exposed final state, whereas temporal rules require
+    surrounding context. Inner label matches are intentional: atomic-action
+    and test rules require an exposed final state, whereas temporal rules require
     an exposed initial state. Callers can request explicit label algebra to
     present these shapes; no normalization is attempted here. *)
 Section RelationContext.
 Context (R : list relation_atom).
 Local Notation Jdg := (Rdg R).
+(** The local aliases fix [R] for ordinary logical rules. Atomic rules and
+    relational structural rules are called with explicit contexts because
+    their premise may add, remove or duplicate a relation. *)
 Local Notation atom_head_left := (K.atom_head_left R).
 Local Notation atom_head_right := (K.atom_head_right R).
 Local Notation box_choice_left := (K.box_choice_left R).
@@ -149,7 +152,10 @@ Local Notation weakening_left := (K.weakening_left R).
 Local Notation weakening_right := (K.weakening_right R).
 Local Notation wellformed_left_principal := (K.wellformed_left_principal R).
 Local Notation wellformed_principal := (K.wellformed_principal R).
-(** Finite local action-rule candidates. No action relation is evaluated. *)
+(** Finite local action-rule candidates. No action relation is evaluated.
+    The eigenvariable candidates take an explicit fresh number [y]; the
+    ordinary scan below chooses it with [fresh_name]. Use-candidates take a
+    relation position instead, so no semantic successor search is involved. *)
 Definition atomic_boxright_candidate lhs pre o post y :=
   match o.(occurrence_formula), o.(occurrence_label) with
   | Box (Atomic action payload) body, Join sigma (StateLabel u) =>
@@ -172,6 +178,10 @@ Definition atomic_diamondleft_candidate pre o post rhs y :=
           (pre ++ Occ (action_label sigma u (L.world_name y)) body None :: post) rhs]
         (fun Hs Ht => diamond_atomic_left R pre post rhs sigma u action payload body y ta None Hs (Forall_inv Ht) Hfresh))
   | _, _ => None end.
+(** The relation pattern extracts a potential target world term [v]. It
+    reconstructs the required action, payload and source from the principal;
+    [ensure_rule] later compares that entire conclusion with the input. Thus
+    an unrelated relation with the same target shape is still rejected. *)
 Definition atomic_boxleft_candidate Rpre relation Rpost pre o post rhs :=
   match o.(occurrence_formula), o.(occurrence_label), relation with
   | Box (Atomic action payload) body, Join sigma (StateLabel u), ActionRelation _ _ _ (StateLabel v) =>
@@ -189,6 +199,9 @@ Definition atomic_diamondright_candidate Rpre relation Rpost lhs pre o post :=
       [Rdg (Rpre ++ Rpost) lhs (pre ++ Occ (action_label sigma u v) body tb :: post)]
       (fun Hs Ht => diamond_atomic_right Rpre Rpost lhs pre post sigma u v action payload body o.(occurrence_tag) tb Hs (Forall_inv Ht))
   | _, _, _ => None end.
+(** Preserve the exact relation position using a prefix and suffix, just as
+    the occurrence scan does for formula contexts. Candidates may fail;
+    [accepted_rules] later removes failed or mismatched constructions. *)
 Fixpoint scan_relations pre rest
     (build : list relation_atom -> relation_atom -> list relation_atom -> option Cyclic.rule_instance) :=
   match rest with
@@ -196,6 +209,9 @@ Fixpoint scan_relations pre rest
   | relation :: post => build pre relation post :: scan_relations (pre ++ [relation]) post build
   end.
 
+(** Each branch lists complete local alternatives, not subsequent search
+    steps. In [right_targets], [[o1];[o2]] builds two premises, whereas
+    [[o1;o2]] builds one premise with two succedent alternatives. *)
 Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list occurrence) : list (option Cyclic.rule_instance) :=
   let j := right_conclusion lhs pre post o in
   let l := o.(occurrence_label) in
@@ -228,6 +244,9 @@ Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list oc
     | Atomic _ _ => scan_relations [] R (fun rp rel rq => atomic_diamondright_candidate rp rel rq lhs pre o post)
     | Test guard => match l with
       | Join sigma (StateLabel u) => let tb := tag_for j 0 body in
+        (* This scheme consumes a guard at the final antecedent position.
+           Reconstructing that occurrence is safe because [ensure_rule]
+           accepts only an exact match with the original judgment. *)
         let gamma := firstn (Nat.pred (List.length lhs)) lhs in
         [verified_build (right_conclusion (gamma ++ [Occ (Join (StateLabel u) (StateLabel u)) guard None]) pre post
           (Occ (Join sigma (StateLabel u)) (Diamond (Test guard) body) ta))
@@ -305,10 +324,10 @@ Definition left_at (pre : list occurrence) (o : occurrence) (post rhs : list occ
     | _ => [] end
   end.
 
-(** Move one occurrence at a time from [rest] into [pre]. This finite scan
-    preserves order and covers non-head positions. It enumerates local
-    alternatives only; it never recurses into newly generated proof goals. *)
-(** FOPL reuses all common cases and supplies its assignment/binder cases. *)
+(** FOPL uses these restricted dispatchers to reuse the common cases while
+    supplying its own assignment/binder handling. Only the generic atomic
+    modality cases are excluded here; the full PPL scan uses [left_at] and
+    [right_at] directly. *)
 Definition right_regular_at lhs pre o post :=
   match o.(occurrence_formula) with
   | Box (Atomic _ _) _ | Diamond (Atomic _ _) _ => []
@@ -318,6 +337,9 @@ Definition left_regular_at pre o post rhs :=
   | Box (Atomic _ _) _ | Diamond (Atomic _ _) _ => []
   | _ => left_at pre o post rhs end.
 
+(** Move one occurrence at a time from [rest] into [pre]. This finite scan
+    preserves order and covers non-head positions. It enumerates local
+    alternatives only; it never recurses into newly generated proof goals. *)
 Fixpoint scan_occurrences pre rest
     (build : list occurrence -> occurrence -> list occurrence -> list (option Cyclic.rule_instance)) :=
   match rest with
@@ -331,9 +353,9 @@ Fixpoint accepted_rules j candidates :=
   | candidate :: rest => match ensure_rule j candidate with
     | Some r => r :: accepted_rules j rest | None => accepted_rules j rest end
   end.
-(** Stop at the manual pure boundary. Generic Boolean/quantifier kernels are
-    still available by explicit request, but this scan does not become a
-    tactic for solving arbitrary pure-FOL sequents. *)
+(** The generic scan includes ordinary propositional decomposition, even
+    for pure formulas. It has no language-specific quantifier rules or truth
+    oracle; the separate FOPL facade imposes its own manual pure boundary. *)
 Definition generate_rules_in_context j :=
   accepted_rules j (scan_left [] j.(antecedent) j.(succedent) ++ scan_right j.(antecedent) [] j.(succedent)).
 
@@ -421,8 +443,8 @@ Proof.
 Qed.
 
 Inductive side := OnLeft | OnRight.
-(** Requests make all non-enumerable choices explicit: instantiating terms,
-    eigenvariables, substitutions, cut partitions and backlink companions.
+(** Requests make caller choices explicit: eigenvariables, substitutions,
+    cut partitions, rule names and backlink companions.
     Positions are zero-based. The label-algebra requests also take an explicit
     tree path; supplying an original judgment fixes the intended premise. *)
 Inductive rule_request :=
@@ -450,12 +472,18 @@ Inductive rule_request :=
 Fixpoint rename_lookup renaming x :=
   match renaming with [] => x | (a,b)::rest => if Nat.eqb x a then b else rename_lookup rest x end.
 
+(** Return a context split only for an existing zero-based position. [pre]
+    has [n] entries, and the suffix skips both those entries and the selected
+    occurrence. Out-of-range requests fail with [None]. *)
 Definition at_position (context : list occurrence) n :=
   match nth_error context n with
   | None => None
   | Some o => Some (firstn n context, o, skipn (Datatypes.S n) context)
   end.
 
+(** A [Local] request chooses by the kernel's rule-name string, rather than
+    by the candidate's position in a list. The caller still chooses the
+    principal occurrence separately with [at_position]. *)
 Fixpoint named_candidate name candidates :=
   match candidates with
   | [] => None
@@ -463,9 +491,9 @@ Fixpoint named_candidate name candidates :=
   | Some r :: rest => if String.eqb name r.(Cyclic.rule_name) then Some r else named_candidate name rest
   end.
 
-(** Recover the exact context split at the requested position, then dispatch
-    only the requested scheme. Even an unused term is checked for arity: a
-    vacuous quantifier body must not accept a malformed request parameter. *)
+(** Recover the exact context split, then dispatch local, weakening or
+    adjacent-exchange requests. Language-specific term instantiation belongs
+    to an instance's request layer, not this generic dispatcher. *)
 Definition requested_at j location n request :=
   let context := match location with OnLeft => j.(antecedent) | OnRight => j.(succedent) end in
   match at_position context n with
@@ -517,6 +545,9 @@ Definition atomic_use_requested j location n relation_index :=
     | OnLeft => atomic_boxleft_candidate rp relation rq pre o post j.(succedent)
     | OnRight => atomic_diamondright_candidate rp relation rq j.(antecedent) pre o post end
   | _, _ => None end.
+(** As in the kernel, contraction is read backward: the conclusion has one
+    copy of the selected relation and its premise has two. Weakening instead
+    removes the selected relation in the premise. *)
 Definition relation_requested j n (contract : bool) :=
   match nth_error R n with
   | None => None
@@ -538,6 +569,10 @@ Definition relation_exchange_requested j n :=
           (Permutation_app_head rp (perm_swap b a rest)))
   | _ => None end.
 
+(** This dispatcher builds candidates before the final input comparison.
+    Substitution and label algebra start from an explicit [original]
+    premise; cuts start from supplied context partitions. The wrapper must
+    verify that their reconstructed conclusion is exactly the requested [j]. *)
 Definition raw_requested j request :=
   match request with
   | CutRelations Rgamma Rsigma gamma sigma delta lambda cutformula =>
@@ -595,6 +630,10 @@ Proof.
   destruct (judgment_eqb _ _); [apply ensure_rule_spec|discriminate].
 Qed.
 End RelationContext.
+(** Public entry points specialize the context parameter to [j]'s own
+    relation list, so ordinary callers need supply only the judgment and,
+    when appropriate, a request. The following theorems expose the same
+    checked syntax and edge guarantees after that specialization. *)
 Definition generate_rules j := generate_rules_in_context (relations j) j.
 Definition generate_requested j req := generate_requested_in_context (relations j) j req.
 Theorem all_generated_rules_spec j r : In r (generate_rules j) ->
