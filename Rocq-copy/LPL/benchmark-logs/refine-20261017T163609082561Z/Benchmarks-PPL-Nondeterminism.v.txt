@@ -1,0 +1,8 @@
+File "./Benchmarks/PPL/Nondeterminism.v", line 24, characters 85-91:
+Error:
+In environment
+Hbox : formula_holds M (Box (act Acquire) (Next (atom IsHeld))) [Idle]
+Hfalse : formula_holds M Falsity [Released]
+The term "Hfalse" has type "formula_holds M Falsity [Released]"
+while it is expected to have type "False".
+

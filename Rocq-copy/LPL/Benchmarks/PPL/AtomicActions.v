@@ -3,7 +3,7 @@ From Stdlib Require Import List Bool Arith String.
 From CyclistRocq.LPL.Benchmarks.PPL Require Import Support.
 Import ListNotations Generation Cert.
 Open Scope string_scope.
-Definition edge := action_relation Acquire tt 0 1.
+Definition edge := action_relation Acquire 0 1.
 Definition extended := action_label Empty 0 1.
 
 Definition br_root := Jdg [assertion l0 safe]
@@ -60,10 +60,10 @@ Definition unrelated_relation_goal := Rdg [CustomRelation SameState [StateLabel 
   [assertion l0 safe] [assertion (Join Empty l0) (Box (act Acquire) (First safe))].
 Example freshness_scans_relation_arguments : someb (generate_requested unrelated_relation_goal (AtomicEigen OnRight 0 2)) = false.
 Proof. vm_compute; reflexivity. Qed.
-Definition wrong_action := Rdg [action_relation Stutter tt 0 1] bl_root.(antecedent) bl_root.(succedent).
+Definition wrong_action := Rdg [action_relation Stutter 0 1] bl_root.(antecedent) bl_root.(succedent).
 Example wrong_action_rejected : someb (generate_requested wrong_action (AtomicUse OnLeft 0 0)) = false.
 Proof. vm_compute; reflexivity. Qed.
-Definition wrong_source := Rdg [action_relation Acquire tt 1 0] bl_root.(antecedent) bl_root.(succedent).
+Definition wrong_source := Rdg [action_relation Acquire 1 0] bl_root.(antecedent) bl_root.(succedent).
 Example wrong_source_rejected : someb (generate_requested wrong_source (AtomicUse OnLeft 0 0)) = false.
 Proof. vm_compute; reflexivity. Qed.
 Example missing_relation_rejected : someb (generate_requested (Jdg dr_root.(antecedent) dr_root.(succedent)) (AtomicUse OnRight 0 0)) = false.

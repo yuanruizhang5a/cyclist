@@ -1,0 +1,15 @@
+Axioms:
+S.predicate_symbol : Type
+I.interpretation : Old.model
+S.function_symbol : Type
+Axioms:
+S.predicate_symbol : Type
+I.interpretation : Old.model
+S.function_symbol : Type
+Axioms:
+S.predicate_symbol : Type
+I.interpretation : Old.model
+S.function_symbol : Type
+constructive_definite_description :
+  forall (A : Type) (P : A -> Prop), (exists ! x : A, P x) -> {x : A | P x}
+classic : forall P : Prop, P \/ ~ P

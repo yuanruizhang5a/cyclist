@@ -1,0 +1,2019 @@
+{
+  "run_utc": "20261017T054643680535Z",
+  "compiler": "The Rocq Prover, version 9.1.0\ncompiled with OCaml 4.14.1",
+  "benchmark_limit_seconds": 600,
+  "status": "passed",
+  "common_failure": null,
+  "common_build": [
+    {
+      "source": "Signature.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Signature.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.14396092099923408,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "9746c32c7ab04b5833b87365db18201fca8718e6b84af5608dab190ce98280ee",
+      "dependency_sha256": {},
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Signature.v.txt"
+    },
+    {
+      "source": "Syntax.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Syntax.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.6082587789933314,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "20345e18f1eb1b1316fbc611e785d7e537b07726ccb688859488151ab270982c",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Syntax.v.txt"
+    },
+    {
+      "source": "Semantics.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Semantics.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.8456410139988293,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "9fdbe272bd52084e6423950f268dd41d2fb31d57c659602b80206307e819d107",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Semantics.v.txt"
+    },
+    {
+      "source": "Progress.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Progress.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7163931289978791,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "1b1c59f318bf8e4f41902f20cda2317cf4adf482a8296d71e63a0d3f9ce57c44",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+        "Cyclic/Framework.v": "008c3becbbc3ed9c9d656c3eda10db11b545ef6d31082519aeabff38a68fec8b"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Progress.v.txt"
+    },
+    {
+      "source": "Rules.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Rules.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.8758445669955108,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "daaec8e8b60eabeb00cba458ece388ee4f173a9e2e86fc710553045533fa8ecb",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Rules.v.txt"
+    },
+    {
+      "source": "RuleGeneration.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "RuleGeneration.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.8252188770056819,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "1c94a41eab565477c645f4c9ac33d2bdd5a7acf07000b157abee203d230ca4d3",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061",
+        "LPL/Rules.v": "a9861539a264b960ed296877a9c6b78fc51131e2d2cbe6887fc48b0b7ac32520"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/RuleGeneration.v.txt"
+    },
+    {
+      "source": "Certification.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Certification.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.6016351700018276,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "a0a76f11415d15039dd44774453550cfd386818eb15329ad13c9722656c4b6a9",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061",
+        "LPL/Rules.v": "a9861539a264b960ed296877a9c6b78fc51131e2d2cbe6887fc48b0b7ac32520"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Certification.v.txt"
+    },
+    {
+      "source": "TraceSafety.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "TraceSafety.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.38379481099400437,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "00597d5a0feb8dad767dcda38b1cb8a29b56c65e026590dde8951b3f1360f5c3",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/TraceSafety.v.txt"
+    },
+    {
+      "source": "PPL/Instance.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "PPL/Instance.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.40885170699766604,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "da3c0c4f84c1781e2a11c14fb8fbe77ab7e16994fb7495264a49da640cd68fe9",
+      "dependency_sha256": {
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061",
+        "LPL/Rules.v": "a9861539a264b960ed296877a9c6b78fc51131e2d2cbe6887fc48b0b7ac32520",
+        "LPL/RuleGeneration.v": "26fafe7bede75e7793942ef1fc6c736f4076d7b2719e1a33ce065fff9bbba0a0",
+        "LPL/Certification.v": "ae604b6b1868fbc37401ad6af08c2d90c82346d3c2a80a72dec4ddd97033aece"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/PPL-Instance.v.txt"
+    },
+    {
+      "source": "FOPL/Signature.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Signature.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.07874597999762045,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+      "dependency_sha256": {},
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Signature.v.txt"
+    },
+    {
+      "source": "FOPL/Syntax.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Syntax.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.48698566700477386,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "cbcecc3f036b5b502cd5fb5395e22fcfdea60f53838b33c24acdf155f4f14195",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Syntax.v.txt"
+    },
+    {
+      "source": "FOPL/Semantics.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Semantics.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.0427084269977058,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "7d119e166003946e7ffe092bd501d88c2cb903c40e3c7ea445c7562b2f8a76f0",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Syntax.v": "23c5573ed3e923a0fc45177790320efd8a6effdf72190d0925afecaca0e7ed3f",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Semantics.v.txt"
+    },
+    {
+      "source": "FOPL/Progress.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Progress.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.5423066399962408,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "ff085a8bc54571bfcefee1277bf958778c2435d1606d85b91cfc0ca27eab2493",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Syntax.v": "23c5573ed3e923a0fc45177790320efd8a6effdf72190d0925afecaca0e7ed3f",
+        "LPL/FOPL/Semantics.v": "1aa717b0bac95a021256d9d8b61dbee91ca4c3fdc506326198b79df49b48ede9",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061",
+        "Cyclic/Framework.v": "008c3becbbc3ed9c9d656c3eda10db11b545ef6d31082519aeabff38a68fec8b"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Progress.v.txt"
+    },
+    {
+      "source": "FOPL/Rules.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Rules.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 2.3939667259983253,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "0e6d953729b9a4cab4189ab964743ed4a060a6ddabb31d2ecf185b187f304425",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Syntax.v": "23c5573ed3e923a0fc45177790320efd8a6effdf72190d0925afecaca0e7ed3f",
+        "LPL/FOPL/Semantics.v": "1aa717b0bac95a021256d9d8b61dbee91ca4c3fdc506326198b79df49b48ede9",
+        "LPL/FOPL/Progress.v": "529533a95a16a52611375d2c29b2d769bffe1147c28b99c0072e112e7b2addf1",
+        "LPL/Rules.v": "a9861539a264b960ed296877a9c6b78fc51131e2d2cbe6887fc48b0b7ac32520"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Rules.v.txt"
+    },
+    {
+      "source": "FOPL/RuleGeneration.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/RuleGeneration.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.9230537630064646,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "a31786893f224c4512f7967eae061df5b109f0b5050b4030bfed3b46404dd040",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Rules.v": "e170b3b711085537000313279bb6b690ab3edc274832c445457375fbbddd591a",
+        "LPL/RuleGeneration.v": "26fafe7bede75e7793942ef1fc6c736f4076d7b2719e1a33ce065fff9bbba0a0"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-RuleGeneration.v.txt"
+    },
+    {
+      "source": "FOPL/Certification.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Certification.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 2.0249855809961446,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "a82945ec2959d433ba4da2faddd1e2a0f2c776a5aabe712ee7b147a0714ee033",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Rules.v": "e170b3b711085537000313279bb6b690ab3edc274832c445457375fbbddd591a",
+        "LPL/Certification.v": "ae604b6b1868fbc37401ad6af08c2d90c82346d3c2a80a72dec4ddd97033aece"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Certification.v.txt"
+    },
+    {
+      "source": "FOPL/LegacyReference/Syntax.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/LegacyReference/Syntax.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7079669070008094,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "ae6c2b669e44ebc436ec5051e6a83b0e9c6b4f697c4bb18a6e33d477a87c6881",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-LegacyReference-Syntax.v.txt"
+    },
+    {
+      "source": "FOPL/LegacyReference/Semantics.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/LegacyReference/Semantics.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.3636542029998964,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "b23c076e15f6186918160e0a0b0e45fe7747cb72058e7f837fc0c07d61f01edf",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/LegacyReference/Syntax.v": "87be9e815bddcc5987879a4cc64e2b58084e3e848b19b1e8b8427860962f6ca5"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-LegacyReference-Semantics.v.txt"
+    },
+    {
+      "source": "FOPL/LegacyReference/Progress.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/LegacyReference/Progress.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.6462579880026169,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "6c4723708e571775d244c121f56846748cabdf2521576a73fad24da5e4a963e4",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/LegacyReference/Syntax.v": "87be9e815bddcc5987879a4cc64e2b58084e3e848b19b1e8b8427860962f6ca5",
+        "LPL/FOPL/LegacyReference/Semantics.v": "dae1f950598d1520f262744a09116a5b51fb6ccbe22df778f21e6117adf088e8",
+        "Cyclic/Framework.v": "008c3becbbc3ed9c9d656c3eda10db11b545ef6d31082519aeabff38a68fec8b"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-LegacyReference-Progress.v.txt"
+    },
+    {
+      "source": "FOPL/Compatibility.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Compatibility.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.1288411560017266,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "bd148d58a691428eca068fe5b7c503c3da415051669970a140be0491a5a0ce11",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Semantics.v": "1aa717b0bac95a021256d9d8b61dbee91ca4c3fdc506326198b79df49b48ede9",
+        "LPL/FOPL/LegacyReference/Progress.v": "a9b80a47758065d5dfd57df15f55b8ecc7fa749e52b7cb2dec90accccdba05ad",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Compatibility.v.txt"
+    },
+    {
+      "source": "FOPL/Benchmarks/Support.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Support.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 5.878018973999133,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "c28433d009f8471605f9db660e71968558711cd8ec2473dbee728b409b31e5bb",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Semantics.v": "1aa717b0bac95a021256d9d8b61dbee91ca4c3fdc506326198b79df49b48ede9",
+        "LPL/FOPL/Rules.v": "e170b3b711085537000313279bb6b690ab3edc274832c445457375fbbddd591a",
+        "LPL/FOPL/RuleGeneration.v": "b902be42864ad6ab7f73076797bc8524d33554f535cf839d2cd2eb89f6b1290a",
+        "LPL/FOPL/Certification.v": "9e245303a24fe9bd668bfe863fd5115c3d4befa00fbf2be364ca0d9b0bf29f01"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Support.v.txt"
+    },
+    {
+      "source": "Benchmarks/PPL/Support.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Support.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.4387608929973794,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "ed60169777e7d935108f371d33bf745ccf7e118ce45c1d12e92d2070c0f305f4",
+      "dependency_sha256": {
+        "LPL/PPL/Instance.v": "aca12556ea14777c330b3c53e6db3bb203052654236c55d0c3c26686f8436235",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061",
+        "LPL/Rules.v": "a9861539a264b960ed296877a9c6b78fc51131e2d2cbe6887fc48b0b7ac32520",
+        "LPL/RuleGeneration.v": "26fafe7bede75e7793942ef1fc6c736f4076d7b2719e1a33ce065fff9bbba0a0",
+        "LPL/Certification.v": "ae604b6b1868fbc37401ad6af08c2d90c82346d3c2a80a72dec4ddd97033aece"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Support.v.txt"
+    }
+  ],
+  "benchmarks": [
+    {
+      "source": "FOPL/Benchmarks/Labels.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Labels.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7310662750023766,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "6d6ca10bfc691111989df94a1f1270a7089f53fcdcd6945a233b2a425896a048",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Labels.v.txt",
+      "suite": "fopl",
+      "benchmark": "Labels",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "unit_label_valid"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/Signatures.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Signatures.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 13.87799636600539,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "272a73439e390da4e03d935a9a3cd8f7a655d63ac6d963fd028f5efb58c0da1a",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Rules.v": "e170b3b711085537000313279bb6b690ab3edc274832c445457375fbbddd591a",
+        "LPL/FOPL/RuleGeneration.v": "b902be42864ad6ab7f73076797bc8524d33554f535cf839d2cd2eb89f6b1290a",
+        "LPL/FOPL/Certification.v": "9e245303a24fe9bd668bfe863fd5115c3d4befa00fbf2be364ca0d9b0bf29f01",
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Signatures.v.txt",
+      "suite": "fopl",
+      "benchmark": "Signatures",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "BooleanInstance.boolean_signature_valid",
+        "SymbolicZ.arbitrary_model_reflexivity"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/Updates.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Updates.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.6755764909976278,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "037a38d84b0baeffeb00d6ef554f8100bf57ff5ee0ac5298ae23cd65cf502f71",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Updates.v.txt",
+      "suite": "fopl",
+      "benchmark": "Updates",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists world, admissible M grounded world"
+        }
+      ],
+      "assumption_theorems": [
+        "dependent_update_terminal_valid"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/Tests.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Tests.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7654077219995088,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "832f05201027ce914d65ccf8b922848af9f5896abc6c502929ca759d13aba12f",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Tests.v.txt",
+      "suite": "fopl",
+      "benchmark": "Tests",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "successful_test",
+          "statement": ": program_holds M (Test nonnegative) [s;s]"
+        },
+        {
+          "name": "failed_test",
+          "statement": ": ~ program_holds M (Test Falsity) [s;s]"
+        },
+        {
+          "name": "sensitive_test_uses_stutter",
+          "statement": ": program_holds M (Test (Next Truth)) [s;s]"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "failed_test_box_valid"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/RegularPrograms.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/RegularPrograms.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7783629969999311,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "62a60f33736363824fc1671f4b77432f35e5b88887f85b0a7189ac9b10a811a4",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-RegularPrograms.v.txt",
+      "suite": "fopl",
+      "benchmark": "RegularPrograms",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "two_assignment_sequence",
+          "statement": ": program_holds M (Seq p q) [s0;s1;s2]"
+        },
+        {
+          "name": "nondeterministic_left",
+          "statement": ": program_holds M (Choice p (Assign 0 zero)) [s0;s1]"
+        },
+        {
+          "name": "nondeterministic_right",
+          "statement": ": program_holds M (Choice p (Assign 0 zero)) [s0;s0]"
+        },
+        {
+          "name": "star_zero",
+          "statement": ": program_holds M (Star p) [s0;s0]"
+        },
+        {
+          "name": "star_one_has_final_stutter",
+          "statement": ": program_holds M (Star p) [s0;s1;s1]"
+        },
+        {
+          "name": "nested_iteration",
+          "statement": ": program_holds M (Star (Star p)) [s0;s0;s0]"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "regular_program_preserves_first_observation"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/Booleans.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Booleans.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7260585350013571,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "16e79a86c0eca39fe1d682e5e6f8268523de9e474d095211440cbe1f3a86a3f2",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Booleans.v.txt",
+      "suite": "fopl",
+      "benchmark": "Booleans",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "mixed_boolean_valid"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/Quantifiers.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Quantifiers.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7440961200045422,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "9e1489a908b71f736562961b6f94bf589d0429b1f9cf83881c73b929fd9c4adb",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Quantifiers.v.txt",
+      "suite": "fopl",
+      "benchmark": "Quantifiers",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        },
+        {
+          "name": "bad_conclusion_has_admissible_countermodel",
+          "statement": ": admissible M bad_conclusion (constant_world 0) /\\ ~ denote M bad_conclusion (constant_world 0)"
+        }
+      ],
+      "assumption_theorems": [
+        "universal_reflexivity"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/Temporal.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Temporal.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7462067090018536,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "0ea7bf4c7e54b44d4302508a2f6eff8cf4c17d8c72f6bdec9cfb36d13dcb8787",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Temporal.v.txt",
+      "suite": "fopl",
+      "benchmark": "Temporal",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "singleton_suffix_closes"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/AssignmentChange.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/AssignmentChange.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.751963306000107,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "264e12949bb287afe8e64a2bf1689897a7cb9af9627ef17fe9c25715aabaa5b9",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-AssignmentChange.v.txt",
+      "suite": "fopl",
+      "benchmark": "AssignmentChange",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {
+        "distinct_tag_count": 1,
+        "graph_size": 6
+      },
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "assignment_changes_next_value"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/RuleCoverage.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/RuleCoverage.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.3425840870040702,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "78c11c9ac5e5e7e2ae26bf918ee48b1fb093c0364f2d28a8fb2cb4d15a7c2fee",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-RuleCoverage.v.txt",
+      "suite": "fopl",
+      "benchmark": "RuleCoverage",
+      "proof_mode": "syntax / rule / checker checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 50,
+      "nonvacuity_evidence": [],
+      "assumption_theorems": [
+        "universal_right",
+        "suffix_right",
+        "box_choice_right",
+        "trace_substitution_rule",
+        "tag_renaming_backlink",
+        "raw_check_sound"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/CheckerNegative.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/CheckerNegative.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.5047192700003507,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "66f3c844b9d2bec4c293ab2ca26d08a0c82447cc4cae317993bafca46378f258",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CheckerNegative.v.txt",
+      "suite": "fopl",
+      "benchmark": "CheckerNegative",
+      "proof_mode": "syntax / rule / checker checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [],
+      "assumption_theorems": []
+    },
+    {
+      "source": "FOPL/Benchmarks/Cyclic.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/Cyclic.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.1217998349966365,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "0ae5983c7bb05f659ce7b9c1a6cd94247bb0a6d48b9b8a0a3cebc2bb200fa21b",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Cyclic.v.txt",
+      "suite": "fopl",
+      "benchmark": "Cyclic",
+      "proof_mode": "cyclic certificate",
+      "checked_graph_metrics": {
+        "graph_size": 11,
+        "distinct_tag_count": 1
+      },
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "star_prefix_invariant"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/CyclicTags.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/CyclicTags.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.3348941679942072,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "2ac1729b03f9f537fcf96426b64ff75427c2cbfc3d07f59a067efdf4c9115a60",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756",
+        "LPL/FOPL/Benchmarks/Cyclic.v": "2ece90476dd0c333e5824103b5edca2f4f550a5f9f6b7a7d908f0b240d2ad841"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CyclicTags.v.txt",
+      "suite": "fopl",
+      "benchmark": "CyclicTags",
+      "proof_mode": "cyclic certificate",
+      "checked_graph_metrics": {
+        "graph_size": 12,
+        "distinct_tag_count": 2
+      },
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "explicit_tag_renaming_cycle"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/CounterLoop.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/CounterLoop.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.8676937209966127,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "5fa6de2092d4404dc8f6ad2b5628869ba8fded047e35353d395812eee58b7c52",
+      "dependency_sha256": {
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756",
+        "LPL/TraceSafety.v": "5fe5f811ec3e09da96b9092205462dbd35630ab1af0cb63bfa064e5dbacfc858"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CounterLoop.v.txt",
+      "suite": "fopl",
+      "benchmark": "CounterLoop",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "step_safe",
+          "statement": ": trace_safe inv (program_holds M loop_step)"
+        },
+        {
+          "name": "every_finite_stop",
+          "statement": "n s tail : finite_power M (program_holds M loop_step) n (s :: tail) -> inv s -> Forall inv (s :: tail)"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        },
+        {
+          "name": "may_stop_before_exit",
+          "statement": ": program_holds M (Star loop_step) [constant_state 7;constant_state 7]"
+        },
+        {
+          "name": "zero_iterations_stutter",
+          "statement": "s : finite_power M (program_holds M loop_step) 0 [s;s]"
+        },
+        {
+          "name": "zero_iterations_not_identity",
+          "statement": "s : ~ finite_power M (program_holds M loop_step) 0 [s]"
+        }
+      ],
+      "assumption_theorems": [
+        "guarded_counter_all_visited_nonnegative"
+      ]
+    },
+    {
+      "source": "FOPL/Benchmarks/NestedProgram.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "FOPL/Benchmarks/NestedProgram.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 6.726495573995635,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "a27e04e37e102356cbbe6bcc5a8326b1c511d427e5adaf0a4c0636fb0662af3d",
+      "dependency_sha256": {
+        "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+        "LPL/FOPL/Rules.v": "e170b3b711085537000313279bb6b690ab3edc274832c445457375fbbddd591a",
+        "LPL/FOPL/RuleGeneration.v": "b902be42864ad6ab7f73076797bc8524d33554f535cf839d2cd2eb89f6b1290a",
+        "LPL/FOPL/Certification.v": "9e245303a24fe9bd668bfe863fd5115c3d4befa00fbf2be364ca0d9b0bf29f01",
+        "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756",
+        "LPL/TraceSafety.v": "5fe5f811ec3e09da96b9092205462dbd35630ab1af0cb63bfa064e5dbacfc858"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-NestedProgram.v.txt",
+      "suite": "fopl",
+      "benchmark": "NestedProgram",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "assignment_safe",
+          "statement": "t : trace_safe invariant (program_holds M (Assign 0 t))"
+        },
+        {
+          "name": "test_safe",
+          "statement": ": trace_safe invariant (program_holds M (Test Truth))"
+        },
+        {
+          "name": "seq_safe",
+          "statement": "a b : trace_safe invariant (program_holds M a) -> trace_safe invariant (program_holds M b) -> trace_safe invariant (program_holds M (Seq a b))"
+        },
+        {
+          "name": "union_safe",
+          "statement": "a b : trace_safe invariant (program_holds M a) -> trace_safe invariant (program_holds M b) -> trace_safe invariant (program_holds M (Choice a b))"
+        },
+        {
+          "name": "star_safe",
+          "statement": "a : trace_safe invariant (program_holds M a) -> trace_safe invariant (program_holds M (Star a))"
+        },
+        {
+          "name": "nested_safe",
+          "statement": ": trace_safe invariant (program_holds M (Star nested))"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "Example.preserves_uninterpreted_predicate_at_every_state"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/Instances.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Instances.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.0685627819984802,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "99fdc63318e5fbb4736de8e059a05613aeac817056b91468b6a3b34e1cef52d9",
+      "dependency_sha256": {
+        "LPL/PPL/Instance.v": "aca12556ea14777c330b3c53e6db3bb203052654236c55d0c3c26686f8436235",
+        "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+        "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+        "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+        "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061",
+        "LPL/Rules.v": "a9861539a264b960ed296877a9c6b78fc51131e2d2cbe6887fc48b0b7ac32520",
+        "LPL/RuleGeneration.v": "26fafe7bede75e7793942ef1fc6c736f4076d7b2719e1a33ce065fff9bbba0a0"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Instances.v.txt",
+      "suite": "ppl",
+      "benchmark": "Instances",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "arbitrary_action",
+          "statement": "a tr : Instance.Sem.program_holds M (Instance.Syn.Atomic a tt) tr <-> exists s t, tr=[s;t] /\\ F.step a s t"
+        },
+        {
+          "name": "boolean_atomic_run",
+          "statement": ": Boolean.Sem.program_holds BM (Boolean.Syn.Atomic true tt) [false;true]"
+        }
+      ],
+      "assumption_theorems": [
+        "structured_labels_are_interpreted",
+        "boolean_atomic_run"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/LabelsRelations.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/LabelsRelations.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.23885212000459433,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "b222ea15dd4a946b3995097c477e4b1afa0f6ba4841673f66e4033f1d8d26947",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-LabelsRelations.v.txt",
+      "suite": "ppl",
+      "benchmark": "LabelsRelations",
+      "proof_mode": "syntax / rule / checker checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [],
+      "assumption_theorems": [
+        "edge_holds"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/AtomicActions.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/AtomicActions.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.103860816998349,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "e09ef0d695998f172641e5e544cd0746c79d6774d2650fb7a28913f5ffc7acaa",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-AtomicActions.v.txt",
+      "suite": "ppl",
+      "benchmark": "AtomicActions",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {
+        "br_graph_nodes": 4,
+        "br_tag_count": 0,
+        "bl_graph_nodes": 2,
+        "bl_tag_count": 0,
+        "dr_graph_nodes": 2,
+        "dr_tag_count": 0,
+        "dl_graph_nodes": 4,
+        "dl_tag_count": 0
+      },
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M br_root w"
+        },
+        {
+          "name": "live_transition",
+          "statement": ": relations_hold M transition_world [edge]"
+        },
+        {
+          "name": "live_antecedent",
+          "statement": ": left_holds M transition_world dr_root.(antecedent)"
+        }
+      ],
+      "assumption_theorems": [
+        "atomic_box_right_valid",
+        "atomic_box_left_valid",
+        "atomic_diamond_right_valid",
+        "atomic_diamond_left_valid",
+        "box_atomic_right"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/Nondeterminism.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Nondeterminism.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.7458982210009708,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "08a27a584cd3ac7d32a27ba7ea7145002c16e5de7c5caed5640d1ee908b99613",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Nondeterminism.v.txt",
+      "suite": "ppl",
+      "benchmark": "Nondeterminism",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "acquire_held",
+          "statement": ": program_holds M (act Acquire) [Idle;Held]"
+        },
+        {
+          "name": "acquire_released",
+          "statement": ": program_holds M (act Acquire) [Idle;Released]"
+        },
+        {
+          "name": "actual_initial_condition",
+          "statement": ": left_holds M (constant_world Idle) root.(antecedent)"
+        },
+        {
+          "name": "admissible_initial_condition",
+          "statement": ": admissible M root (constant_world Idle)"
+        }
+      ],
+      "assumption_theorems": [
+        "both_branches_safe",
+        "one_branch_witnesses_diamond",
+        "not_every_branch_is_held",
+        "nondeterministic_box_valid"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/Booleans.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Booleans.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.44610657199518755,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "1115c43c4f86a3666ad75e0ba3942d1a4c75c2fd38239cc345f8da11499bd0a7",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Booleans.v.txt",
+      "suite": "ppl",
+      "benchmark": "Booleans",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "mixed_boolean_valid"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/Tests.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Tests.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.44957930000236956,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "cca4a2f3e324426e486d44b4d59513a39d211a45948ccf766d4764971d3091f3",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Tests.v.txt",
+      "suite": "ppl",
+      "benchmark": "Tests",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "successful_test",
+          "statement": ": program_holds M (Test safe) [s;s]"
+        },
+        {
+          "name": "failed_test",
+          "statement": ": ~ program_holds M (Test Falsity) [s;s]"
+        },
+        {
+          "name": "sensitive_test_uses_stutter",
+          "statement": ": program_holds M (Test (Next Truth)) [s;s]"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "failed_test_box_valid"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/RegularPrograms.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/RegularPrograms.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.4120676899983664,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "74a79eade194d09c409e9c2db01f79ac7c90c90326d3710bba07e63452476ed8",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3",
+        "LPL/Benchmarks/PPL/Nondeterminism.v": "98e97b28ff4a3997352281c3a73e4976d5a5e38638ae6eeb0c4bd436602834a3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-RegularPrograms.v.txt",
+      "suite": "ppl",
+      "benchmark": "RegularPrograms",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "sequence_run",
+          "statement": ": program_holds M (Seq p q) [Idle;Held;Released]"
+        },
+        {
+          "name": "both_choice_branches",
+          "statement": ": program_holds M (Choice p (act Stutter)) [Idle;Held] /\\ program_holds M (Choice p (act Stutter)) [Idle;Idle]"
+        },
+        {
+          "name": "star_zero_stutters",
+          "statement": ": program_holds M (Star p) [Idle;Idle]"
+        },
+        {
+          "name": "star_zero_is_not_singleton",
+          "statement": ": ~ finite_power M (program_holds M p) 0 [Idle]"
+        },
+        {
+          "name": "star_one_has_final_stutter",
+          "statement": ": program_holds M (Star p) [Idle;Held;Held]"
+        },
+        {
+          "name": "nested_star_zero",
+          "statement": ": program_holds M (Star (Star p)) [Idle;Idle]"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "regular_program_preserves_first_observation"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/Temporal.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Temporal.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.4180871029966511,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "c1e7cb1c1886024a84df6d88344c930e75436a4982a4171975ffb34a117af5b0",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Temporal.v.txt",
+      "suite": "ppl",
+      "benchmark": "Temporal",
+      "proof_mode": "semantic proof / generated certificate",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "singleton_suffix_closes"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/RuleCoverage.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/RuleCoverage.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.9198573219982791,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "4cb942fc596737ba9914be158c783fba50a465de75efebff4ed82490210e9539",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-RuleCoverage.v.txt",
+      "suite": "ppl",
+      "benchmark": "RuleCoverage",
+      "proof_mode": "syntax / rule / checker checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 53,
+      "nonvacuity_evidence": [],
+      "assumption_theorems": [
+        "box_atomic_right",
+        "suffix_right",
+        "box_choice_right",
+        "trace_substitution_rule",
+        "tag_renaming_backlink",
+        "raw_check_sound"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/CheckerNegative.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/CheckerNegative.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.2585173859988572,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "193597a7dfe278cdf61cafe3e9b1d17c56e702aaf9457c2811f1338a8817e576",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-CheckerNegative.v.txt",
+      "suite": "ppl",
+      "benchmark": "CheckerNegative",
+      "proof_mode": "syntax / rule / checker checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [],
+      "assumption_theorems": []
+    },
+    {
+      "source": "Benchmarks/PPL/Cyclic.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/Cyclic.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.8623471429964411,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "5e367024c9b7c329288e1e66d033528ad64ab64a438139d8ffb14bc1f251ce8f",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Cyclic.v.txt",
+      "suite": "ppl",
+      "benchmark": "Cyclic",
+      "proof_mode": "cyclic certificate",
+      "checked_graph_metrics": {
+        "graph_size": 12,
+        "distinct_tag_count": 1
+      },
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        },
+        {
+          "name": "returning_execution",
+          "statement": ": program_holds M (Seq action action) [Idle;Released;Idle]"
+        },
+        {
+          "name": "arbitrarily_many_steps",
+          "statement": "n : finite_power M (program_holds M action) (2*n) (returning_trace n)"
+        },
+        {
+          "name": "every_finite_round_is_executable",
+          "statement": "n : program_holds M (Star action) (returning_trace n)"
+        }
+      ],
+      "assumption_theorems": [
+        "star_prefix_invariant"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/CyclicTags.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/CyclicTags.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 1.0762173980037915,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "a940ae53e61bd468a9530fbd87951e74917437eb252ee3469bc8fb5789659cd1",
+      "dependency_sha256": {
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3",
+        "LPL/Benchmarks/PPL/Cyclic.v": "cad8163459ed958c43af32c21d7c545b857f440792c4dc01d5df093eda358e05"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-CyclicTags.v.txt",
+      "suite": "ppl",
+      "benchmark": "CyclicTags",
+      "proof_mode": "cyclic certificate",
+      "checked_graph_metrics": {
+        "graph_size": 13,
+        "distinct_tag_count": 2
+      },
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "nonvacuity",
+          "statement": ": exists w, admissible M root w"
+        }
+      ],
+      "assumption_theorems": [
+        "explicit_tag_renaming_cycle"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/SafetySystem.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/SafetySystem.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.45121040000231005,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "87cb85ef91feffe6a22abd28030b08f1ffaeee97afbd3549710b9438c23008f5",
+      "dependency_sha256": {
+        "LPL/TraceSafety.v": "5fe5f811ec3e09da96b9092205462dbd35630ab1af0cb63bfa064e5dbacfc858",
+        "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-SafetySystem.v.txt",
+      "suite": "ppl",
+      "benchmark": "SafetySystem",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "every_program_safe",
+          "statement": "p : trace_safe Inv (program_holds M p)"
+        },
+        {
+          "name": "may_stop_immediately",
+          "statement": ": program_holds M (Star protocol) [Idle;Idle]"
+        },
+        {
+          "name": "may_stop_while_held",
+          "statement": ": program_holds M (Star protocol) [Idle;Held;Held]"
+        },
+        {
+          "name": "root_is_admissible",
+          "statement": ": admissible M root (constant_world Idle)"
+        },
+        {
+          "name": "root_antecedent_holds",
+          "statement": ": left_holds M (constant_world Idle) root.(antecedent)"
+        }
+      ],
+      "assumption_theorems": [
+        "every_visited_state_safe"
+      ]
+    },
+    {
+      "source": "Benchmarks/PPL/NestedProgram.v",
+      "cached": false,
+      "command": [
+        "timeout",
+        "--signal=KILL",
+        "600s",
+        "rocq",
+        "compile",
+        "-Q",
+        "..",
+        "CyclistRocq",
+        "-noglob",
+        "Benchmarks/PPL/NestedProgram.v"
+      ],
+      "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+      "elapsed_seconds": 0.6710356539988425,
+      "exit_status": 0,
+      "timeout": false,
+      "source_sha256": "e3657832efa2ef29d973c22dd81102fe6840f6f3ffada8a1f2287b2fd6fd131b",
+      "dependency_sha256": {
+        "LPL/PPL/Instance.v": "aca12556ea14777c330b3c53e6db3bb203052654236c55d0c3c26686f8436235",
+        "LPL/TraceSafety.v": "5fe5f811ec3e09da96b9092205462dbd35630ab1af0cb63bfa064e5dbacfc858"
+      },
+      "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-NestedProgram.v.txt",
+      "suite": "ppl",
+      "benchmark": "NestedProgram",
+      "proof_mode": "semantic proof / instance checks",
+      "checked_graph_metrics": {},
+      "checked_premise_shape_examples": 0,
+      "nonvacuity_evidence": [
+        {
+          "name": "all_visited_preserved",
+          "statement": ": trace_safe Inv (Sem.program_holds M nested)"
+        },
+        {
+          "name": "nonvacuity",
+          "statement": "b : D.property b -> Sem.admissible M root (witness_world b) /\\ Sem.left_holds M (witness_world b) root.(S.antecedent)"
+        },
+        {
+          "name": "concrete_nonvacuity",
+          "statement": ": Example.Sem.admissible Example.M Example.root (Example.witness_world true) /\\ Example.Sem.left_holds Example.M (Example.witness_world true) Example.root.(Example.S.antecedent)"
+        }
+      ],
+      "assumption_theorems": [
+        "Example.arbitrary_predicate_invariant",
+        "Example.all_visited_preserved"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "Certification.v": "a0a76f11415d15039dd44774453550cfd386818eb15329ad13c9722656c4b6a9",
+    "TraceSafety.v": "00597d5a0feb8dad767dcda38b1cb8a29b56c65e026590dde8951b3f1360f5c3",
+    "Progress.v": "1b1c59f318bf8e4f41902f20cda2317cf4adf482a8296d71e63a0d3f9ce57c44",
+    "Rules.v": "daaec8e8b60eabeb00cba458ece388ee4f173a9e2e86fc710553045533fa8ecb",
+    "Syntax.v": "20345e18f1eb1b1316fbc611e785d7e537b07726ccb688859488151ab270982c",
+    "RuleGeneration.v": "1c94a41eab565477c645f4c9ac33d2bdd5a7acf07000b157abee203d230ca4d3",
+    "Signature.v": "9746c32c7ab04b5833b87365db18201fca8718e6b84af5608dab190ce98280ee",
+    "Semantics.v": "9fdbe272bd52084e6423950f268dd41d2fb31d57c659602b80206307e819d107",
+    "FOPL/Certification.v": "a82945ec2959d433ba4da2faddd1e2a0f2c776a5aabe712ee7b147a0714ee033",
+    "FOPL/Progress.v": "ff085a8bc54571bfcefee1277bf958778c2435d1606d85b91cfc0ca27eab2493",
+    "FOPL/Rules.v": "0e6d953729b9a4cab4189ab964743ed4a060a6ddabb31d2ecf185b187f304425",
+    "FOPL/Syntax.v": "cbcecc3f036b5b502cd5fb5395e22fcfdea60f53838b33c24acdf155f4f14195",
+    "FOPL/RuleGeneration.v": "a31786893f224c4512f7967eae061df5b109f0b5050b4030bfed3b46404dd040",
+    "FOPL/Signature.v": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+    "FOPL/Semantics.v": "7d119e166003946e7ffe092bd501d88c2cb903c40e3c7ea445c7562b2f8a76f0",
+    "FOPL/Compatibility.v": "bd148d58a691428eca068fe5b7c503c3da415051669970a140be0491a5a0ce11",
+    "PPL/Instance.v": "da3c0c4f84c1781e2a11c14fb8fbe77ab7e16994fb7495264a49da640cd68fe9",
+    "Benchmarks/PPL/AtomicActions.v": "e09ef0d695998f172641e5e544cd0746c79d6774d2650fb7a28913f5ffc7acaa",
+    "Benchmarks/PPL/Instances.v": "99fdc63318e5fbb4736de8e059a05613aeac817056b91468b6a3b34e1cef52d9",
+    "Benchmarks/PPL/Temporal.v": "c1e7cb1c1886024a84df6d88344c930e75436a4982a4171975ffb34a117af5b0",
+    "Benchmarks/PPL/Cyclic.v": "5e367024c9b7c329288e1e66d033528ad64ab64a438139d8ffb14bc1f251ce8f",
+    "Benchmarks/PPL/Tests.v": "cca4a2f3e324426e486d44b4d59513a39d211a45948ccf766d4764971d3091f3",
+    "Benchmarks/PPL/Booleans.v": "1115c43c4f86a3666ad75e0ba3942d1a4c75c2fd38239cc345f8da11499bd0a7",
+    "Benchmarks/PPL/RuleCoverage.v": "4cb942fc596737ba9914be158c783fba50a465de75efebff4ed82490210e9539",
+    "Benchmarks/PPL/SafetySystem.v": "87cb85ef91feffe6a22abd28030b08f1ffaeee97afbd3549710b9438c23008f5",
+    "Benchmarks/PPL/RegularPrograms.v": "74a79eade194d09c409e9c2db01f79ac7c90c90326d3710bba07e63452476ed8",
+    "Benchmarks/PPL/Support.v": "ed60169777e7d935108f371d33bf745ccf7e118ce45c1d12e92d2070c0f305f4",
+    "Benchmarks/PPL/Nondeterminism.v": "08a27a584cd3ac7d32a27ba7ea7145002c16e5de7c5caed5640d1ee908b99613",
+    "Benchmarks/PPL/CyclicTags.v": "a940ae53e61bd468a9530fbd87951e74917437eb252ee3469bc8fb5789659cd1",
+    "Benchmarks/PPL/CheckerNegative.v": "193597a7dfe278cdf61cafe3e9b1d17c56e702aaf9457c2811f1338a8817e576",
+    "Benchmarks/PPL/LabelsRelations.v": "b222ea15dd4a946b3995097c477e4b1afa0f6ba4841673f66e4033f1d8d26947",
+    "Benchmarks/PPL/NestedProgram.v": "e3657832efa2ef29d973c22dd81102fe6840f6f3ffada8a1f2287b2fd6fd131b",
+    "FOPL/LegacyReference/Progress.v": "6c4723708e571775d244c121f56846748cabdf2521576a73fad24da5e4a963e4",
+    "FOPL/LegacyReference/Syntax.v": "ae6c2b669e44ebc436ec5051e6a83b0e9c6b4f697c4bb18a6e33d477a87c6881",
+    "FOPL/LegacyReference/Semantics.v": "b23c076e15f6186918160e0a0b0e45fe7747cb72058e7f837fc0c07d61f01edf",
+    "FOPL/Benchmarks/Temporal.v": "0ea7bf4c7e54b44d4302508a2f6eff8cf4c17d8c72f6bdec9cfb36d13dcb8787",
+    "FOPL/Benchmarks/AssignmentChange.v": "264e12949bb287afe8e64a2bf1689897a7cb9af9627ef17fe9c25715aabaa5b9",
+    "FOPL/Benchmarks/Cyclic.v": "0ae5983c7bb05f659ce7b9c1a6cd94247bb0a6d48b9b8a0a3cebc2bb200fa21b",
+    "FOPL/Benchmarks/Tests.v": "832f05201027ce914d65ccf8b922848af9f5896abc6c502929ca759d13aba12f",
+    "FOPL/Benchmarks/Booleans.v": "16e79a86c0eca39fe1d682e5e6f8268523de9e474d095211440cbe1f3a86a3f2",
+    "FOPL/Benchmarks/RuleCoverage.v": "78c11c9ac5e5e7e2ae26bf918ee48b1fb093c0364f2d28a8fb2cb4d15a7c2fee",
+    "FOPL/Benchmarks/Quantifiers.v": "9e1489a908b71f736562961b6f94bf589d0429b1f9cf83881c73b929fd9c4adb",
+    "FOPL/Benchmarks/RegularPrograms.v": "62a60f33736363824fc1671f4b77432f35e5b88887f85b0a7189ac9b10a811a4",
+    "FOPL/Benchmarks/Support.v": "c28433d009f8471605f9db660e71968558711cd8ec2473dbee728b409b31e5bb",
+    "FOPL/Benchmarks/Labels.v": "6d6ca10bfc691111989df94a1f1270a7089f53fcdcd6945a233b2a425896a048",
+    "FOPL/Benchmarks/CounterLoop.v": "5fa6de2092d4404dc8f6ad2b5628869ba8fded047e35353d395812eee58b7c52",
+    "FOPL/Benchmarks/CyclicTags.v": "2ac1729b03f9f537fcf96426b64ff75427c2cbfc3d07f59a067efdf4c9115a60",
+    "FOPL/Benchmarks/Signatures.v": "272a73439e390da4e03d935a9a3cd8f7a655d63ac6d963fd028f5efb58c0da1a",
+    "FOPL/Benchmarks/Updates.v": "037a38d84b0baeffeb00d6ef554f8100bf57ff5ee0ac5298ae23cd65cf502f71",
+    "FOPL/Benchmarks/CheckerNegative.v": "66f3c844b9d2bec4c293ab2ca26d08a0c82447cc4cae317993bafca46378f258",
+    "FOPL/Benchmarks/NestedProgram.v": "a27e04e37e102356cbbe6bcc5a8326b1c511d427e5adaf0a4c0636fb0662af3d"
+  },
+  "immutable_framework_sha256": {
+    "Cyclic/Framework.v": "b9f93e89931a196bb1d2f7649f240cb65920ed972fa02a2ae4af46a2e7a3ce02",
+    "Cyclic/Relations.v": "85f1f25747e3eb661f24f50b6a9e6aae3cbcb173169bb7bfb6d06ac7addeb90f"
+  }
+}

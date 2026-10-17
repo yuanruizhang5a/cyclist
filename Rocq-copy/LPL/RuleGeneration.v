@@ -78,7 +78,6 @@ Qed.
 Definition tag_for j offset a := if traceableb a then Some (fresh_name (judgment_tags j) + offset) else None.
 Definition continue_tag (tag : option nat) a := if traceableb a then tag else None.
 
-
 (** Generate at one selected right occurrence. [pre]/[post] preserve the
     surrounding context. Inner label matches are intentional: atomic-action
     and test rules require an exposed final state, whereas temporal rules require
@@ -158,46 +157,46 @@ Local Notation wellformed_principal := (K.wellformed_principal R).
     relation position instead, so no semantic successor search is involved. *)
 Definition atomic_boxright_candidate lhs pre o post y :=
   match o.(occurrence_formula), o.(occurrence_label) with
-  | Box (Atomic action payload) body, Join sigma (StateLabel u) =>
+  | Box (Atomic action) body, Join sigma (StateLabel u) =>
     let ta := o.(occurrence_tag) in let tb := continue_tag ta body in
-    let source := right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta) in
+    let source := right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) ta) in
     guard (world_freshb y source) (fun Hfresh =>
       verified_build source
-        [Rdg (R ++ [action_relation action payload u (L.world_name y)]) lhs
+        [Rdg (R ++ [action_relation action u (L.world_name y)]) lhs
           (pre ++ Occ (action_label sigma u (L.world_name y)) body tb :: post)]
-        (fun Hs Ht => box_atomic_right R lhs pre post sigma u action payload body y ta tb Hs (Forall_inv Ht) Hfresh))
+        (fun Hs Ht => box_atomic_right R lhs pre post sigma u action body y ta tb Hs (Forall_inv Ht) Hfresh))
   | _, _ => None end.
 Definition atomic_diamondleft_candidate pre o post rhs y :=
   match o.(occurrence_formula), o.(occurrence_label) with
-  | Diamond (Atomic action payload) body, Join sigma (StateLabel u) =>
+  | Neg (Box (Atomic action) (Neg body)), Join sigma (StateLabel u) =>
     let ta := o.(occurrence_tag) in
-    let source := left_conclusion pre post rhs (Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta) in
+    let source := left_conclusion pre post rhs (Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) ta) in
     guard (world_freshb y source) (fun Hfresh =>
       verified_build source
-        [Rdg (R ++ [action_relation action payload u (L.world_name y)])
+        [Rdg (R ++ [action_relation action u (L.world_name y)])
           (pre ++ Occ (action_label sigma u (L.world_name y)) body None :: post) rhs]
-        (fun Hs Ht => diamond_atomic_left R pre post rhs sigma u action payload body y ta None Hs (Forall_inv Ht) Hfresh))
+        (fun Hs Ht => diamond_atomic_left R pre post rhs sigma u action body y ta None Hs (Forall_inv Ht) Hfresh))
   | _, _ => None end.
 (** The relation pattern extracts a potential target world term [v]. It
-    reconstructs the required action, payload and source from the principal;
+    reconstructs the required action and source from the principal;
     [ensure_rule] later compares that entire conclusion with the input. Thus
     an unrelated relation with the same target shape is still rejected. *)
 Definition atomic_boxleft_candidate Rpre relation Rpost pre o post rhs :=
   match o.(occurrence_formula), o.(occurrence_label), relation with
-  | Box (Atomic action payload) body, Join sigma (StateLabel u), ActionRelation _ _ _ (StateLabel v) =>
+  | Box (Atomic action) body, Join sigma (StateLabel u), ActionRelation _ _ (StateLabel v) =>
     verified_build
-      (Rdg (Rpre ++ action_relation action payload u v :: Rpost) (pre ++ Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) o.(occurrence_tag) :: post) rhs)
+      (Rdg (Rpre ++ action_relation action u v :: Rpost) (pre ++ Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) o.(occurrence_tag) :: post) rhs)
       [Rdg (Rpre ++ Rpost) (pre ++ Occ (action_label sigma u v) body None :: post) rhs]
-      (fun Hs Ht => box_atomic_left Rpre Rpost pre post rhs sigma u v action payload body o.(occurrence_tag) None Hs (Forall_inv Ht))
+      (fun Hs Ht => box_atomic_left Rpre Rpost pre post rhs sigma u v action body o.(occurrence_tag) None Hs (Forall_inv Ht))
   | _, _, _ => None end.
 Definition atomic_diamondright_candidate Rpre relation Rpost lhs pre o post :=
   match o.(occurrence_formula), o.(occurrence_label), relation with
-  | Diamond (Atomic action payload) body, Join sigma (StateLabel u), ActionRelation _ _ _ (StateLabel v) =>
+  | Neg (Box (Atomic action) (Neg body)), Join sigma (StateLabel u), ActionRelation _ _ (StateLabel v) =>
     let tb := tag_for (Rdg R lhs (pre ++ o :: post)) 0 body in
     verified_build
-      (Rdg (Rpre ++ action_relation action payload u v :: Rpost) lhs (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) o.(occurrence_tag) :: post))
+      (Rdg (Rpre ++ action_relation action u v :: Rpost) lhs (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) o.(occurrence_tag) :: post))
       [Rdg (Rpre ++ Rpost) lhs (pre ++ Occ (action_label sigma u v) body tb :: post)]
-      (fun Hs Ht => diamond_atomic_right Rpre Rpost lhs pre post sigma u v action payload body o.(occurrence_tag) tb Hs (Forall_inv Ht))
+      (fun Hs Ht => diamond_atomic_right Rpre Rpost lhs pre post sigma u v action body o.(occurrence_tag) tb Hs (Forall_inv Ht))
   | _, _, _ => None end.
 (** Preserve the exact relation position using a prefix and suffix, just as
     the occurrence scan does for formula contexts. Candidates may fail;
@@ -209,39 +208,30 @@ Fixpoint scan_relations pre rest
   | relation :: post => build pre relation post :: scan_relations (pre ++ [relation]) post build
   end.
 
-(** Each branch lists complete local alternatives, not subsequent search
+(** Candidate order is disjunction, implication, diamond, dual suffix,
+    then the primitive constructor. Independent view lists are appended,
+    so overlapping encodings keep every named candidate.
+    Each branch lists complete local alternatives, not subsequent search
     steps. In [right_targets], [[o1];[o2]] builds two premises, whereas
     [[o1;o2]] builds one premise with two succedent alternatives. *)
-Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list occurrence) : list (option Cyclic.rule_instance) :=
+Definition right_derived_at (atomic_rules : bool) (lhs pre : list occurrence) (o : occurrence) (post : list occurrence) : list (option Cyclic.rule_instance) :=
   let j := right_conclusion lhs pre post o in
   let l := o.(occurrence_label) in
   let ta := o.(occurrence_tag) in
-  match o.(occurrence_formula) with
-  | Conj a b => let tb := tag_for j 0 a in let tc := tag_for j 1 b in
-    [verified_build (right_conclusion lhs pre post (Occ l (Conj a b) ta)) (right_targets lhs pre post [[Occ l a tb];[Occ l b tc]]) (fun Hs Ht => conjunction_right lhs pre post l a b ta tb tc Hs Ht)]
-  | Disj a b => let tb := tag_for j 0 a in let tc := tag_for j 1 b in
+  (match disj_view o.(occurrence_formula) with
+  | Some (a,b) => let tb := tag_for j 0 a in let tc := tag_for j 1 b in
     [verified_build (right_conclusion lhs pre post (Occ l (Disj a b) ta)) (right_targets lhs pre post [[Occ l a tb;Occ l b tc]]) (fun Hs Ht => disjunction_right lhs pre post l a b ta tb tc Hs Ht)]
-  | Neg a => [verified_build (right_conclusion lhs pre post (Occ l (Neg a) ta))
-      ([Jdg (lhs ++ [Occ l a None]) (pre ++ post)]) (fun Hs Ht => negation_right lhs pre post l a ta None Hs Ht)]
-  | Impl a b => let tc := tag_for j 0 b in [verified_build (right_conclusion lhs pre post (Occ l (Impl a b) ta))
+  | None => [] end) ++
+  (match impl_view o.(occurrence_formula) with
+  | Some (a,b) => let tc := tag_for j 0 b in [verified_build (right_conclusion lhs pre post (Occ l (Impl a b) ta))
       ([Jdg (lhs ++ [Occ l a None]) (pre ++ Occ l b tc :: post)]) (fun Hs Ht => implication_right lhs pre post l a b ta None tc Hs Ht)]
-  | Box p body => match p with
-    | Seq a b => let tb := continue_tag ta (Box a (Box b body)) in [verified_build (right_conclusion lhs pre post (Occ l (Box (Seq a b) body) ta)) (right_targets lhs pre post [[Occ l (Box a (Box b body)) tb]]) (fun Hs Ht => box_sequence_right lhs pre post l a b body ta tb Hs Ht)]
-    | Choice a b => let tb := continue_tag ta (Box a body) in let tc := continue_tag ta (Box b body) in [verified_build (right_conclusion lhs pre post (Occ l (Box (Choice a b) body) ta)) (right_targets lhs pre post [[Occ l (Box a body) tb];[Occ l (Box b body) tc]]) (fun Hs Ht => box_choice_right lhs pre post l a b body ta tb tc Hs Ht)]
-    | Star a => let tb := continue_tag ta (Box (Test Truth) body) in let tc := continue_tag ta (Box a (Box (Star a) body)) in [verified_build (right_conclusion lhs pre post (Occ l (Box (Star a) body) ta)) (right_targets lhs pre post [[Occ l (Box (Test Truth) body) tb];[Occ l (Box a (Box (Star a) body)) tc]]) (fun Hs Ht => box_star_right lhs pre post l a body ta tb tc Hs Ht)]
-    | Atomic _ _ => [atomic_boxright_candidate lhs pre o post (fresh_name (judgment_world_names j))]
-    | Test guard => match l with
-      | Join sigma (StateLabel u) => let tb := continue_tag ta body in
-        [verified_build (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta))
-        [Jdg (lhs ++ [Occ (Join (StateLabel u) (StateLabel u)) guard None]) (pre ++ Occ (Join (Join sigma (StateLabel u)) (StateLabel u)) body tb :: post)]
-        (fun Hs Ht => box_test_right lhs pre post sigma u guard body ta tb Hs Ht)]
-      | _ => [] end
-    end
-  | Diamond p body => match p with
+  | None => [] end) ++
+  (match diamond_view o.(occurrence_formula) with
+  | Some (p,body) => match p with
     | Seq a b => let tb := tag_for j 0 (Diamond a (Diamond b body)) in [verified_build (right_conclusion lhs pre post (Occ l (Diamond (Seq a b) body) ta)) (right_targets lhs pre post [[Occ l (Diamond a (Diamond b body)) tb]]) (fun Hs Ht => diamond_sequence_right lhs pre post l a b body ta tb Hs Ht)]
     | Choice a b => let tb := tag_for j 0 (Diamond a body) in let tc := tag_for j 1 (Diamond b body) in [verified_build (right_conclusion lhs pre post (Occ l (Diamond (Choice a b) body) ta)) (right_targets lhs pre post [[Occ l (Diamond a body) tb;Occ l (Diamond b body) tc]]) (fun Hs Ht => diamond_choice_right lhs pre post l a b body ta tb tc Hs Ht)]
     | Star a => let tb := tag_for j 0 (Diamond (Test Truth) body) in let tc := tag_for j 1 (Diamond a (Diamond (Star a) body)) in [verified_build (right_conclusion lhs pre post (Occ l (Diamond (Star a) body) ta)) (right_targets lhs pre post [[Occ l (Diamond (Test Truth) body) tb;Occ l (Diamond a (Diamond (Star a) body)) tc]]) (fun Hs Ht => diamond_star_right lhs pre post l a body ta tb tc Hs Ht)]
-    | Atomic _ _ => scan_relations [] R (fun rp rel rq => atomic_diamondright_candidate rp rel rq lhs pre o post)
+    | Atomic _ => if atomic_rules then scan_relations [] R (fun rp rel rq => atomic_diamondright_candidate rp rel rq lhs pre o post) else []
     | Test guard => match l with
       | Join sigma (StateLabel u) => let tb := tag_for j 0 body in
         (* This scheme consumes a guard at the final antecedent position.
@@ -254,6 +244,35 @@ Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list oc
           (fun Hs Ht => diamond_test_right gamma pre post sigma u guard body ta tb Hs Ht)]
       | _ => [] end
     end
+  | None => [] end) ++
+  (match dual_suffix_view o.(occurrence_formula) with
+  | Some (a,b) => match l with
+    | Join (StateLabel u) sigma => let tb := tag_for j 0 b in let tc := tag_for j 1 a in let td := ta in
+      [guard (label_nonemptyb sigma) (fun Htail => verified_build (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) (right_targets lhs pre post [[Occ sigma b tb];[Occ sigma a tc; Occ sigma (DualSuffix a b) td]]) (fun Hs Ht => dual_suffix_right lhs pre post u sigma a b ta tb tc td Htail Hs Ht))]
+    | _ => [] end
+  | None => [] end).
+
+Definition right_primitive_at (atomic_rules : bool) (lhs pre : list occurrence) (o : occurrence) (post : list occurrence) : list (option Cyclic.rule_instance) :=
+  let j := right_conclusion lhs pre post o in
+  let l := o.(occurrence_label) in
+  let ta := o.(occurrence_tag) in
+  (match o.(occurrence_formula) with
+  | Conj a b => let tb := tag_for j 0 a in let tc := tag_for j 1 b in
+    [verified_build (right_conclusion lhs pre post (Occ l (Conj a b) ta)) (right_targets lhs pre post [[Occ l a tb];[Occ l b tc]]) (fun Hs Ht => conjunction_right lhs pre post l a b ta tb tc Hs Ht)]
+  | Neg a => [verified_build (right_conclusion lhs pre post (Occ l (Neg a) ta))
+      ([Jdg (lhs ++ [Occ l a None]) (pre ++ post)]) (fun Hs Ht => negation_right lhs pre post l a ta None Hs Ht)]
+  | Box p body => match p with
+    | Seq a b => let tb := continue_tag ta (Box a (Box b body)) in [verified_build (right_conclusion lhs pre post (Occ l (Box (Seq a b) body) ta)) (right_targets lhs pre post [[Occ l (Box a (Box b body)) tb]]) (fun Hs Ht => box_sequence_right lhs pre post l a b body ta tb Hs Ht)]
+    | Choice a b => let tb := continue_tag ta (Box a body) in let tc := continue_tag ta (Box b body) in [verified_build (right_conclusion lhs pre post (Occ l (Box (Choice a b) body) ta)) (right_targets lhs pre post [[Occ l (Box a body) tb];[Occ l (Box b body) tc]]) (fun Hs Ht => box_choice_right lhs pre post l a b body ta tb tc Hs Ht)]
+    | Star a => let tb := continue_tag ta (Box (Test Truth) body) in let tc := continue_tag ta (Box a (Box (Star a) body)) in [verified_build (right_conclusion lhs pre post (Occ l (Box (Star a) body) ta)) (right_targets lhs pre post [[Occ l (Box (Test Truth) body) tb];[Occ l (Box a (Box (Star a) body)) tc]]) (fun Hs Ht => box_star_right lhs pre post l a body ta tb tc Hs Ht)]
+    | Atomic _ => if atomic_rules then [atomic_boxright_candidate lhs pre o post (fresh_name (judgment_world_names j))] else []
+    | Test guard => match l with
+      | Join sigma (StateLabel u) => let tb := continue_tag ta body in
+        [verified_build (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta))
+        [Jdg (lhs ++ [Occ (Join (StateLabel u) (StateLabel u)) guard None]) (pre ++ Occ (Join (Join sigma (StateLabel u)) (StateLabel u)) body tb :: post)]
+        (fun Hs Ht => box_test_right lhs pre post sigma u guard body ta tb Hs Ht)]
+      | _ => [] end
+    end
   | First body => match l with
     | Join (StateLabel u) sigma => let tb := tag_for j 0 body in
       [verified_build (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (First body) ta)) (right_targets lhs pre post [[Occ (StateLabel u) body tb]]) (fun Hs Ht => first_right lhs pre post u sigma body ta tb Hs Ht)]
@@ -262,47 +281,35 @@ Definition right_at (lhs pre : list occurrence) (o : occurrence) (post : list oc
     | Join (StateLabel u) sigma => let tb := tag_for j 0 b in let tc := tag_for j 1 a in let td := ta in
       [guard (label_nonemptyb sigma) (fun Htail => verified_build (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) (right_targets lhs pre post [[Occ sigma b tb; Occ sigma a tc];[Occ sigma b tb; Occ sigma (Suffix a b) td]]) (fun Hs Ht => suffix_right lhs pre post u sigma a b ta tb tc td Htail Hs Ht))]
     | _ => [] end
-  | DualSuffix a b => match l with
-    | Join (StateLabel u) sigma => let tb := tag_for j 0 b in let tc := tag_for j 1 a in let td := ta in
-      [guard (label_nonemptyb sigma) (fun Htail => verified_build (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) (right_targets lhs pre post [[Occ sigma b tb];[Occ sigma a tc; Occ sigma (DualSuffix a b) td]]) (fun Hs Ht => dual_suffix_right lhs pre post u sigma a b ta tb tc td Htail Hs Ht))]
-    | _ => [] end
   | a => match l with
     | Join (StateLabel u) sigma => [guard (atomb a) (fun Ha => verified_build (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) a ta)) (right_targets lhs pre post [[Occ (StateLabel u) a None]]) (fun Hs Ht => atom_head_right lhs pre post u sigma a ta None Hs Ht Ha))]
     | _ => [] end
-  end.
+  end).
+
+Definition right_at lhs pre o post :=
+  right_derived_at true lhs pre o post ++ right_primitive_at true lhs pre o post.
 
 (** Left generation mirrors the same catalog, including its two-premise
     box-choice/star rules. A few test schemes consume a separately positioned
     guard occurrence; [ensure_rule] checks the reconstructed source exactly,
     preventing a near match from silently changing the caller's context. *)
-Definition left_at (pre : list occurrence) (o : occurrence) (post rhs : list occurrence) : list (option Cyclic.rule_instance) :=
+Definition left_derived_at (atomic_rules : bool) (pre : list occurrence) (o : occurrence) (post rhs : list occurrence) : list (option Cyclic.rule_instance) :=
   let j := left_conclusion pre post rhs o in
   let l := o.(occurrence_label) in
   let ta := o.(occurrence_tag) in
-  match o.(occurrence_formula) with
-  | Conj a b => [verified_build (left_conclusion pre post rhs (Occ l (Conj a b) ta)) (left_targets pre post rhs [[Occ l a None;Occ l b None]]) (fun Hs Ht => conjunction_left pre post rhs l a b ta None None Hs Ht)]
-  | Disj a b => [verified_build (left_conclusion pre post rhs (Occ l (Disj a b) ta)) (left_targets pre post rhs [[Occ l a None];[Occ l b None]]) (fun Hs Ht => disjunction_left pre post rhs l a b ta None None Hs Ht)]
-  | Neg a => let tb := tag_for j 0 a in
-    [verified_build (left_conclusion pre post rhs (Occ l (Neg a) ta)) ([Jdg (pre ++ post) (Occ l a tb :: rhs)]) (fun Hs Ht => negation_left pre post rhs l a ta tb Hs Ht)]
-  | Impl a b => let tb := tag_for j 0 a in
+  (match disj_view o.(occurrence_formula) with
+  | Some (a,b) => [verified_build (left_conclusion pre post rhs (Occ l (Disj a b) ta)) (left_targets pre post rhs [[Occ l a None];[Occ l b None]]) (fun Hs Ht => disjunction_left pre post rhs l a b ta None None Hs Ht)]
+  | None => [] end) ++
+  (match impl_view o.(occurrence_formula) with
+  | Some (a,b) => let tb := tag_for j 0 a in
     [verified_build (left_conclusion pre post rhs (Occ l (Impl a b) ta)) ([Jdg (pre ++ post) (Occ l a tb :: rhs);Jdg (pre ++ Occ l b None :: post) rhs]) (fun Hs Ht => implication_left pre post rhs l a b ta tb None Hs Ht)]
-  | Box p body => match p with
-    | Seq a b => [verified_build (left_conclusion pre post rhs (Occ l (Box (Seq a b) body) ta)) (left_targets pre post rhs [[Occ l (Box a (Box b body)) None]]) (fun Hs Ht => box_sequence_left pre post rhs l a b body ta None Hs Ht)]
-    | Choice a b => [verified_build (left_conclusion pre post rhs (Occ l (Box (Choice a b) body) ta)) (left_targets pre post rhs [[Occ l (Box a body) None];[Occ l (Box b body) None]]) (fun Hs Ht => box_choice_left pre post rhs l a b body ta None None Hs Ht)]
-    | Star a => [verified_build (left_conclusion pre post rhs (Occ l (Box (Star a) body) ta)) (left_targets pre post rhs [[Occ l (Box (Test Truth) body) None];[Occ l (Box a (Box (Star a) body)) None]]) (fun Hs Ht => box_star_left pre post rhs l a body ta None None Hs Ht)]
-    | Atomic _ _ => scan_relations [] R (fun rp rel rq => atomic_boxleft_candidate rp rel rq pre o post rhs)
-    | Test guard => match l, post with
-      | Join sigma (StateLabel u), _ :: rest =>
-        [verified_build (Jdg (pre ++ Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta :: Occ (Join (StateLabel u) (StateLabel u)) guard None :: rest) rhs)
-          [Jdg (pre ++ Occ (Join (Join sigma (StateLabel u)) (StateLabel u)) body None :: rest) rhs]
-          (fun Hs Ht => box_test_left pre rest rhs sigma u guard body ta None Hs Ht)]
-      | _, _ => [] end
-    end
-  | Diamond p body => match p with
+  | None => [] end) ++
+  (match diamond_view o.(occurrence_formula) with
+  | Some (p,body) => match p with
     | Seq a b => [verified_build (left_conclusion pre post rhs (Occ l (Diamond (Seq a b) body) ta)) (left_targets pre post rhs [[Occ l (Diamond a (Diamond b body)) None]]) (fun Hs Ht => diamond_sequence_left pre post rhs l a b body ta None Hs Ht)]
     | Choice a b => [verified_build (left_conclusion pre post rhs (Occ l (Diamond (Choice a b) body) ta)) (left_targets pre post rhs [[Occ l (Diamond a body) None];[Occ l (Diamond b body) None]]) (fun Hs Ht => diamond_choice_left pre post rhs l a b body ta None None Hs Ht)]
     | Star a => [verified_build (left_conclusion pre post rhs (Occ l (Diamond (Star a) body) ta)) (left_targets pre post rhs [[Occ l (Diamond (Test Truth) body) None];[Occ l (Diamond a (Diamond (Star a) body)) None]]) (fun Hs Ht => diamond_star_left pre post rhs l a body ta None None Hs Ht)]
-    | Atomic _ _ => [atomic_diamondleft_candidate pre o post rhs (fresh_name (judgment_world_names j))]
+    | Atomic _ => if atomic_rules then [atomic_diamondleft_candidate pre o post rhs (fresh_name (judgment_world_names j))] else []
     | Test guard => match l with
       | Join sigma (StateLabel u) =>
         [verified_build (left_conclusion pre post rhs (Occ (Join sigma (StateLabel u)) (Diamond (Test guard) body) ta))
@@ -310,32 +317,55 @@ Definition left_at (pre : list occurrence) (o : occurrence) (post rhs : list occ
           (fun Hs Ht => diamond_test_left pre post rhs sigma u guard body ta None Hs Ht)]
       | _ => [] end
     end
+  | None => [] end) ++
+  (match dual_suffix_view o.(occurrence_formula) with
+  | Some (a,b) => match l with
+    | Join (StateLabel u) sigma => [guard (label_nonemptyb sigma) (fun Htail => verified_build (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) (left_targets pre post rhs [[Occ sigma b None;Occ sigma a None];[Occ sigma b None;Occ sigma (DualSuffix a b) None]]) (fun Hs Ht => dual_suffix_left pre post rhs u sigma a b ta None None None Htail Hs Ht))]
+    | _ => [] end
+  | None => [] end).
+
+Definition left_primitive_at (atomic_rules : bool) (pre : list occurrence) (o : occurrence) (post rhs : list occurrence) : list (option Cyclic.rule_instance) :=
+  let j := left_conclusion pre post rhs o in
+  let l := o.(occurrence_label) in
+  let ta := o.(occurrence_tag) in
+  (match o.(occurrence_formula) with
+  | Conj a b => [verified_build (left_conclusion pre post rhs (Occ l (Conj a b) ta)) (left_targets pre post rhs [[Occ l a None;Occ l b None]]) (fun Hs Ht => conjunction_left pre post rhs l a b ta None None Hs Ht)]
+  | Neg a => let tb := tag_for j 0 a in
+    [verified_build (left_conclusion pre post rhs (Occ l (Neg a) ta)) ([Jdg (pre ++ post) (Occ l a tb :: rhs)]) (fun Hs Ht => negation_left pre post rhs l a ta tb Hs Ht)]
+  | Box p body => match p with
+    | Seq a b => [verified_build (left_conclusion pre post rhs (Occ l (Box (Seq a b) body) ta)) (left_targets pre post rhs [[Occ l (Box a (Box b body)) None]]) (fun Hs Ht => box_sequence_left pre post rhs l a b body ta None Hs Ht)]
+    | Choice a b => [verified_build (left_conclusion pre post rhs (Occ l (Box (Choice a b) body) ta)) (left_targets pre post rhs [[Occ l (Box a body) None];[Occ l (Box b body) None]]) (fun Hs Ht => box_choice_left pre post rhs l a b body ta None None Hs Ht)]
+    | Star a => [verified_build (left_conclusion pre post rhs (Occ l (Box (Star a) body) ta)) (left_targets pre post rhs [[Occ l (Box (Test Truth) body) None];[Occ l (Box a (Box (Star a) body)) None]]) (fun Hs Ht => box_star_left pre post rhs l a body ta None None Hs Ht)]
+    | Atomic _ => if atomic_rules then scan_relations [] R (fun rp rel rq => atomic_boxleft_candidate rp rel rq pre o post rhs) else []
+    | Test guard => match l, post with
+      | Join sigma (StateLabel u), _ :: rest =>
+        [verified_build (Jdg (pre ++ Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta :: Occ (Join (StateLabel u) (StateLabel u)) guard None :: rest) rhs)
+          [Jdg (pre ++ Occ (Join (Join sigma (StateLabel u)) (StateLabel u)) body None :: rest) rhs]
+          (fun Hs Ht => box_test_left pre rest rhs sigma u guard body ta None Hs Ht)]
+      | _, _ => [] end
+    end
   | First body => match l with
     | Join (StateLabel u) sigma => [verified_build (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) (First body) ta)) (left_targets pre post rhs [[Occ (StateLabel u) body None]]) (fun Hs Ht => first_left pre post rhs u sigma body ta None Hs Ht)]
     | _ => [] end
   | Suffix a b => match l with
     | Join (StateLabel u) sigma => [guard (label_nonemptyb sigma) (fun Htail => verified_build (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) (left_targets pre post rhs [[Occ sigma b None];[Occ sigma a None;Occ sigma (Suffix a b) None]]) (fun Hs Ht => suffix_left pre post rhs u sigma a b ta None None None Htail Hs Ht))]
     | _ => [] end
-  | DualSuffix a b => match l with
-    | Join (StateLabel u) sigma => [guard (label_nonemptyb sigma) (fun Htail => verified_build (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) (left_targets pre post rhs [[Occ sigma b None;Occ sigma a None];[Occ sigma b None;Occ sigma (DualSuffix a b) None]]) (fun Hs Ht => dual_suffix_left pre post rhs u sigma a b ta None None None Htail Hs Ht))]
-    | _ => [] end
   | a => match l with
     | Join (StateLabel u) sigma => [guard (atomb a) (fun Ha => verified_build (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) a ta)) (left_targets pre post rhs [[Occ (StateLabel u) a None]]) (fun Hs Ht => atom_head_left pre post rhs u sigma a ta None Hs Ht Ha))]
     | _ => [] end
-  end.
+  end).
+
+Definition left_at pre o post rhs :=
+  left_derived_at true pre o post rhs ++ left_primitive_at true pre o post rhs.
 
 (** FOPL uses these restricted dispatchers to reuse the common cases while
     supplying its own assignment/binder handling. Only the generic atomic
     modality cases are excluded here; the full PPL scan uses [left_at] and
     [right_at] directly. *)
 Definition right_regular_at lhs pre o post :=
-  match o.(occurrence_formula) with
-  | Box (Atomic _ _) _ | Diamond (Atomic _ _) _ => []
-  | _ => right_at lhs pre o post end.
+  right_derived_at false lhs pre o post ++ right_primitive_at false lhs pre o post.
 Definition left_regular_at pre o post rhs :=
-  match o.(occurrence_formula) with
-  | Box (Atomic _ _) _ | Diamond (Atomic _ _) _ => []
-  | _ => left_at pre o post rhs end.
+  left_derived_at false pre o post rhs ++ left_primitive_at false pre o post rhs.
 
 (** Move one occurrence at a time from [rest] into [pre]. This finite scan
     preserves order and covers non-head positions. It enumerates local
@@ -401,8 +431,8 @@ Fixpoint left_axiom_scan j (Hwf : judgment_wfb j = true) context (Hsub : forall 
 Proof.
   destruct context as [|o rest]; [exact None|].
   refine (first_axiom (identity_scan j Hwf o (Hsub o (or_introl eq_refl)) j.(succedent) (fun r Hin => Hin)) _).
-  destruct (formula_eq_dec o.(occurrence_formula) Falsity) as [Hfalse|Hfalse].
-  - exact (Some (falsity_left_axiom j Hwf o (Hsub o (or_introl eq_refl)) Hfalse)).
+  destruct (falsity_view o.(occurrence_formula)) eqn:Hfalse.
+  - exact (Some (falsity_left_axiom j Hwf o (Hsub o (or_introl eq_refl)) (falsity_view_sound _ Hfalse))).
   - destruct (occurrence_formula o) eqn:Hformula.
     all: try (lazymatch type of Hformula with
       | _ = Suffix ?a ?b => destruct (occurrence_label o) eqn:Hlabel;

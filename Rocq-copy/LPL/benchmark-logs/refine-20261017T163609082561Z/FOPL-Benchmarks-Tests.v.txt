@@ -1,0 +1,9 @@
+File "./FOPL/Benchmarks/Tests.v", line 15, characters 35-36:
+Error:
+In environment
+start : Shared.state (general_model M)
+H : Shared.formula_holds (general_model M) Falsity [start; start]
+The term "H" has type
+ "Shared.formula_holds (general_model M) Falsity [start; start]"
+while it is expected to have type "False".
+

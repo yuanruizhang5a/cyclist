@@ -6,24 +6,14 @@
     instances by definitional conversion. They prove every visited state
     safe, rather than only the final state or first observation. *)
 From Stdlib Require Import List Arith.
+From CyclistRocq.LPL Require Import Signature Syntax Semantics.
 Import ListNotations.
 
 (** Generic finite-trace invariant lemmas, independent of the LPL signature. *)
-(** These definitions mirror [overlap_list], [compose] and [finite_power]
-    in Semantics.v. Equal definition bodies let the safety proofs apply by
-    conversion, without translating executions between representations. *)
-Definition trace_join {A} (a b c : list A) :=
-  exists prefix s tail, a = prefix ++ [s] /\ b = s :: tail /\ c = prefix ++ s :: tail.
-Definition trace_compose {A} (R T : list A -> Prop) tr :=
-  exists a b, R a /\ T b /\ trace_join a b tr.
-Section Powers.
-Context {A : Type}.
-(** Iteration counts executions of [R]; the zero case is still the two-state
-    stutter. Consequently safety must also cover that repeated initial state. *)
-Fixpoint trace_power (R : list A -> Prop) n tr :=
-  match n with 0 => exists s, tr = [s;s]
-  | S n => trace_compose R (trace_power R n) tr end.
-End Powers.
+(** Compatibility names are thin aliases of the production trace algebra. *)
+Definition trace_join {A} (a b c : list A) := TraceAlgebra.overlap_list a b c.
+Definition trace_compose {A} (R T : list A -> Prop) tr := TraceAlgebra.trace_compose R T tr.
+Definition trace_power {A} (R : list A -> Prop) n tr := TraceAlgebra.trace_power R n tr.
 (** Safety assumes the invariant at the initial state and guarantees it on
     the entire execution list, including stuttering and intermediate states. *)
 Definition trace_safe {A} (Inv : A -> Prop) (R : list A -> Prop) :=
@@ -31,7 +21,7 @@ Definition trace_safe {A} (Inv : A -> Prop) (R : list A -> Prop) :=
 
 Lemma join_head {A} (a b c : list A) : trace_join a b c ->
   exists s tail tail', a = s :: tail /\ c = s :: tail'.
-Proof. intros [[|x prefix] [s [tail [-> [-> ->]]]]]; cbn; eauto. Qed.
+Proof. apply TraceAlgebra.overlap_list_head. Qed.
 (** Combining two all-state invariants is valid even though their shared
     endpoint occurs only once in the overlapped result. No new state is
     introduced by joining the lists. *)
@@ -71,14 +61,13 @@ Proof.
   - apply compose_safe; assumption.
 Qed.
 
-From CyclistRocq.LPL Require Import Signature Syntax Semantics.
 Module MakeSafety (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn).
 Export Syn Sem.
 Section Model.
 Context (M : Sem.model).
 Variable Inv : state M -> Prop.
-Hypothesis action_preserves : forall action payload s t,
-  interpret_action M action payload s t -> Inv s -> Inv t.
+Hypothesis action_preserves : forall action s t,
+  interpret_action M action s t -> Inv s -> Inv t.
 (** Structural induction lifts one hypothesis about every atomic action to
     every program. Tests merely repeat a state, sequence and choice use the
     generic closure lemmas, and star uses induction on its finite count.
@@ -112,12 +101,13 @@ Proof.
      separates the current head observation from the remaining suffix
      obligation, allowing the induction hypothesis to establish [Forall]. *)
   destruct tail as [|t tail].
-  - unfold Always, Eventually; rewrite !nonempty_neg by discriminate.
+  - unfold Always, Eventually; rewrite !nonempty_neg, nonempty_disj by discriminate.
     change (~ (~ formula_holds M a [s] \/ formula_holds M (Suffix Truth (Neg a)) [s]) <-> Forall (fun s => formula_holds M a [s]) [s]).
     rewrite Forall_cons_iff; pose proof (suffix_singleton M Truth (Neg a) s) as Hsuffix.
     split; [intro H; split; [tauto|constructor]|intros [H _]; tauto].
   - specialize (IH ltac:(discriminate)).
     unfold Always, Eventually in *; rewrite nonempty_neg in * by discriminate.
+    rewrite nonempty_disj in * by discriminate.
     change (~ (formula_holds M (Neg a) (s::t::tail) \/ formula_holds M (Suffix Truth (Neg a)) (s::t::tail)) <->
       Forall (fun s => formula_holds M a [s]) (s::t::tail)).
     rewrite nonempty_neg, suffix_step by discriminate; rewrite nonempty_neg by discriminate.

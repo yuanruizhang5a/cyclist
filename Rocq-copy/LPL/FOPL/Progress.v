@@ -45,13 +45,10 @@ Lemma assignment_decrease prefix s x t body :
   minimum_counterexample (Box (Assign x t) body) (prefix ++ [s]).
 Proof.
   intro Hfalse.
-  assert (prefix ++ [s] <> []) as Htr by (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  assert ((prefix ++ [s]) ++ [write M s x (eval_term M s t)] <> []) as Hnext
-    by (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  assert (forall run, execution_sequence (prefix ++ [s]) (Assign x t) run <-> True /\ run = [prefix ++ [s]; (prefix ++ [s]) ++ [write M s x (eval_term M s t)]]) as Hstep.
-  { intro run. rewrite assignment_execution. tauto. }
-  destruct (atomic_minimum (Assign x t) (prefix ++ [s]) ((prefix ++ [s]) ++ [write M s x (eval_term M s t)]) True body Htr Hnext Hstep Hfalse) as [_ [_ Hrank]].
-  destruct prefix; cbn in *; lia.
+  destruct (atomic_minimum_successor prefix s (Assignment x t) body Hfalse)
+    as [next [Hstep [_ Hrank]]].
+  change (next = write M s x (eval_term M s t)) in Hstep.
+  subst next; exact Hrank.
 Qed.
 
 Section CounterSwitch.

@@ -1975,5 +1975,1127 @@
   "post_build_sidecars_moved": 154,
   "after_files": 237,
   "after_bytes": 136740689,
-  "additional_archive_manifest": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/control/PostBuildSidecars.json"
+  "additional_archive_manifest": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/control/PostBuildSidecars.json",
+  "latest_redundancy_audit": {
+    "date": "2026-10-18",
+    "status": "pending_garbage_write_access",
+    "moved_files": [],
+    "blocker": {
+      "directory": "/home/zyr/Garbage",
+      "errno": 30,
+      "message": "Read-only file system",
+      "attempted_source": ".Signature.aux",
+      "source_retained": true,
+      "destination_created": false,
+      "instruction_file": "/home/zyr/.codex/AGENTS.md",
+      "instruction": "In ~/myCode, ~/myLatex, and ~/myBox, never permanently delete a file; instead move files to ~/Garbage."
+    },
+    "source_inventory": {
+      "rocq_files": 51,
+      "all_listed_in_build_inventory": true,
+      "byte_identical_source_duplicates": []
+    },
+    "preserved": [
+      "All source files and current .vo dependencies",
+      "Current build cache and benchmark results",
+      "Legacy compatibility oracle and signature",
+      "Baselines, validation records, plans, requirements and manuscript"
+    ],
+    "candidate_count": 182,
+    "candidate_bytes": 152972,
+    "candidates": [
+      {
+        "path": ".Certification.aux",
+        "bytes": 3908,
+        "sha256": "cc6f5ee428096b6c49a36ebf243f484e0f778ab71d496f227a91f4f1bf4e1695",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".Progress.aux",
+        "bytes": 4941,
+        "sha256": "03a87cdfc5bafdf0832a4f70322b0e70cf2bd0a01a0c64245004dc55903deacb",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".RuleGeneration.aux",
+        "bytes": 1999,
+        "sha256": "f1a3cdb2248343cef31ca52deba2ce3fc8c1d19ec12707d8e9c9d445f5502091",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".Rules.aux",
+        "bytes": 11285,
+        "sha256": "f7741f4adeed82c5058b9d1820790dda95c4735cfd7fdacdc46c3c5099d4ab26",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".Semantics.aux",
+        "bytes": 13356,
+        "sha256": "e10cd5bfe681228d2a412fd4a725597781d6dc6a2cdd5a1383c65c618cca20ff",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".Signature.aux",
+        "bytes": 120,
+        "sha256": "8876b9b66c1a8bf5a7a6e74fa9decf61f35a763e864c8fecd477f9bec195b6df",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".Syntax.aux",
+        "bytes": 3924,
+        "sha256": "2f258e4a2ce437829b9bef3c94458b400672ef5faaab2e8855f2bd3d8ef7d9cb",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".TraceSafety.aux",
+        "bytes": 1222,
+        "sha256": "e08fa0287fbea45d850c777bde0fec2134017641ae5ec25ad08b60567a431597",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": ".build/build-logs/Benchmarks-PPL-NestedProgram.v.json",
+        "bytes": 754,
+        "sha256": "b902be0a78e2ea30cab68e762d47856902ad00e1171f776672cd7e576f42f582",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Benchmarks-PPL-NestedProgram.v.txt",
+        "bytes": 91,
+        "sha256": "bce331b25bc1ee0f5fa32b0c214ec49d2c14e05578c535ea7beb98068a89b2a9",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Benchmarks-PPL-SafetySystem.v.json",
+        "bytes": 761,
+        "sha256": "7d69c97129463c5a0e853fdb251761271f71f396cb5e24137d0a62afbcbbe23c",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Benchmarks-PPL-SafetySystem.v.txt",
+        "bytes": 59,
+        "sha256": "74ce8132bbaf72fd10a61c90cd115e60fd5f989a00b18bf6f53edb2ef3a54e3b",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Benchmarks-PPL-Support.v.json",
+        "bytes": 1011,
+        "sha256": "f53e31514a0a424d52150d646a68994ccf5ec0ba249d3b3302fa7e10adf841a3",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Benchmarks-PPL-Support.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Certification.v.json",
+        "bytes": 969,
+        "sha256": "141acfe99c67b8bdce70983a1f75ea09df48057df573ad42bcf18fbd553de1f1",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Certification.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Benchmarks-Support.v.json",
+        "bytes": 1037,
+        "sha256": "4cb18ea3b1a85f826a12b5b0749c02bd8fdff0d4d19e3db38a9892f0063e4673",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Benchmarks-Support.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Certification.v.json",
+        "bytes": 819,
+        "sha256": "d1f24c73a45563a3d2775e95d1ef8d9f71be8c43aaf102732a4fbbf576673732",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Certification.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Compatibility.v.json",
+        "bytes": 930,
+        "sha256": "a8d8edc3c4bd5e8ac9bde63139c4a964e8c8d3c642bc019b8f90d5439d03b922",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Compatibility.v.txt",
+        "bytes": 484,
+        "sha256": "7acabcfabf1ef1704aa3d74b5d2d7f78660b18f1f147b059c9401bf75f8cd7c8",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Progress.v.json",
+        "bytes": 990,
+        "sha256": "ffd107c6899a090bc6ec618ab5f8793f46ff40bd53c826bbdac79d87e2d2098f",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Progress.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-RuleGeneration.v.json",
+        "bytes": 823,
+        "sha256": "5bf8181e0d37de5933f371cc4f40b291e4245f6486b8b3bc4019a4285063d305",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-RuleGeneration.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Rules.v.json",
+        "bytes": 979,
+        "sha256": "8ccc299fd7240827878c1222fb6e3f61acabdebef401e70fc240e53d22e1b500",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Rules.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Semantics.v.json",
+        "bytes": 805,
+        "sha256": "f5f1511e73cc0ceec346ade7abe590459499018bbbbbed033755e981c0b80333",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Semantics.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Syntax.v.json",
+        "bytes": 792,
+        "sha256": "17366f2a5605f9160c611d025c75057df8023e1e1ed26495d67f0eff36f71215",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/FOPL-Syntax.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/PPL-Instance.v.json",
+        "bytes": 1158,
+        "sha256": "2a7fc571d7e4df4dac4ce232f5beb7da37ccb808d1b05ddb7cec513317d5eb39",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/PPL-Instance.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Progress.v.json",
+        "bytes": 871,
+        "sha256": "414328f32995bdacefcebe2a22c0c49e008006ba78e1d87b3427274f184eba74",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Progress.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/RuleGeneration.v.json",
+        "bytes": 972,
+        "sha256": "e0b1caa0752b6cdd174b52e41552dac9d20fb759e4fcb5dd08c5428e1e3c16ae",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/RuleGeneration.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Rules.v.json",
+        "bytes": 858,
+        "sha256": "2418704ad36039b0b55dd1c9b982f3639636e6351be470ee41831a00326cf3ad",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Rules.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Semantics.v.json",
+        "bytes": 689,
+        "sha256": "b7608fe9e12ad82c7c2fc010a3120b832b1a726f168eba6f78bcef313518d9c3",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Semantics.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Signature.v.json",
+        "bytes": 509,
+        "sha256": "72269bbffcd4510a1a7e2a5ec6b8884f5122990cd0731e30801eaa1cf975af95",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Signature.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Syntax.v.json",
+        "bytes": 592,
+        "sha256": "e962d5c4e1e683613e33f019a08df5bc5e94861317789b774cecbf192c0c83ab",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/Syntax.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/TraceSafety.v.json",
+        "bytes": 787,
+        "sha256": "10d277eb64291c50339c896238c36329ff9761bc0368d64543fe7bfe0785b905",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".build/build-logs/TraceSafety.v.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Local compilation log superseded by retained benchmark and validation records"
+      },
+      {
+        "path": ".lia.cache",
+        "bytes": 1927,
+        "sha256": "e4306632cb459da90917c393f39acd1fe5dc35407db1898fb1cfd9a9b79225c4",
+        "reason": "Regenerable arithmetic tactic cache"
+      },
+      {
+        "path": "Benchmarks/PPL/.AtomicActions.aux",
+        "bytes": 4126,
+        "sha256": "c18b821e3805ffffb21097bf9e7dfb248c2d247967fa387f3c792b8461539141",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Booleans.aux",
+        "bytes": 449,
+        "sha256": "cff35e4743d44c273d0036f825812761078db342f7002f009464604c42b6b7b6",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.CheckerNegative.aux",
+        "bytes": 2290,
+        "sha256": "b344e557d9337602bdb9c1fdc7ba4c61bf8ce529e8ec892ede2ca432bdcb72ef",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Cyclic.aux",
+        "bytes": 2059,
+        "sha256": "88b24b9987c0112860a35925c166fd0d94692c99cf37dbac8aa705e61ec342e0",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.CyclicTags.aux",
+        "bytes": 1080,
+        "sha256": "b78fcef6c7ead58ab4434226640d947165b7d1a49c1577dbeef17e747e468059",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Instances.aux",
+        "bytes": 1760,
+        "sha256": "8c9be07ee931f2e24b18a8da9f47b5bf3cfc426ff4c5647d2330280e7455fed8",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.LabelsRelations.aux",
+        "bytes": 2216,
+        "sha256": "d84e321c0f80aa2a7f0bc6fe6a91124f18250522f251727442cd3769a4c93dcb",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.NestedProgram.aux",
+        "bytes": 1146,
+        "sha256": "3cb6b5e3109ab43dde7e074fc3c0bfec7bcf1bde336de5e170b0831f0ad15d9d",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Nondeterminism.aux",
+        "bytes": 1770,
+        "sha256": "171f56a38a12dfddda8bdc3fa11c717e86f5acc977f5bd9a8909ffc02911abea",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.RegularPrograms.aux",
+        "bytes": 1437,
+        "sha256": "08c9df87434544eeeeba572e2a0cacb01fe00c909ea50302ff8c942c46f71bf4",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.RuleCoverage.aux",
+        "bytes": 11637,
+        "sha256": "5fdd97fe26aff2a3b246133d369ebeba405644d4753d8027b105e30874a8e713",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.SafetySystem.aux",
+        "bytes": 1411,
+        "sha256": "7ee4af8c60bece3ebacca27aac430ebbe73f4f1d7e8ec173c3e86c514e8ce48c",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Support.aux",
+        "bytes": 1061,
+        "sha256": "eff35f7f3037a8224f92d95a8ddb4f1a8f09f1e284eb3e79c75d34db76414250",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Temporal.aux",
+        "bytes": 2078,
+        "sha256": "d3605279334c0dac6ec92cbdaa6fdd86b7aa8b0894cecdc86d8aa2d0054445d8",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/.Tests.aux",
+        "bytes": 1582,
+        "sha256": "4a01ceb576a9519108364083346909a2944e5ffe3dcf9fe3f7865078d0bf8633",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "Benchmarks/PPL/AtomicActions.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/AtomicActions.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Booleans.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Booleans.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/CheckerNegative.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/CheckerNegative.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Cyclic.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Cyclic.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/CyclicTags.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/CyclicTags.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Instances.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Instances.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/LabelsRelations.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/LabelsRelations.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/NestedProgram.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/NestedProgram.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Nondeterminism.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Nondeterminism.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/RegularPrograms.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/RegularPrograms.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/RuleCoverage.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/RuleCoverage.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/SafetySystem.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/SafetySystem.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Support.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Support.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Temporal.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Temporal.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Tests.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Benchmarks/PPL/Tests.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Certification.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Certification.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/.Certification.aux",
+        "bytes": 129,
+        "sha256": "fcbcf72258b1629c313c5fb9c891df0b55ee6d0d81d6eee02ac876cbfa05efa1",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/.Compatibility.aux",
+        "bytes": 5459,
+        "sha256": "14cb32f5df017c22df84401e595df96f3d4f4c348126e3a90af66f561b8f26a7",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/.Progress.aux",
+        "bytes": 1581,
+        "sha256": "4deec54666db95c4454837075da92f53964e5b2f041dbac0938adbae3b269746",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/.RuleGeneration.aux",
+        "bytes": 464,
+        "sha256": "37a14f4a0e354dd8fbc3f6656bd05842a3b70c28b2f56dc0405ab38bbc750337",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/.Rules.aux",
+        "bytes": 1164,
+        "sha256": "7a58b2ea329b0037bde5662febfe865b8394ceb1ef53c98081dae5eaed446d85",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/.Semantics.aux",
+        "bytes": 8342,
+        "sha256": "153a9f37dd3557fd0865c7bef8607ec779b0945eeea61e66c1535dfeac439971",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/.Syntax.aux",
+        "bytes": 4480,
+        "sha256": "5c71e285ce29087b9ae89d87794c1e9bc036d173d4d02ca112507b9315aa9b22",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.AssignmentChange.aux",
+        "bytes": 1646,
+        "sha256": "47ba0ec101e9beeecba2dfb56a0e4634fb7ca55d1da5e60efeb219e40a2d6e85",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Booleans.aux",
+        "bytes": 450,
+        "sha256": "8088ce148365202e378a96ce2f22ef8bd1562709efde05d40d91a5510d0191fe",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.CheckerNegative.aux",
+        "bytes": 2108,
+        "sha256": "575c30102fce1b253c1cb6ceae82f325ee04349223e33eeea69e4dbd9eabe3a3",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.CounterLoop.aux",
+        "bytes": 1285,
+        "sha256": "8ef533f955bff09d37666f72c611fee510269d52aa67b3659c47d37ca951e39c",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Cyclic.aux",
+        "bytes": 1229,
+        "sha256": "9b8b893d1bab9fd878aba8162e98d8a1140d1d10f07258382cd9b501c3b80ca4",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.CyclicTags.aux",
+        "bytes": 1081,
+        "sha256": "96d670d897911d40a162fbf8130675cb0c03f545e234196a97b28a52e5043278",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Labels.aux",
+        "bytes": 2199,
+        "sha256": "e96534631ec8be6c9a2a96ddd7f3d8b734cb670eaddf11d1f554c396be89cbb2",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.NestedProgram.aux",
+        "bytes": 1508,
+        "sha256": "a670325b710fd854fce0ad4c15f7a89abe5ed10620f7460fbe024505a1c4265a",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Quantifiers.aux",
+        "bytes": 1933,
+        "sha256": "e652df0f5bcbdeef8fc42c2da5b80011eaa60ffb9fe62af6922ab229c9ab16ff",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.RegularPrograms.aux",
+        "bytes": 1456,
+        "sha256": "261091d4258fcc3d688086a8cd48dba0c7bbf06e3a10441d666c4f5a2afad9ce",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.RuleCoverage.aux",
+        "bytes": 12363,
+        "sha256": "fc1ff7d45fdc79685bc71106515c6233575c4de13a1834efe301fc5ed638a7a1",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Signatures.aux",
+        "bytes": 1369,
+        "sha256": "2e89f990d33f83c0b2066c6dffc229dae9a5ba0866d1c462adfccee21c5ee3c5",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Support.aux",
+        "bytes": 761,
+        "sha256": "79fe79bf759dc56ff87d12db53628e2f1b6f81244efe4fb1f2330a4ddec9cb00",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Temporal.aux",
+        "bytes": 2079,
+        "sha256": "f05d8f67aaab5d7a3c0d0e863ca66c3cdb809c6297e3355eed54d21d5ab623bf",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Tests.aux",
+        "bytes": 1583,
+        "sha256": "7f790203763735438f1c9ec907d994c960a52c8683f8ae071014c8079b042255",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/.Updates.aux",
+        "bytes": 1552,
+        "sha256": "16f74e0c82afa2e5c1f099086e43923cb8c12c15325d235ea47668b5e001a8e7",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "FOPL/Benchmarks/AssignmentChange.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/AssignmentChange.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Booleans.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Booleans.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/CheckerNegative.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/CheckerNegative.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/CounterLoop.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/CounterLoop.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Cyclic.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Cyclic.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/CyclicTags.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/CyclicTags.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Labels.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Labels.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/NestedProgram.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/NestedProgram.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Quantifiers.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Quantifiers.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/RegularPrograms.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/RegularPrograms.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/RuleCoverage.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/RuleCoverage.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Signatures.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Signatures.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Support.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Support.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Temporal.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Temporal.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Tests.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Tests.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Updates.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Benchmarks/Updates.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Certification.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Certification.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Compatibility.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Compatibility.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Progress.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Progress.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/RuleGeneration.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/RuleGeneration.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Rules.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Rules.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Semantics.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Semantics.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Syntax.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "FOPL/Syntax.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "PPL/.Instance.aux",
+        "bytes": 227,
+        "sha256": "bba16fb211a7f1398c62c79bdb14853193ba5bfd4cb98caf4c1205b32adb0a24",
+        "reason": "Regenerable Rocq proof-timing sidecar; build/check use .vo files"
+      },
+      {
+        "path": "PPL/Instance.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "PPL/Instance.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Progress.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Progress.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "RuleGeneration.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "RuleGeneration.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Rules.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Rules.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Semantics.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Semantics.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Signature.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Signature.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Syntax.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "Syntax.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "TraceSafety.vok",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      },
+      {
+        "path": "TraceSafety.vos",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "Empty Rocq compilation marker; unused by this build/check workflow"
+      }
+    ]
+  }
 }

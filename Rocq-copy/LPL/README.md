@@ -2,7 +2,8 @@
 
 LPL provides a parameterized G3PPL theory and a G3FOPL specialization in Rocq
 9.1.0 using the standard library and the unchanged `Cyclic/` framework.
-The refinement follows [the plan](refine-1-plan.md) and the
+The opaque-carrier and primitive-syntax refinement follows
+[refine-2-plan.md](refine-2-plan.md) and the
 [recorded decisions](REFINEMENT_DECISIONS.md). The first-order compatibility
 proofs and migration map are in [FOPL_COMPATIBILITY.md](FOPL_COMPATIBILITY.md).
 
@@ -34,7 +35,7 @@ The builder runs the compiler with `LPL/` as its working directory, keeping
 tactic caches local as well. Build commands suppress unused globalization files.
 `make -C LPL check` reruns the benchmarks, audits every source/build entry and
 legacy-preservation statement, then independently checks every project module.
-Only current build caches and verification records are retained in the project.
+Baseline and development verification records are retained alongside the final run.
 
 ## Shared implementation
 
@@ -61,15 +62,32 @@ snapshots, logs, duplicate files and generated artifacts.
 | `PPL/Instance.v` | Plain propositional vocabulary/frame adapters |
 | `FOPL/*.v` | First-order signature, terms, updates, quantifier operations/proofs, deterministic assignment rules, manual terminals, and thin adapters |
 
-Syntax contains arbitrary atomic symbols with argument payloads, a second
-binary-atom slot, and two recursive extension slots. These slots preserve the
-legacy constructor organization while assigning no first-order meaning in the
-core. A DIY atom can be an arbitrary syntax type used as a symbol with no
-arguments; action payloads and world terms can likewise be arbitrary reified
-data. Plain PPL uses empty extension-token/argument types. FOPL supplies
-predicate/equality atoms, terms, assignment payloads, and universal/existential
-binder tokens. `pureb` in the core classifies a syntactic nonmodal fragment;
-a head-state semantic property is proved separately by the relevant instance.
+The primitive formula constructors are exactly `Truth`, `Atom`, `Neg`, `Conj`,
+`Extension`, `First`, `Suffix`, and `Box`. Programs use `Atomic`, `Test`, `Seq`,
+`Choice`, and `Star`. `Atom : L.atom -> formula` and
+`Atomic : L.action -> program` take opaque carriers with syntactic equality and
+unary Boolean payload checks. The shared implementation never inspects a
+predicate application, equality term, or assignment payload.
+
+| Derived operator | Definition |
+| --- | --- |
+| `Falsity` | `Neg Truth` |
+| `Disj a b` | `Neg (Conj (Neg a) (Neg b))` |
+| `Impl a b` | `Neg (Conj a (Neg b))` |
+| `Coextension x a` | `Neg (Extension x (Neg a))` |
+| `DualSuffix a b` | `Neg (Suffix (Neg a) (Neg b))` |
+| `Diamond p a` | `Neg (Box p (Neg a))` |
+
+These are definitions, so each derived expression equals its expansion in
+syntax as well as meaning. `Next`, `Eventually`, and `Always` remain derived
+definitions. Every formula is false on the empty trace; Boolean and duality
+laws assume a nonempty trace. `pureb` classifies a nonmodal fragment, while
+each instance separately proves its head-state semantic property.
+
+PPL uses the proposition and action types directly and has no extension tokens.
+FOPL owns `atom_payload` (`Predicate` / `Equality`) and `assignment`
+(`Assignment`), with terms, substitutions and arity checks inside `FOPL/`.
+`All` uses `Extension`; `Ex` uses its dual. Quantified bodies remain pure.
 
 Semantic states and predicate truth need no decision procedures. The frame's
 atomic-trace law proves that atomic executions are exactly length-two traces
@@ -126,8 +144,10 @@ Module C := MakeCertification MySignature K.
 
 Import the instantiated syntax through its exported modules, as illustrated in
 [FOPL benchmark support](FOPL/Benchmarks/Support.v). The familiar `Pred`, `Equal`,
-`All`, `Ex`, and `Assign` spellings are parsing notations for the shared
-constructors; qualified generic constructor names remain in `Syn.Shared`.
+`All`, `Ex`, and `Assign` spellings are expression-building helpers or
+notations over primitive shared syntax. Structural traversals match the
+primitive constructors and FOPL-owned payloads; `Ex` is the negated universal
+encoding. Qualified generic constructors remain in `Syn.Shared`.
 The FOPL facade retains the relation-free legacy fragment, while the shared
 judgment type also supports explicit relational extensions. No extra relational
 premise is required by an original assignment rule.
@@ -154,7 +174,7 @@ Their internal `K` namespace is the shared generic kernel.
 - FOPL quantifiers change the bound variable uniformly throughout the trace.
   Their bodies must recursively be pure FOL; quantifier eigenvariables are fresh
   for labels, nested updates, assignment targets, contexts, and bodies.
-- Only succedent boxes, suffixes, and dual suffixes may carry unique occurrence
+- Only succedent boxes, suffixes, and expanded dual suffixes may carry unique occurrence
   tags. Rank is the minimum sum of component-trace lengths of a counterexample
   history. False admissible trace elements have proved attained minima.
 
@@ -165,6 +185,12 @@ current judgment only; plain PPL retains ordinary propositional generation.
 FOPL retains its manual pure-terminal boundary. `generate_requested` checks
 explicit inputs and returns a record already containing ordinary soundness
 and a counterstep satisfying every advertised pair on its selected edge.
+
+At each occurrence, the common candidate order is disjunction, implication,
+diamond, dual suffix, then the primitive constructor. All applicable views
+contribute candidates, including overlapping encodings. FOPL inserts its
+quantifier and assignment candidates before primitive fallback. Named requests
+still check exact conclusions, every premise, tags, and freshness.
 
 PPL-specific requests include `AtomicEigen side position successor`,
 `AtomicUse side position relation_index`, relation weakening/contraction/exchange,

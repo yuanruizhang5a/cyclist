@@ -424,7 +424,7 @@ Definition first_left pre post rhs u sigma body ta tb Hs Ht :=
 (** The manuscript's At rule only exposes atoms/equalities at the head.
     [First] above is the separate rule for an explicit singleton observation
     of an arbitrary compound formula. *)
-Definition atomb a := match a with Atom _ _ | BinaryAtom _ _ => true | _ => false end.
+Definition atomb a := match a with Atom _ => true | _ => false end.
 Lemma atomb_pure a : atomb a = true -> pureb a = true.
 Proof. destruct a; cbn; congruence. Qed.
 Definition atom_head_right lhs pre post u sigma body ta tb Hs Ht (Ha : atomb body = true) :=
@@ -1286,7 +1286,7 @@ Proof.
   refine {| Cyclic.axiom_name := "False.L"; Cyclic.axiom_conclusion := j |}.
   intros w Hadm Hrelations Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
   destruct (Hleft o Hin) as [Hlabel Hfalse]; rewrite Hf in Hfalse.
-  destruct (eval_label M w o.(occurrence_label)); contradiction.
+  destruct (eval_label M w o.(occurrence_label)); cbn in Hfalse; tauto.
 Defined.
 
 Definition identity_axiom j (Hwf : judgment_wfb j = true) l r
@@ -1383,67 +1383,67 @@ Qed.
 
 (** An action relation names only its singleton endpoints. Its body label
     instead retains the entire old prefix and appends the new state. *)
-Definition action_relation action payload u v :=
-  ActionRelation action payload (StateLabel u) (StateLabel v).
+Definition action_relation action u v :=
+  ActionRelation action (StateLabel u) (StateLabel v).
 Definition action_label sigma u v := Join (Join sigma (StateLabel u)) (StateLabel v).
 
-Lemma action_relation_holds w action payload u v :
-  relation_holds M w (action_relation action payload u v) <->
-  interpret_action M action payload (eval_update M w u) (eval_update M w v).
+Lemma action_relation_holds w action u v :
+  relation_holds M w (action_relation action u v) <->
+  interpret_action M action (eval_update M w u) (eval_update M w v).
 Proof.
   unfold action_relation; cbn [relation_holds eval_label]; split.
   - intros [s [t [Hs [Ht Hstep]]]]; inversion Hs; inversion Ht; subst; exact Hstep.
   - intro H; exists (eval_update M w u), (eval_update M w v); auto.
 Qed.
-Lemma box_action_use w sigma u v action payload body ta tb :
-  relation_holds M w (action_relation action payload u v) ->
-  labelled_holds M w (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta) ->
+Lemma box_action_use w sigma u v action body ta tb :
+  relation_holds M w (action_relation action u v) ->
+  labelled_holds M w (Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) ta) ->
   labelled_holds M w (Occ (action_label sigma u v) body tb).
 Proof.
   intros Hrel [_ Hbox]; apply action_relation_holds in Hrel.
   unfold labelled_holds, label_admissible, action_label; cbn [occurrence_label occurrence_formula eval_label] in *.
   split; [intro H; apply app_eq_nil in H; destruct H; discriminate|].
-  apply (proj1 (box_atomic M (eval_label M w sigma) (eval_update M w u) action payload body)); exact Hbox || exact Hrel.
+  apply (proj1 (box_atomic M (eval_label M w sigma) (eval_update M w u) action body)); exact Hbox || exact Hrel.
 Qed.
-Lemma diamond_action_use w sigma u v action payload body ta tb :
-  relation_holds M w (action_relation action payload u v) ->
+Lemma diamond_action_use w sigma u v action body ta tb :
+  relation_holds M w (action_relation action u v) ->
   labelled_holds M w (Occ (action_label sigma u v) body tb) ->
-  labelled_holds M w (Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta).
+  labelled_holds M w (Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) ta).
 Proof.
   intros Hrel [_ Hbody]; apply action_relation_holds in Hrel.
   unfold labelled_holds, label_admissible, action_label; cbn [occurrence_label occurrence_formula eval_label] in *.
   split; [intro H; apply app_eq_nil in H; destruct H; discriminate|].
-  apply (proj2 (diamond_atomic M (eval_label M w sigma) (eval_update M w u) action payload body)); exists (eval_update M w v); auto.
+  apply (proj2 (diamond_atomic M (eval_label M w sigma) (eval_update M w u) action body)); exists (eval_update M w v); auto.
 Qed.
 
 (** To refute a right box, choose a failing successor from a minimum source
     counterexample. This choice gives both body falsity and strict descent;
     an arbitrary failing successor would not suffice for the rank bound.
     The fresh name [y] denotes that successor in the premise world. *)
-Definition box_atomic_right R lhs pre post sigma u action payload body y ta tb
+Definition box_atomic_right R lhs pre post sigma u action body y ta tb
     (Hs : judgment_wfb (right_conclusion R lhs pre post
-      (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta)) = true)
-    (Ht : judgment_wfb (Rdg (R ++ [action_relation action payload u (L.world_name y)]) lhs
+      (Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) ta)) = true)
+    (Ht : judgment_wfb (Rdg (R ++ [action_relation action u (L.world_name y)]) lhs
       (pre ++ Occ (action_label sigma u (L.world_name y)) body tb :: post)) = true)
     (Hfresh : world_freshb y (right_conclusion R lhs pre post
-      (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta)) = true)
+      (Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) ta)) = true)
     : Cyclic.rule_instance.
 Proof.
-  set (principal := Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta).
+  set (principal := Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) ta).
   set (replacement := Occ (action_label sigma u (L.world_name y)) body tb).
   set (source := right_conclusion R lhs pre post principal).
-  set (target := Rdg (R ++ [action_relation action payload u (L.world_name y)]) lhs (pre ++ replacement :: post)).
+  set (target := Rdg (R ++ [action_relation action u (L.world_name y)]) lhs (pre ++ replacement :: post)).
   apply (counter_rule "B.Atomic.R" source target (continuation_edge source target principal replacement true)).
   intros w Hfalse.
   destruct (false_right_parts R lhs pre post principal w Hfalse) as [Hleft [Hpre [Hprincipal Hpost]]].
-  assert (~ formula_holds M (Box (Atomic action payload) body)
+  assert (~ formula_holds M (Box (Atomic action) body)
     (eval_label M w sigma ++ [eval_update M w u])) as Hbad.
   { intro H; apply Hprincipal; split; [unfold label_admissible; cbn [principal occurrence_label eval_label];
       intro Heq; apply app_eq_nil in Heq; destruct Heq; discriminate|exact H]. }
-  set (Q := fun next => interpret_action M action payload (eval_update M w u) next /\
+  set (Q := fun next => interpret_action M action (eval_update M w u) next /\
     ~ formula_holds M body ((eval_label M w sigma ++ [eval_update M w u]) ++ [next]) /\
     minimum_counterexample body ((eval_label M w sigma ++ [eval_update M w u]) ++ [next]) <
-    minimum_counterexample (Box (Atomic action payload) body) (eval_label M w sigma ++ [eval_update M w u])).
+    minimum_counterexample (Box (Atomic action) body) (eval_label M w sigma ++ [eval_update M w u])).
   set (next := epsilon (inhabits (carrier_inhabitant M)) Q).
   assert (Q next) as [Hstep [Hbody Hrank]].
   { unfold next; apply epsilon_spec; apply atomic_minimum_successor; exact Hbad. }
@@ -1496,9 +1496,9 @@ Defined.
 (** A true box supplies its body at the successor named by the selected
     relation. No fresh world is needed, and only unchanged succedent tags
     are routed. The consumed relation sits between [Rpre] and [Rpost]. *)
-Definition box_atomic_left Rpre Rpost pre post rhs sigma u v action payload body ta tb
-    (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action payload u v :: Rpost)
-      (pre ++ Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta :: post) rhs) = true)
+Definition box_atomic_left Rpre Rpost pre post rhs sigma u v action body ta tb
+    (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action u v :: Rpost)
+      (pre ++ Occ (Join sigma (StateLabel u)) (Box (Atomic action) body) ta :: post) rhs) = true)
     (Ht : judgment_wfb (Rdg (Rpre ++ Rpost)
       (pre ++ Occ (action_label sigma u v) body tb :: post) rhs) = true)
     : Cyclic.rule_instance.
@@ -1519,9 +1519,9 @@ Defined.
 (** The selected action relation witnesses the diamond's existential step.
     A true body in the premise therefore establishes the conclusion's
     diamond; the surrounding right context supplies the other cases. *)
-Definition diamond_atomic_right Rpre Rpost lhs pre post sigma u v action payload body ta tb
-    (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action payload u v :: Rpost) lhs
-      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post)) = true)
+Definition diamond_atomic_right Rpre Rpost lhs pre post sigma u v action body ta tb
+    (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action u v :: Rpost) lhs
+      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) ta :: post)) = true)
     (Ht : judgment_wfb (Rdg (Rpre ++ Rpost) lhs
       (pre ++ Occ (action_label sigma u v) body tb :: post)) = true)
     : Cyclic.rule_instance.
@@ -1543,28 +1543,28 @@ Defined.
     Name that state with fresh [y] and add its relation in the premise.
     Unlike box-right, this step routes only unchanged right occurrences,
     so it needs no minimum-rank choice for the left principal. *)
-Definition diamond_atomic_left R pre post rhs sigma u action payload body y ta tb
+Definition diamond_atomic_left R pre post rhs sigma u action body y ta tb
     (Hs : judgment_wfb (Rdg R
-      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post) rhs) = true)
-    (Ht : judgment_wfb (Rdg (R ++ [action_relation action payload u (L.world_name y)])
+      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) ta :: post) rhs) = true)
+    (Ht : judgment_wfb (Rdg (R ++ [action_relation action u (L.world_name y)])
       (pre ++ Occ (action_label sigma u (L.world_name y)) body tb :: post) rhs) = true)
     (Hfresh : world_freshb y (Rdg R
-      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post) rhs) = true)
+      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) ta :: post) rhs) = true)
     : Cyclic.rule_instance.
 Proof.
-  set (principal := Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta).
+  set (principal := Occ (Join sigma (StateLabel u)) (Diamond (Atomic action) body) ta).
   set (replacement := Occ (action_label sigma u (L.world_name y)) body tb).
   set (source := Rdg R (pre ++ principal :: post) rhs).
-  set (target := Rdg (R ++ [action_relation action payload u (L.world_name y)]) (pre ++ replacement :: post) rhs).
+  set (target := Rdg (R ++ [action_relation action u (L.world_name y)]) (pre ++ replacement :: post) rhs).
   apply (counter_rule "D.Atomic.L" source target (retained_edge source target)).
   intros w Hfalse.
   destruct (false_sequent M source w Hfalse) as [_ [Hleft Hright]].
   change (left_holds M w (pre ++ principal :: post)) in Hleft.
   rewrite left_app, left_cons in Hleft; destruct Hleft as [Hpre [[Hne Hdiamond] Hpost]].
-  change (formula_holds M (Diamond (Atomic action payload) body)
+  change (formula_holds M (Diamond (Atomic action) body)
     (eval_label M w sigma ++ [eval_update M w u])) in Hdiamond.
   apply diamond_atomic in Hdiamond.
-  set (Q := fun next => interpret_action M action payload (eval_update M w u) next /\
+  set (Q := fun next => interpret_action M action (eval_update M w u) next /\
     formula_holds M body ((eval_label M w sigma ++ [eval_update M w u]) ++ [next])).
   set (next := epsilon (inhabits (carrier_inhabitant M)) Q).
   assert (Q next) as [Hstep Hbody] by (unfold next; apply epsilon_spec; exact Hdiamond).
@@ -1591,7 +1591,7 @@ Proof.
       - apply (proj2 (fresh_left source pre w y next Hfresh ltac:(
           intros o Hin; unfold source; cbn [antecedent succedent]; rewrite !in_app_iff; cbn; auto))); exact Hpre.
       - split.
-        + split; [apply (wellformed_left_principal (R ++ [action_relation action payload u (L.world_name y)]) pre post rhs replacement w' Ht)|].
+        + split; [apply (wellformed_left_principal (R ++ [action_relation action u (L.world_name y)]) pre post rhs replacement w' Ht)|].
           cbn [replacement occurrence_formula occurrence_label]; rewrite Hlabel; exact Hbody.
         + apply (proj2 (fresh_left source post w y next Hfresh ltac:(
             intros o Hin; unfold source; cbn [antecedent succedent]; rewrite !in_app_iff; cbn; auto))); exact Hpost. }

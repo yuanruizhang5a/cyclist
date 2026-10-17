@@ -1,0 +1,62 @@
+{
+  "Labels": {
+    "original_statements": 12,
+    "all_retained_in_order": true
+  },
+  "Signatures": {
+    "original_statements": 5,
+    "all_retained_in_order": true
+  },
+  "Updates": {
+    "original_statements": 8,
+    "all_retained_in_order": true
+  },
+  "Tests": {
+    "original_statements": 9,
+    "all_retained_in_order": true
+  },
+  "RegularPrograms": {
+    "original_statements": 8,
+    "all_retained_in_order": true
+  },
+  "Booleans": {
+    "original_statements": 2,
+    "all_retained_in_order": true
+  },
+  "Quantifiers": {
+    "original_statements": 10,
+    "all_retained_in_order": true
+  },
+  "Temporal": {
+    "original_statements": 12,
+    "all_retained_in_order": true
+  },
+  "AssignmentChange": {
+    "original_statements": 6,
+    "all_retained_in_order": true
+  },
+  "RuleCoverage": {
+    "original_statements": 76,
+    "all_retained_in_order": true
+  },
+  "CheckerNegative": {
+    "original_statements": 11,
+    "all_retained_in_order": true
+  },
+  "Cyclic": {
+    "original_statements": 6,
+    "all_retained_in_order": true
+  },
+  "CyclicTags": {
+    "original_statements": 5,
+    "all_retained_in_order": true
+  },
+  "CounterLoop": {
+    "original_statements": 7,
+    "all_retained_in_order": true
+  },
+  "NestedProgram": {
+    "original_statements": 8,
+    "all_retained_in_order": true
+  }
+}

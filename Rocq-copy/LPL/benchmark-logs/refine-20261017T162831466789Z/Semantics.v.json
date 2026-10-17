@@ -1,0 +1,26 @@
+{
+  "source": "Semantics.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Semantics.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.8299045139992813,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "3aa0fce754618ecda9333c43805b5cc25e45488f4f73751a0d5d9f0c6db37402",
+  "dependency_sha256": {
+    "LPL/Signature.v": "22d08a481e4fd3009312bc720fc6e2fdfa9266fd73f4ad7ab1ee1897a917eb38",
+    "LPL/Syntax.v": "cb357ddcdb8e9c56d53604d09dc30921f8c7632149ef040cb02a47948ea9cc11"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/Semantics.v.txt"
+}

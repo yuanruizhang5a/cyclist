@@ -1,0 +1,25 @@
+{
+  "source": "Benchmarks/PPL/Temporal.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/Temporal.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.41112614199846576,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "c1e7cb1c1886024a84df6d88344c930e75436a4982a4171975ffb34a117af5b0",
+  "dependency_sha256": {
+    "LPL/Benchmarks/PPL/Support.v": "8cb2f86ccefa77a6e02f2609694b21445304c11ed71f5a38e649bac75689934a"
+  },
+  "log": "benchmark-logs/refine-20261017T163902348024Z/Benchmarks-PPL-Temporal.v.txt"
+}

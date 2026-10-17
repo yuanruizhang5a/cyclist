@@ -1,0 +1,31 @@
+{
+  "source": "Benchmarks/PPL/Instances.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/Instances.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.8525795320001635,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "e2ef3d425c5b0c2b70038db665d95a11420187d630021f7a011dddfc73c6b170",
+  "dependency_sha256": {
+    "LPL/PPL/Instance.v": "9df0428ac6b6b6052ddc2cc1d0a9192fea83d0b383731aed893833caddef30e3",
+    "LPL/Signature.v": "3a082eb2b398608be2448533eff74a36db94b0bef2616393f6fb35145a023c9e",
+    "LPL/Syntax.v": "8c32e45fd385d9e2c2dbf1609b2ed6a1ea5f63fc02546605ed00339c2db90e44",
+    "LPL/Semantics.v": "0937b76669f3096d040bca1ab4d605216b05f7534d28a15880dce957da82a48c",
+    "LPL/Progress.v": "e0f254633a2f9f13efe206f1b7add41881b037a85837e4d983e8000e8bb6f592",
+    "LPL/Rules.v": "e4c80b6c0f4fc476f412cb5ab58fada2eba751ab170fcccc3d633bf4ff898055",
+    "LPL/RuleGeneration.v": "98e379d526c96453bff1f9452e269f31a9ac7cf6a08279a6a52fb98ef82b317c"
+  },
+  "log": "benchmark-logs/refine-20261017T163902348024Z/Benchmarks-PPL-Instances.v.txt"
+}

@@ -55,7 +55,98 @@ def legacy_import(match):
     return '\n'.join(lines)
 
 
+def audit_representation(logs):
+    syntax = uncomment((HERE / 'Syntax.v').read_text())
+    declaration = syntax.split('Inductive formula : Type :=', 1)[1].split('with program', 1)[0]
+    constructors = re.findall(r'(?:^|[|])\s*(\w+)', declaration)
+    require(constructors == ['Truth', 'Atom', 'Neg', 'Conj', 'Extension', 'First', 'Suffix', 'Box'],
+            f'Unexpected primitive formulas: {constructors}')
+    # Check the full constructor lines; qualified carrier names contain dots.
+    require('| Atom (p : L.atom)\n' in syntax and '| Atomic (x : L.action)\n' in syntax,
+            'Atoms/actions are not opaque unary constructors')
+    require('| ActionRelation (action : L.action) (source target : label)' in syntax,
+            'Action relations must carry one opaque action')
+    expected = {'Falsity': 'Neg Truth', 'Disj a b': 'Neg (Conj (Neg a) (Neg b))',
+                'Impl a b': 'Neg (Conj a (Neg b))',
+                'Coextension x a': 'Neg (Extension x (Neg a))',
+                'DualSuffix a b': 'Neg (Suffix (Neg a) (Neg b))',
+                'Diamond p a': 'Neg (Box p (Neg a))'}
+    for name, body in expected.items():
+        require(f'Definition {name} := {body}.' in syntax, f'Changed derived definition: {name}')
+    obsolete = r'\b(?:atom_symbol|argument|action_symbol|action_argument|BinaryAtom|binary_atom_wfb|coextension_wfb|interpret_binary_atom|interpret_coextension)\b'
+    for name in ['Signature.v', 'Syntax.v', 'Semantics.v', 'Progress.v', 'Rules.v',
+                 'RuleGeneration.v', 'Certification.v', 'TraceSafety.v', 'PPL/Instance.v']:
+        require(not re.search(obsolete, uncomment((HERE / name).read_text())),
+                f'Obsolete shared payload plumbing: {name}')
+    signature = uncomment((HERE / 'Signature.v').read_text())
+    semantics = uncomment((HERE / 'Semantics.v').read_text())
+    require('Parameter atom_wfb : atom -> bool.' in signature and
+            'Parameter action_wfb : action -> bool.' in signature, 'Payload checks must be unary')
+    require('interpret_atom : L.atom -> carrier -> Prop' in semantics and
+            'interpret_action : L.action -> carrier -> carrier -> Prop' in semantics and
+            'interpret_atomic_trace : L.action -> list carrier -> Prop' in semantics,
+            'Opaque semantic interfaces changed')
+    require('atomic_trace_law : forall action tr' in semantics, 'Atomic trace law missing')
+    for view in ['falsity', 'disj', 'impl', 'coextension', 'dual_suffix', 'diamond']:
+        require(f'Lemma {view}_view_sound' in syntax, f'Missing view reconstruction: {view}')
+    generation = uncomment((HERE / 'RuleGeneration.v').read_text())
+    for side in ['left', 'right']:
+        body = generation.split(f'Definition {side}_derived_at', 1)[1].split(
+            f'Definition {side}_primitive_at', 1)[0]
+        positions = [body.index(f'match {view}_view') for view in ['disj', 'impl', 'diamond', 'dual_suffix']]
+        require(positions == sorted(positions) and body.count('++') >= 3,
+                f'Derived candidates do not append in fixed order: {side}')
+    require('Neg (Suffix (Neg b) (Neg c))' in syntax and
+            'match dual_suffix_view a with Some _ => true | None => false end' in syntax,
+            'Expanded dual-suffix traceability missing')
+    safety = uncomment((HERE / 'TraceSafety.v').read_text())
+    require('TraceAlgebra.overlap_list a b c' in safety and
+            'TraceAlgebra.trace_compose R T tr' in safety and
+            'TraceAlgebra.trace_power R n tr' in safety and
+            'Fixpoint trace_power' not in safety, 'Safety duplicates semantic trace combinators')
+    for name in ['FOPL/RuleGeneration.v', 'FOPL/Certification.v']:
+        code = uncomment((HERE / name).read_text())
+        require('Kernel.Core.Pr.Sem.Shared Kernel.Core.Pr.Shared Kernel.SharedKernel' in code,
+                f'FOPL does not reuse the supplied shared progress/kernel: {name}')
+    require('raw_check_sound' in uncomment((HERE / 'Certification.v').read_text()),
+            'Shared certification endpoint missing')
+    save(logs, 'RepresentationAudit.json', {'primitive_formula_constructors': constructors,
+         'derived_definitions': expected, 'opaque_unary_interfaces': True,
+         'view_reconstruction_and_candidate_order': True, 'shared_trace_algebra': True})
+
+
+def audit_refinement_claims(logs, statements):
+    baseline_path = HERE / 'validation-logs/refine-2/baseline/SourceSnapshot.json'
+    require(baseline_path.exists(), 'Missing refinement-2 source/claim baseline')
+    baseline = json.loads(baseline_path.read_text())
+
+    def normalized(statement):
+        kind, name, body = statement
+        # Only the removed shared argument/value fields are normalized. This
+        # preserves formula operators, quantification, hypotheses and rejection values.
+        body = re.sub(r'(\b(?:\w+\.)*Atom\s+\w+)\s+\[\]', r'\1', body)
+        body = re.sub(r'(\b(?:\w+\.)*(?:Atomic|ActionRelation|action_relation)\s+\w+)\s+tt\b', r'\1', body)
+        if name in ['actions_preserve', 'preserves']:
+            body = re.sub(r'\bpayload\b', '', body)
+        body = re.sub(r'\s+\)', ')', body)
+        return kind, name, ' '.join(body.split())
+
+    result = {}
+    for suite, directory, names in [('fopl', 'FOPL/Benchmarks', FOPL_BENCHMARKS),
+                                    ('ppl', 'Benchmarks/PPL', PPL_BENCHMARKS)]:
+        for name in names:
+            path = f'{directory}/{name}.v'
+            old = statements(baseline[path])
+            new = statements((HERE / path).read_text())
+            require([normalized(x) for x in old] == [normalized(x) for x in new],
+                    f'Baseline benchmark claim changed or case added/removed: {path}')
+            result[f'{suite}/{name}'] = {'statements': len(old), 'all_retained_in_order': True,
+                'normalization': 'removed unary-carrier argument/value fields only'}
+    save(logs, 'RefinementClaimPreservation.json', result)
+
+
 def audit_sources(logs):
+    audit_representation(logs)
     sources = sorted(p for p in HERE.rglob('*.v') if '.build' not in p.parts)
     names = {str(p.relative_to(HERE)) for p in sources}
     expected = COMMON + [f'FOPL/Benchmarks/{n}.v' for n in FOPL_BENCHMARKS] + [
@@ -130,6 +221,7 @@ def audit_sources(logs):
         retained = all(any(candidate == item for candidate in new) for item in old)
         require(retained, f'Original benchmark statement missing: {name}')
         preservation[name] = {'original_statements': len(old), 'all_retained_in_order': True}
+    audit_refinement_claims(logs, statements)
     for name in ['build.py', 'run_benchmarks.py', 'check_integrity.py']:
         ast.parse((HERE / name).read_text())
     save(logs, 'SourceAudit.json', {'source_count': len(sources), 'source_sha256': source_hashes,
@@ -142,8 +234,7 @@ def audit_sources(logs):
 
 def audit_scope(logs):
     baseline_path = logs / 'OutsideBaseline.json'
-    if not baseline_path.exists():
-        return
+    require(baseline_path.is_file(), f'Missing outside-scope baseline: {baseline_path}')
     baseline = json.loads(baseline_path.read_text())
     workspace = ROOT.parent
     paths = subprocess.run(['rg', '--files', '--hidden', '--no-ignore', '-g', '!.git/**'],

@@ -21,7 +21,7 @@ For arbitrary original signatures and models, the compiled proof provides:
 | Property | Evidence |
 | --- | --- |
 | Terms, programs, formulas, updates, labels, occurrences, judgments | Structural translations, with an empty relation context for every legacy judgment |
-| Well-formedness, pure recognition, arities, nonempty labels, traceability, tags | `translate_term_wfb`, `translate_pureb`, `translate_formula_program_wfb`, `translate_update_wfb`, `translate_label_wfb`, `translate_label_nonempty`, `translate_traceable`, `translate_tags`, `translate_judgment_wfb` |
+| Formula/program well-formedness, pure recognition, arities and labels; forward tag/judgment admissibility | `translate_term_wfb`, `translate_pureb`, `translate_formula_program_wfb`, `translate_update_wfb`, `translate_label_wfb`, `translate_label_nonempty`, `translate_traceable`, `translate_tags`, `translate_judgment_wfb` |
 | Term/update/label meanings | `translate_term_eval`, `translate_update_eval`, `translate_label_eval` |
 | Full formula/program meanings, including empty traces and raw ill-formed syntax | `formula_program_semantics`, proved by simultaneous induction |
 | Assertion and guarded sequent meanings | `labelled_semantics`, `admissibility_preserved`, `denotation_preserved` |
@@ -51,9 +51,19 @@ remain in `FOPL/Benchmarks/RuleCoverage.v`.
 
 ## Representation and proof-script adaptations
 
-- Predicate/equality, quantifier, and assignment constructor spellings become
-  notations for parameterized shared constructors; the recursive bodies remain
-  available for substitution and freshness.
+- `Pred p ts` builds `Atom (Predicate p ts)`; `Equal a b` builds
+  `Atom (Equality a b)`; `Assign x t` builds `Atomic (Assignment x t)`.
+  Payloads belong to FOPL and remain available to its structural traversals.
+- `All` is `Extension` and `Ex x a` is `Neg (Extension x (Neg a))`.
+  Capture-avoiding substitution descends through the primitive encoding.
+- Derived Boolean, temporal and modal spellings are definitions over the eight
+  primitives. Their expansions are now identical syntax. Therefore
+  `translate_traceable`, occurrence/context well-formedness, and
+  `translate_judgment_wfb` preserve successful legacy checks forward.
+  Reflection is intentionally absent: an old ordinary negation can translate
+  to the same expanded dual suffix as an old `DualSuffix`. Formula/program
+  payload checks, purity, labels and meanings still have equality/equivalence
+  theorems. No rejection benchmark was removed.
 - A shared judgment contains a relation list; every old judgment uses `[]`.
   Direct semantic benchmark proofs explicitly discharge its trivial empty
   relational premise. This does not weaken any old sequent or invariant.
@@ -62,8 +72,9 @@ remain in `FOPL/Benchmarks/RuleCoverage.v`.
 - Generic/FOPL proof modules pass the same progress instance through the rule
   kernel, generation, and certification. Reapplying the graph functor would
   create incompatible inductive record types.
-- Compositional trace-safety helpers live in `TraceSafety.v`; the FOPL
-  benchmarks import it directly, without an additional forwarding module.
+- `Semantics.TraceAlgebra` owns polymorphic overlap, composition and finite
+  powers. `TraceSafety.v` supplies invariant lemmas over those same operations;
+  its compatibility names are thin aliases.
 - FOPL generation and certification export the supplied kernel directly,
   avoiding another alias of its generative factory. Clients retain the
   original kernel module for qualified access to first-order rules; the

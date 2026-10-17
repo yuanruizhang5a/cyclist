@@ -1,0 +1,27 @@
+{
+  "source": "FOPL/Syntax.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Syntax.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.48233582899956673,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "cbcecc3f036b5b502cd5fb5395e22fcfdea60f53838b33c24acdf155f4f14195",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/Signature.v": "22d08a481e4fd3009312bc720fc6e2fdfa9266fd73f4ad7ab1ee1897a917eb38",
+    "LPL/Syntax.v": "cb357ddcdb8e9c56d53604d09dc30921f8c7632149ef040cb02a47948ea9cc11"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/FOPL-Syntax.v.txt"
+}

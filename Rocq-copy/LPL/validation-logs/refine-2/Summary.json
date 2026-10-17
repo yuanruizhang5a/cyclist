@@ -1,0 +1,214 @@
+{
+  "status": "passed",
+  "final_benchmark_run_utc": "20261017T164319313299Z",
+  "compiler": "The Rocq Prover, version 9.1.0\ncompiled with OCaml 4.14.1",
+  "command_limit_seconds": 600,
+  "source_count": 51,
+  "common_modules": 22,
+  "final_common_cached": 22,
+  "baseline_benchmarks": 29,
+  "baseline_benchmark_compile_seconds": 40.20013603900043,
+  "final_benchmarks": 29,
+  "final_benchmark_compile_seconds": 39.0361170030028,
+  "slowest_benchmark": {
+    "source": "FOPL/Benchmarks/Signatures.v",
+    "elapsed_seconds": 13.283520322000186
+  },
+  "kernel_check": {
+    "command": [
+      "timeout",
+      "--signal=KILL",
+      "600s",
+      "rocq",
+      "check",
+      "-silent",
+      "-Q",
+      "..",
+      "CyclistRocq",
+      "CyclistRocq.LPL.Benchmarks.PPL.AtomicActions",
+      "CyclistRocq.LPL.Benchmarks.PPL.Booleans",
+      "CyclistRocq.LPL.Benchmarks.PPL.CheckerNegative",
+      "CyclistRocq.LPL.Benchmarks.PPL.Cyclic",
+      "CyclistRocq.LPL.Benchmarks.PPL.CyclicTags",
+      "CyclistRocq.LPL.Benchmarks.PPL.Instances",
+      "CyclistRocq.LPL.Benchmarks.PPL.LabelsRelations",
+      "CyclistRocq.LPL.Benchmarks.PPL.NestedProgram",
+      "CyclistRocq.LPL.Benchmarks.PPL.Nondeterminism",
+      "CyclistRocq.LPL.Benchmarks.PPL.RegularPrograms",
+      "CyclistRocq.LPL.Benchmarks.PPL.RuleCoverage",
+      "CyclistRocq.LPL.Benchmarks.PPL.SafetySystem",
+      "CyclistRocq.LPL.Benchmarks.PPL.Support",
+      "CyclistRocq.LPL.Benchmarks.PPL.Temporal",
+      "CyclistRocq.LPL.Benchmarks.PPL.Tests",
+      "CyclistRocq.LPL.Certification",
+      "CyclistRocq.LPL.FOPL.Benchmarks.AssignmentChange",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Booleans",
+      "CyclistRocq.LPL.FOPL.Benchmarks.CheckerNegative",
+      "CyclistRocq.LPL.FOPL.Benchmarks.CounterLoop",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Cyclic",
+      "CyclistRocq.LPL.FOPL.Benchmarks.CyclicTags",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Labels",
+      "CyclistRocq.LPL.FOPL.Benchmarks.NestedProgram",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Quantifiers",
+      "CyclistRocq.LPL.FOPL.Benchmarks.RegularPrograms",
+      "CyclistRocq.LPL.FOPL.Benchmarks.RuleCoverage",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Signatures",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Support",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Temporal",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Tests",
+      "CyclistRocq.LPL.FOPL.Benchmarks.Updates",
+      "CyclistRocq.LPL.FOPL.Certification",
+      "CyclistRocq.LPL.FOPL.Compatibility",
+      "CyclistRocq.LPL.FOPL.LegacyReference.Progress",
+      "CyclistRocq.LPL.FOPL.LegacyReference.Semantics",
+      "CyclistRocq.LPL.FOPL.LegacyReference.Syntax",
+      "CyclistRocq.LPL.FOPL.Progress",
+      "CyclistRocq.LPL.FOPL.RuleGeneration",
+      "CyclistRocq.LPL.FOPL.Rules",
+      "CyclistRocq.LPL.FOPL.Semantics",
+      "CyclistRocq.LPL.FOPL.Signature",
+      "CyclistRocq.LPL.FOPL.Syntax",
+      "CyclistRocq.LPL.PPL.Instance",
+      "CyclistRocq.LPL.Progress",
+      "CyclistRocq.LPL.RuleGeneration",
+      "CyclistRocq.LPL.Rules",
+      "CyclistRocq.LPL.Semantics",
+      "CyclistRocq.LPL.Signature",
+      "CyclistRocq.LPL.Syntax",
+      "CyclistRocq.LPL.TraceSafety"
+    ],
+    "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+    "module_count": 51,
+    "exit_code": 0,
+    "elapsed_seconds": 82.098,
+    "scope": "All project modules and recursive dependencies",
+    "log": "KernelCheck.log"
+  },
+  "checked_premise_shapes": {
+    "fopl": 50,
+    "ppl": 53
+  },
+  "baseline_statements_preserved": 388,
+  "outside_scope": {
+    "baseline_files": 3992,
+    "current_files": 3992,
+    "added": [],
+    "missing": [],
+    "changed": []
+  },
+  "assumptions_audit": {
+    "command": [
+      "timeout",
+      "--signal=KILL",
+      "600s",
+      "rocq",
+      "repl",
+      "-quiet",
+      "-Q",
+      "..",
+      "CyclistRocq"
+    ],
+    "elapsed_seconds": 2.22152954700141,
+    "exit_status": 0,
+    "errors": 0,
+    "principles": [
+      "ClassicalEpsilon.constructive_indefinite_description",
+      "Classical_Prop.classic",
+      "Description.constructive_definite_description",
+      "FunctionalExtensionality.functional_extensionality_dep"
+    ]
+  },
+  "development_runs": [
+    {
+      "report": "MigrationRun.json",
+      "passed": 22,
+      "attempted": 29,
+      "failures": [
+        {
+          "suite": "fopl",
+          "benchmark": "Tests",
+          "elapsed_seconds": 0.46145808800065424,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163609082561Z/FOPL-Benchmarks-Tests.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "Instances",
+          "elapsed_seconds": 0.3286112139994657,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-Instances.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "Nondeterminism",
+          "elapsed_seconds": 0.2251532030004455,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-Nondeterminism.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "Tests",
+          "elapsed_seconds": 0.21625632500035863,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-Tests.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "RegularPrograms",
+          "elapsed_seconds": 0.22263033500166785,
+          "exit_status": 1,
+          "failed_dependency": "Benchmarks/PPL/Nondeterminism.v",
+          "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-Nondeterminism.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "SafetySystem",
+          "elapsed_seconds": 0.250798555000074,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-SafetySystem.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "NestedProgram",
+          "elapsed_seconds": 0.32349614499980817,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-NestedProgram.v.txt"
+        }
+      ]
+    },
+    {
+      "report": "DevelopmentRun2.json",
+      "passed": 27,
+      "attempted": 29,
+      "failures": [
+        {
+          "suite": "ppl",
+          "benchmark": "SafetySystem",
+          "elapsed_seconds": 0.24820922999970207,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163902348024Z/Benchmarks-PPL-SafetySystem.v.txt"
+        },
+        {
+          "suite": "ppl",
+          "benchmark": "NestedProgram",
+          "elapsed_seconds": 0.31367110700011835,
+          "exit_status": 1,
+          "failed_dependency": null,
+          "log": "benchmark-logs/refine-20261017T163902348024Z/Benchmarks-PPL-NestedProgram.v.txt"
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "obsolete_source_files": [],
+    "permanently_deleted_files": [],
+    "pending_moves": []
+  }
+}

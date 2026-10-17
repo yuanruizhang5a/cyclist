@@ -1,0 +1,300 @@
+{
+  "source_count": 51,
+  "source_sha256": {
+    "Benchmarks/PPL/AtomicActions.v": "0d076a369fc2674ddd0659a30403d66fbf078a77eca6233e8e7b7d8c4a366aec",
+    "Benchmarks/PPL/Booleans.v": "1115c43c4f86a3666ad75e0ba3942d1a4c75c2fd38239cc345f8da11499bd0a7",
+    "Benchmarks/PPL/CheckerNegative.v": "3c550bcc52a1fe10f6b434cb03ca84df136c1e35101f0a30bfb535ef367ef4ce",
+    "Benchmarks/PPL/Cyclic.v": "5e367024c9b7c329288e1e66d033528ad64ab64a438139d8ffb14bc1f251ce8f",
+    "Benchmarks/PPL/CyclicTags.v": "a940ae53e61bd468a9530fbd87951e74917437eb252ee3469bc8fb5789659cd1",
+    "Benchmarks/PPL/Instances.v": "3c8e01d5fee516346ad909d4f093fa660fef434df80e306fc3635d7a2aa322f2",
+    "Benchmarks/PPL/LabelsRelations.v": "30d68d3e027d8fd2b173db27df109eff8dfa76c60864448e28dd082b22f366b8",
+    "Benchmarks/PPL/NestedProgram.v": "6139f19ab0812379d6bbf3e71bca6ad6a32b4188da1a961686d4d7232aa68ffc",
+    "Benchmarks/PPL/Nondeterminism.v": "8fbceafc49afc813cb6f66bf1a1a8d996c28d736cc292f1820f4a621b0ad9d34",
+    "Benchmarks/PPL/RegularPrograms.v": "74a79eade194d09c409e9c2db01f79ac7c90c90326d3710bba07e63452476ed8",
+    "Benchmarks/PPL/RuleCoverage.v": "3134a5d93a09f3406e5f4b01ac2f079b866decd36c3fad9cc4374882488424b4",
+    "Benchmarks/PPL/SafetySystem.v": "4e66e6debe0504431157c9f2f232ffdd201a490fc86a38ad266e53d4801d24fd",
+    "Benchmarks/PPL/Support.v": "1223b3155f20f1b4897ea8c6a2c4d8b4d5ac1ae79bea8de07f37779418cb5631",
+    "Benchmarks/PPL/Temporal.v": "c1e7cb1c1886024a84df6d88344c930e75436a4982a4171975ffb34a117af5b0",
+    "Benchmarks/PPL/Tests.v": "e7fbf60cab08111fc3a10dcdb0b5db0a7ae7616ac992128a07891a58f123ca16",
+    "Certification.v": "6e379a14a34a121422f30ff4bd43f32027aa0dc5fa469e99270a87e9d55eb10d",
+    "FOPL/Benchmarks/AssignmentChange.v": "264e12949bb287afe8e64a2bf1689897a7cb9af9627ef17fe9c25715aabaa5b9",
+    "FOPL/Benchmarks/Booleans.v": "16e79a86c0eca39fe1d682e5e6f8268523de9e474d095211440cbe1f3a86a3f2",
+    "FOPL/Benchmarks/CheckerNegative.v": "66f3c844b9d2bec4c293ab2ca26d08a0c82447cc4cae317993bafca46378f258",
+    "FOPL/Benchmarks/CounterLoop.v": "5fa6de2092d4404dc8f6ad2b5628869ba8fded047e35353d395812eee58b7c52",
+    "FOPL/Benchmarks/Cyclic.v": "0ae5983c7bb05f659ce7b9c1a6cd94247bb0a6d48b9b8a0a3cebc2bb200fa21b",
+    "FOPL/Benchmarks/CyclicTags.v": "2ac1729b03f9f537fcf96426b64ff75427c2cbfc3d07f59a067efdf4c9115a60",
+    "FOPL/Benchmarks/Labels.v": "6d6ca10bfc691111989df94a1f1270a7089f53fcdcd6945a233b2a425896a048",
+    "FOPL/Benchmarks/NestedProgram.v": "a27e04e37e102356cbbe6bcc5a8326b1c511d427e5adaf0a4c0636fb0662af3d",
+    "FOPL/Benchmarks/Quantifiers.v": "9e1489a908b71f736562961b6f94bf589d0429b1f9cf83881c73b929fd9c4adb",
+    "FOPL/Benchmarks/RegularPrograms.v": "62a60f33736363824fc1671f4b77432f35e5b88887f85b0a7189ac9b10a811a4",
+    "FOPL/Benchmarks/RuleCoverage.v": "78c11c9ac5e5e7e2ae26bf918ee48b1fb093c0364f2d28a8fb2cb4d15a7c2fee",
+    "FOPL/Benchmarks/Signatures.v": "272a73439e390da4e03d935a9a3cd8f7a655d63ac6d963fd028f5efb58c0da1a",
+    "FOPL/Benchmarks/Support.v": "c28433d009f8471605f9db660e71968558711cd8ec2473dbee728b409b31e5bb",
+    "FOPL/Benchmarks/Temporal.v": "0ea7bf4c7e54b44d4302508a2f6eff8cf4c17d8c72f6bdec9cfb36d13dcb8787",
+    "FOPL/Benchmarks/Tests.v": "1131d3b3010cfe4d98f81ce36856a6ed256a6f9a1bd449e4605b64993edb419e",
+    "FOPL/Benchmarks/Updates.v": "037a38d84b0baeffeb00d6ef554f8100bf57ff5ee0ac5298ae23cd65cf502f71",
+    "FOPL/Certification.v": "a82945ec2959d433ba4da2faddd1e2a0f2c776a5aabe712ee7b147a0714ee033",
+    "FOPL/Compatibility.v": "28fd004c889286ab81ffc6ddf94a506721a2cff6f01ce688713e9a75df14d3a9",
+    "FOPL/LegacyReference/Progress.v": "6c4723708e571775d244c121f56846748cabdf2521576a73fad24da5e4a963e4",
+    "FOPL/LegacyReference/Semantics.v": "b23c076e15f6186918160e0a0b0e45fe7747cb72058e7f837fc0c07d61f01edf",
+    "FOPL/LegacyReference/Syntax.v": "ae6c2b669e44ebc436ec5051e6a83b0e9c6b4f697c4bb18a6e33d477a87c6881",
+    "FOPL/Progress.v": "27a37dd406c2881ea43e05eb6f5bc41ed3974154ab8c60ad3fe049a25ae06eeb",
+    "FOPL/RuleGeneration.v": "52606ccb16e01fd3645e8339eca2566dee00579f73e51ffd9d281c872ee5ecb5",
+    "FOPL/Rules.v": "23e23c90b00c52b503e5da1e0a8b30aaef71ea509e1d5aa966df1d4ffc5b435a",
+    "FOPL/Semantics.v": "afa198507a53ac544220320c360d9a2c517a35217b274a67d97a09d85889cf32",
+    "FOPL/Signature.v": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+    "FOPL/Syntax.v": "3830bda0eeb27fc33b4fd8f385a0991789cd0935c1be48364fa2a079ee2ee796",
+    "PPL/Instance.v": "abcfb6c48a37fc38725f7c4522d5908f406322d319fb579955e11cda8f7443db",
+    "Progress.v": "d375bd93082e9cb1904e5235da9c65f994209c146fa62c787cae1c71b9e8da40",
+    "RuleGeneration.v": "693a4a2c967026e872db2643bdc131515ab66ccd8da7fcee873baa92a5ee96ff",
+    "Rules.v": "01d13b2f57754f5dc85d83c5b6392478b44556e99dde7d91886ad8c2ac3433e7",
+    "Semantics.v": "180e889351fdea007d0e45ab6e5bd2a76524dd02e97cbbe63350a41a950c7ef3",
+    "Signature.v": "dc81ad18ffed990683986f8477c688f5961d83a14eb911b05211b183039d09f2",
+    "Syntax.v": "bb032054986051cbcd03aadd020a5902d0549a03a6ba5ee6fe43610e14bccbe5",
+    "TraceSafety.v": "871d041bd4302f2029eed0465b4dfaa2b047c560f1aad71d4c5fd2532ee0c8e1"
+  },
+  "common_build_count": 22,
+  "duplicates": [],
+  "violations": {},
+  "imports": {
+    "Benchmarks/PPL/AtomicActions.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/Booleans.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/CheckerNegative.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/Cyclic.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/CyclicTags.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/Instances.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.PPL",
+      "CyclistRocq.LPL"
+    ],
+    "Benchmarks/PPL/LabelsRelations.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/NestedProgram.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.PPL",
+      "CyclistRocq.LPL"
+    ],
+    "Benchmarks/PPL/Nondeterminism.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/RegularPrograms.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/RuleCoverage.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/SafetySystem.v": [
+      "Stdlib",
+      "CyclistRocq.LPL",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/Support.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.PPL",
+      "CyclistRocq.LPL"
+    ],
+    "Benchmarks/PPL/Temporal.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Benchmarks/PPL/Tests.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.Benchmarks.PPL"
+    ],
+    "Certification.v": [
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Benchmarks/AssignmentChange.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/Booleans.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/CheckerNegative.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/CounterLoop.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Benchmarks/Cyclic.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/CyclicTags.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/Labels.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/NestedProgram.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL.FOPL.Benchmarks",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Benchmarks/Quantifiers.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/RegularPrograms.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/RuleCoverage.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/Signatures.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/Support.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL"
+    ],
+    "FOPL/Benchmarks/Temporal.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/Tests.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Benchmarks/Updates.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL.Benchmarks"
+    ],
+    "FOPL/Certification.v": [
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Compatibility.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL.FOPL.LegacyReference",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/LegacyReference/Progress.v": [
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL.FOPL.LegacyReference",
+      "CyclistRocq.Cyclic"
+    ],
+    "FOPL/LegacyReference/Semantics.v": [
+      "Stdlib",
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL.FOPL.LegacyReference"
+    ],
+    "FOPL/LegacyReference/Syntax.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL"
+    ],
+    "FOPL/Progress.v": [
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL",
+      "CyclistRocq.Cyclic"
+    ],
+    "FOPL/RuleGeneration.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Rules.v": [
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Semantics.v": [
+      "Stdlib",
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL"
+    ],
+    "FOPL/Signature.v": [
+      "Stdlib"
+    ],
+    "FOPL/Syntax.v": [
+      "Stdlib",
+      "CyclistRocq.LPL.FOPL",
+      "CyclistRocq.LPL"
+    ],
+    "PPL/Instance.v": [
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ],
+    "Progress.v": [
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL",
+      "CyclistRocq.Cyclic"
+    ],
+    "RuleGeneration.v": [
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ],
+    "Rules.v": [
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ],
+    "Semantics.v": [
+      "Stdlib",
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ],
+    "Signature.v": [
+      "Stdlib"
+    ],
+    "Syntax.v": [
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ],
+    "TraceSafety.v": [
+      "Stdlib",
+      "CyclistRocq.LPL"
+    ]
+  },
+  "shared_signature_matches_frozen_reference": true,
+  "reference_import_only": {
+    "Syntax": true,
+    "Semantics": true,
+    "Progress": true
+  },
+  "build_and_project_inventories_complete": true
+}

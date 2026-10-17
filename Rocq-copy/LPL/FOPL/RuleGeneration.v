@@ -32,52 +32,66 @@ Definition right_special (lhs pre : list occurrence) (o : occurrence) (post : li
   let j := right_conclusion lhs pre post o in
   let l := o.(occurrence_label) in
   let ta := o.(occurrence_tag) in
-  match o.(occurrence_formula) with
+  (match diamond_view o.(occurrence_formula) with
+  | Some (p,body) => match p with
+    | Atomic (Assignment x t) => match l with
+      | Join sigma (StateLabel u) => let tb := continue_tag ta body in
+        [verified_build (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Diamond (Assign x t) body) ta)) (right_targets lhs pre post [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb]]) (fun Hs Ht => diamond_assignment_right lhs pre post sigma u x t body ta tb Hs Ht)]
+      | _ => [] end
+    | _ => [] end
+
+  | None => [] end) ++
+  (match o.(occurrence_formula) with
   | All u body => let v := fresh_eigen (Jdg lhs (pre ++ post)) l body in
     [guard (pureb body) (fun Hp => guard (eigen_freshb v (Jdg lhs (pre ++ post)) l body) (fun Hfresh =>
       verified_build (right_conclusion lhs pre post (Occ l (All u body) None))
         [right_conclusion lhs pre post (Occ l (subst_fo u (Var v) body) None)]
         (fun Hs Ht => universal_right lhs pre post l u v body Hp Hfresh Hs (Forall_inv Ht))))]
+
   | Box p body => match p with
-    | Assign x t => match l with
+    | Atomic (Assignment x t) => match l with
       | Join sigma (StateLabel u) => let tb := continue_tag ta body in
         [verified_build (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)) (right_targets lhs pre post [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb]]) (fun Hs Ht => box_assignment_right lhs pre post sigma u x t body ta tb Hs Ht)]
       | _ => [] end
     | _ => [] end
-  | Diamond p body => match p with
-    | Assign x t => match l with
-      | Join sigma (StateLabel u) => let tb := continue_tag ta body in
-        [verified_build (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Diamond (Assign x t) body) ta)) (right_targets lhs pre post [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb]]) (fun Hs Ht => diamond_assignment_right lhs pre post sigma u x t body ta tb Hs Ht)]
-      | _ => [] end
-    | _ => [] end
-  | _ => [] end.
+
+  | _ => [] end).
 Definition right_at lhs pre o post :=
-  Common.right_regular_at [] lhs pre o post ++ right_special lhs pre o post.
+  Common.right_derived_at [] false lhs pre o post ++ right_special lhs pre o post ++
+  Common.right_primitive_at [] false lhs pre o post.
 Definition left_special (pre : list occurrence) (o : occurrence) (post rhs : list occurrence) : list (option Cyclic.rule_instance) :=
   let j := left_conclusion pre post rhs o in
   let l := o.(occurrence_label) in
   let ta := o.(occurrence_tag) in
-  match o.(occurrence_formula) with
-  | Ex u body => let v := fresh_eigen (Jdg (pre ++ post) rhs) l body in
+  (match coextension_view o.(occurrence_formula) with
+  | Some (u,body) => let v := fresh_eigen (Jdg (pre ++ post) rhs) l body in
     [guard (pureb body) (fun Hp => guard (eigen_freshb v (Jdg (pre ++ post) rhs) l body) (fun Hfresh =>
       verified_build (left_conclusion pre post rhs (Occ l (Ex u body) None))
         [left_conclusion pre post rhs (Occ l (subst_fo u (Var v) body) None)]
         (fun Hs Ht => existential_left pre post rhs l u v body Hp Hfresh Hs (Forall_inv Ht))))]
-  | Box p body => match p with
-    | Assign x t => match l with
-      | Join sigma (StateLabel u) =>
-        [verified_build (left_conclusion pre post rhs (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)) (left_targets pre post rhs [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body None]]) (fun Hs Ht => box_assignment_left pre post rhs sigma u x t body ta None Hs Ht)]
-      | _ => [] end
-    | _ => [] end
-  | Diamond p body => match p with
-    | Assign x t => match l with
+
+  | None => [] end) ++
+  (match diamond_view o.(occurrence_formula) with
+  | Some (p,body) => match p with
+    | Atomic (Assignment x t) => match l with
       | Join sigma (StateLabel u) =>
         [verified_build (left_conclusion pre post rhs (Occ (Join sigma (StateLabel u)) (Diamond (Assign x t) body) ta)) (left_targets pre post rhs [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body None]]) (fun Hs Ht => diamond_assignment_left pre post rhs sigma u x t body ta None Hs Ht)]
       | _ => [] end
     | _ => [] end
-  | _ => [] end.
+
+  | None => [] end) ++
+  (match o.(occurrence_formula) with
+  | Box p body => match p with
+    | Atomic (Assignment x t) => match l with
+      | Join sigma (StateLabel u) =>
+        [verified_build (left_conclusion pre post rhs (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)) (left_targets pre post rhs [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body None]]) (fun Hs Ht => box_assignment_left pre post rhs sigma u x t body ta None Hs Ht)]
+      | _ => [] end
+    | _ => [] end
+
+  | _ => [] end).
 Definition left_at pre o post rhs :=
-  Common.left_regular_at [] pre o post rhs ++ left_special pre o post rhs.
+  Common.left_derived_at [] false pre o post rhs ++ left_special pre o post rhs ++
+  Common.left_primitive_at [] false pre o post rhs.
 Definition scan_right lhs pre rest := Common.scan_occurrences pre rest (fun p o q => right_at lhs p o q).
 Definition scan_left pre rest rhs := Common.scan_occurrences pre rest (fun p o q => left_at p o q rhs).
 Definition generate_rules j :=
@@ -117,7 +131,7 @@ Definition requested_at j location n request :=
         verified_build (left_conclusion pre post j.(succedent) (Occ l (All u body) None))
           (left_targets pre post j.(succedent) [[Occ l (subst_fo u t body) None]])
           (fun Hs Ht => universal_left pre post j.(succedent) l u body t Hp Hs Ht)))
-    | Instantiate _ _ t, OnRight, Ex u body => guard (term_wfb t) (fun _ => guard (pureb body) (fun Hp =>
+    | Instantiate _ _ t, OnRight, Neg (Extension u (Neg body)) => guard (term_wfb t) (fun _ => guard (pureb body) (fun Hp =>
         verified_build (right_conclusion j.(antecedent) pre post (Occ l (Ex u body) None))
           (right_targets j.(antecedent) pre post [[Occ l (subst_fo u t body) None]])
           (fun Hs Ht => existential_right j.(antecedent) pre post l u body t Hp Hs Ht)))
@@ -126,7 +140,7 @@ Definition requested_at j location n request :=
           verified_build (right_conclusion j.(antecedent) pre post (Occ l (All u body) None))
             [right_conclusion j.(antecedent) pre post (Occ l (subst_fo u (Var v) body) None)]
             (fun Hs Ht => universal_right j.(antecedent) pre post l u v body Hp Hfresh Hs (Forall_inv Ht))))
-    | Eigen _ _ v, OnLeft, Ex u body => guard (pureb body) (fun Hp =>
+    | Eigen _ _ v, OnLeft, Neg (Extension u (Neg body)) => guard (pureb body) (fun Hp =>
         guard (eigen_freshb v (Jdg (pre ++ post) j.(succedent)) l body) (fun Hfresh =>
           verified_build (left_conclusion pre post j.(succedent) (Occ l (Ex u body) None))
             [left_conclusion pre post j.(succedent) (Occ l (subst_fo u (Var v) body) None)]

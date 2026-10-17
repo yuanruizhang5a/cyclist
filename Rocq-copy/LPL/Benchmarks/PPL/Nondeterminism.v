@@ -8,25 +8,25 @@ Example acquire_released : program_holds M (act Acquire) [Idle;Released].
 Proof. exists Idle, Released; repeat split; auto. Qed.
 Theorem both_branches_safe : formula_holds M (Box (act Acquire) (Next safe)) [Idle].
 Proof.
-  apply (proj2 (box_atomic M [] Idle Acquire tt (Next safe))).
+  apply (proj2 (box_atomic M [] Idle Acquire (Next safe))).
   intros next Hstep; apply (proj2 (suffix_step M Idle [next] Falsity safe ltac:(discriminate))); left.
   change (next<>Bad); destruct Hstep as [_ [Hnext | Hnext]]; subst next; discriminate.
 Qed.
 Theorem one_branch_witnesses_diamond : formula_holds M (Diamond (act Acquire) (Next (atom IsHeld))) [Idle].
 Proof.
-  apply (proj2 (diamond_atomic M [] Idle Acquire tt (Next (atom IsHeld)))); exists Held; split; [split; auto|].
+  apply (proj2 (diamond_atomic M [] Idle Acquire (Next (atom IsHeld)))); exists Held; split; [split; auto|].
   apply (proj2 (suffix_step M Idle [Held] Falsity (atom IsHeld) ltac:(discriminate))); left; reflexivity.
 Qed.
 Theorem not_every_branch_is_held : ~ formula_holds M (Box (act Acquire) (Next (atom IsHeld))) [Idle].
 Proof.
-  intro Hbox; pose proof ((proj1 (box_atomic M [] Idle Acquire tt (Next (atom IsHeld)))) Hbox Released ltac:(split; auto)) as H.
+  intro Hbox; pose proof ((proj1 (box_atomic M [] Idle Acquire (Next (atom IsHeld)))) Hbox Released ltac:(split; auto)) as H.
   apply (proj1 (suffix_step M Idle [Released] Falsity (atom IsHeld) ltac:(discriminate))) in H.
-  destruct H as [Heq|[Hfalse _]]; [change (Released=Held) in Heq; discriminate|exact Hfalse].
+  destruct H as [Heq|[Hfalse _]]; [change (Released=Held) in Heq; discriminate|exact (Hfalse I)].
 Qed.
 Example dead_end_box_vacuous : formula_holds M (Box (act Acquire) Falsity) [Dead].
-Proof. apply (proj2 (box_atomic M [] Dead Acquire tt Falsity)); intros next [H _]; discriminate. Qed.
+Proof. apply (proj2 (box_atomic M [] Dead Acquire Falsity)); intros next [H _]; discriminate. Qed.
 Example dead_end_diamond_false : ~ formula_holds M (Diamond (act Acquire) Truth) [Dead].
-Proof. intro H; apply (proj1 (diamond_atomic M [] Dead Acquire tt Truth)) in H; destruct H as [next [[H _] _]]; discriminate. Qed.
+Proof. intro H; apply (proj1 (diamond_atomic M [] Dead Acquire Truth)) in H; destruct H as [next [[H _] _]]; discriminate. Qed.
 Print Assumptions both_branches_safe.
 Print Assumptions one_branch_witnesses_diamond.
 Print Assumptions not_every_branch_is_held.

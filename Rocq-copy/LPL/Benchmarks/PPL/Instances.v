@@ -7,9 +7,9 @@ Module AbstractFrame (V : VOCABULARY) (F : FRAME V).
 Module Instance := MakeInstance V F.
 Definition M := Instance.Model.interpretation.
 Theorem arbitrary_predicate p s tail :
-  Instance.Sem.formula_holds M (Instance.Syn.Atom p []) (s::tail) <-> F.proposition_holds p s.
+  Instance.Sem.formula_holds M (Instance.Syn.Atom p) (s::tail) <-> F.proposition_holds p s.
 Proof. reflexivity. Qed.
-Theorem arbitrary_action a tr : Instance.Sem.program_holds M (Instance.Syn.Atomic a tt) tr <->
+Theorem arbitrary_action a tr : Instance.Sem.program_holds M (Instance.Syn.Atomic a) tr <->
   exists s t, tr=[s;t] /\ F.step a s t.
 Proof. reflexivity. Qed.
 End AbstractFrame.
@@ -31,9 +31,9 @@ Module BooleanFrame <: FRAME BooleanVocabulary.
 End BooleanFrame.
 Module Boolean := MakeInstance BooleanVocabulary BooleanFrame.
 Definition BM := Boolean.Model.interpretation.
-Example boolean_atomic_run : Boolean.Sem.program_holds BM (Boolean.Syn.Atomic true tt) [false;true].
+Example boolean_atomic_run : Boolean.Sem.program_holds BM (Boolean.Syn.Atomic true) [false;true].
 Proof. exists false, true; split; reflexivity. Qed.
-Example boolean_predicate : Boolean.Sem.formula_holds BM (Boolean.Syn.Atom true []) [true;false].
+Example boolean_predicate : Boolean.Sem.formula_holds BM (Boolean.Syn.Atom true) [true;false].
 Proof. reflexivity. Qed.
 
 Inductive world_expr := WName (x : nat) | WFlip (body : world_expr).
@@ -47,24 +47,18 @@ Fixpoint world_eval (rho : nat -> bool) u := match u with
   | WName x => rho x | WFlip u => negb (world_eval rho u) end.
 Module Base := MakeLanguage BooleanVocabulary.
 Module Structured <: LANGUAGE.
-  Definition atom_symbol := Base.atom_symbol.
-  Definition argument := Base.argument.
+  Definition atom := Base.atom.
   Definition binder := Base.binder.
-  Definition action_symbol := Base.action_symbol.
-  Definition action_argument := Base.action_argument.
+  Definition action := Base.action.
   Definition world_term := world_expr.
   Definition relation_symbol := Base.relation_symbol.
   Definition atom_eq_dec := Base.atom_eq_dec.
-  Definition argument_eq_dec := Base.argument_eq_dec.
   Definition binder_eq_dec := Base.binder_eq_dec.
   Definition action_eq_dec := Base.action_eq_dec.
-  Definition action_argument_eq_dec := Base.action_argument_eq_dec.
   Definition world_term_eq_dec := world_expr_eq_dec.
   Definition relation_eq_dec := Base.relation_eq_dec.
   Definition atom_wfb := Base.atom_wfb.
-  Definition binary_atom_wfb := Base.binary_atom_wfb.
   Definition extension_wfb := Base.extension_wfb.
-  Definition coextension_wfb := Base.coextension_wfb.
   Definition action_wfb := Base.action_wfb.
   Definition world_term_wfb (_ : world_expr) := true.
   Definition custom_relation_wfb := Base.custom_relation_wfb.
@@ -77,12 +71,10 @@ Module SM := CyclistRocq.LPL.Semantics.MakeSemantics Structured SS.
 Definition structured_model : SM.model.
 Proof.
   refine {| SM.carrier := bool; SM.carrier_inhabitant := false;
-    SM.interpret_atom := fun p _ s => s=p;
-    SM.interpret_binary_atom := fun x _ _ => match x with end;
+    SM.interpret_atom := fun p s => s=p;
     SM.interpret_extension := fun x _ _ => match x with end;
-    SM.interpret_coextension := fun x _ _ => match x with end;
-    SM.interpret_action := fun a _ s t => if a then t=negb s else t=s;
-    SM.interpret_atomic_trace := fun a _ tr => exists s t, tr=[s;t] /\ (if a then t=negb s else t=s);
+    SM.interpret_action := fun a s t => if a then t=negb s else t=s;
+    SM.interpret_atomic_trace := fun a tr => exists s t, tr=[s;t] /\ (if a then t=negb s else t=s);
     SM.interpret_world_term := world_eval;
     SM.interpret_relation := fun _ _ => True |}.
   - intros; reflexivity.
@@ -114,8 +106,8 @@ Module SK.
   Include Core.ForModel Model.
 End SK.
 Module SG := MakeRuleGeneration Structured SS SM SP SK.
-Definition structured_root := SS.Jdg [SS.Occ (SS.StateLabel (WFlip (WName 0))) (SS.Atom true []) None]
-  [SS.Occ (SS.Join SS.Empty (SS.StateLabel (WFlip (WName 0)))) (SS.Box (SS.Atomic true tt) (SS.First (SS.Atom true []))) None].
+Definition structured_root := SS.Jdg [SS.Occ (SS.StateLabel (WFlip (WName 0))) (SS.Atom true) None]
+  [SS.Occ (SS.Join SS.Empty (SS.StateLabel (WFlip (WName 0)))) (SS.Box (SS.Atomic true) (SS.First (SS.Atom true))) None].
 Example structured_action_rule_generated :
   match SG.generate_requested structured_root (SG.AtomicEigen SG.OnRight 0 1) with Some _ => true | None => false end = true.
 Proof. vm_compute; reflexivity. Qed.

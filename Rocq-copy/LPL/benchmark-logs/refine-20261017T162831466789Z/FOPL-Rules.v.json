@@ -1,0 +1,29 @@
+{
+  "source": "FOPL/Rules.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Rules.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 2.4283116270016762,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "0e6d953729b9a4cab4189ab964743ed4a060a6ddabb31d2ecf185b187f304425",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/FOPL/Syntax.v": "648026ca851138321d41f97ac7685219c7e699e6cd9303b2fadbb413fa54da22",
+    "LPL/FOPL/Semantics.v": "3f2c063e6ce493033fb0678b11d61690c368d2d8daf9deee665e2a57fad6db71",
+    "LPL/FOPL/Progress.v": "711e7b29d0f1937212d13499c2da3981dbbd50e5803b33f680b80924988f57fa",
+    "LPL/Rules.v": "111ad897bf02d5845bf3ae7471806d88aa3e8b381d9ab330b896b61e030f4471"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/FOPL-Rules.v.txt"
+}

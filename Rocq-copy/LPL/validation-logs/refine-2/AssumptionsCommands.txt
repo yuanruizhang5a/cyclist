@@ -1,0 +1,15 @@
+From CyclistRocq.LPL.Benchmarks.PPL Require Import Support.
+Print Assumptions Kernel.P.atomic_minimum_successor.
+Print Assumptions Kernel.box_atomic_right.
+Print Assumptions Kernel.box_atomic_left.
+Print Assumptions Kernel.diamond_atomic_right.
+Print Assumptions Kernel.diamond_atomic_left.
+Print Assumptions Generation.generate_requested_spec.
+Print Assumptions Cert.raw_check_sound.
+Print Assumptions Sem.diamond_clause.
+Print Assumptions Sem.coextension_dual.
+From CyclistRocq.LPL.FOPL.Benchmarks Require Import Support.
+Print Assumptions ZKernel.P.assignment_decrease.
+Print Assumptions ZKernel.Core.Pr.Sem.subst_fo_correct.
+Print Assumptions ZKernel.universal_right.
+Print Assumptions ZKernel.existential_left.

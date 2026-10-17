@@ -1,0 +1,25 @@
+{
+  "source": "FOPL/Benchmarks/Cyclic.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/Cyclic.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 1.184011957000621,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "0ae5983c7bb05f659ce7b9c1a6cd94247bb0a6d48b9b8a0a3cebc2bb200fa21b",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "0797ae2fc6297002253d9e534e1ffd976fa63afd1564d47e0ae26a7afa56ab88"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/FOPL-Benchmarks-Cyclic.v.txt"
+}

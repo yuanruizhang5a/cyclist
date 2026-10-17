@@ -1,6 +1,6 @@
 # Refinement benchmark results
 
-UTC run `20261017T054643680535Z`: **29/29 attempted units passed**.
+UTC run `20261017T164319313299Z`: **29/29 attempted units passed**.
 
 Every unit was compiled with `timeout --signal=KILL 600s` after its dependencies. These records describe this run only; earlier reports/logs are historical evidence.
 
@@ -11,35 +11,35 @@ compiled with OCaml 4.14.1
 
 | Suite | Unit | Seconds | Exit | Proof mode | Output / assumptions |
 | --- | --- | ---: | ---: | --- | --- |
-| fopl | Labels | 0.731 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Labels.v.txt) |
-| fopl | Signatures | 13.878 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Signatures.v.txt) |
-| fopl | Updates | 0.676 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Updates.v.txt) |
-| fopl | Tests | 0.765 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Tests.v.txt) |
-| fopl | RegularPrograms | 0.778 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-RegularPrograms.v.txt) |
-| fopl | Booleans | 0.726 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Booleans.v.txt) |
-| fopl | Quantifiers | 0.744 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Quantifiers.v.txt) |
-| fopl | Temporal | 0.746 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Temporal.v.txt) |
-| fopl | AssignmentChange | 0.752 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-AssignmentChange.v.txt) |
-| fopl | RuleCoverage | 1.343 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-RuleCoverage.v.txt) |
-| fopl | CheckerNegative | 0.505 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CheckerNegative.v.txt) |
-| fopl | Cyclic | 1.122 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Cyclic.v.txt) |
-| fopl | CyclicTags | 1.335 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CyclicTags.v.txt) |
-| fopl | CounterLoop | 0.868 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CounterLoop.v.txt) |
-| fopl | NestedProgram | 6.726 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-NestedProgram.v.txt) |
-| ppl | Instances | 1.069 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Instances.v.txt) |
-| ppl | LabelsRelations | 0.239 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-LabelsRelations.v.txt) |
-| ppl | AtomicActions | 1.104 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-AtomicActions.v.txt) |
-| ppl | Nondeterminism | 0.746 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Nondeterminism.v.txt) |
-| ppl | Booleans | 0.446 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Booleans.v.txt) |
-| ppl | Tests | 0.450 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Tests.v.txt) |
-| ppl | RegularPrograms | 0.412 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-RegularPrograms.v.txt) |
-| ppl | Temporal | 0.418 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Temporal.v.txt) |
-| ppl | RuleCoverage | 0.920 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-RuleCoverage.v.txt) |
-| ppl | CheckerNegative | 0.259 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-CheckerNegative.v.txt) |
-| ppl | Cyclic | 0.862 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Cyclic.v.txt) |
-| ppl | CyclicTags | 1.076 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-CyclicTags.v.txt) |
-| ppl | SafetySystem | 0.451 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-SafetySystem.v.txt) |
-| ppl | NestedProgram | 0.671 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-NestedProgram.v.txt) |
+| fopl | Labels | 0.876 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Labels.v.txt) |
+| fopl | Signatures | 13.284 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Signatures.v.txt) |
+| fopl | Updates | 0.621 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Updates.v.txt) |
+| fopl | Tests | 0.816 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Tests.v.txt) |
+| fopl | RegularPrograms | 0.666 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-RegularPrograms.v.txt) |
+| fopl | Booleans | 0.715 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Booleans.v.txt) |
+| fopl | Quantifiers | 0.739 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Quantifiers.v.txt) |
+| fopl | Temporal | 0.670 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Temporal.v.txt) |
+| fopl | AssignmentChange | 0.732 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-AssignmentChange.v.txt) |
+| fopl | RuleCoverage | 1.321 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-RuleCoverage.v.txt) |
+| fopl | CheckerNegative | 0.495 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-CheckerNegative.v.txt) |
+| fopl | Cyclic | 0.973 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-Cyclic.v.txt) |
+| fopl | CyclicTags | 1.099 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-CyclicTags.v.txt) |
+| fopl | CounterLoop | 0.715 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-CounterLoop.v.txt) |
+| fopl | NestedProgram | 6.494 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-NestedProgram.v.txt) |
+| ppl | Instances | 0.886 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-Instances.v.txt) |
+| ppl | LabelsRelations | 0.226 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-LabelsRelations.v.txt) |
+| ppl | AtomicActions | 1.137 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-AtomicActions.v.txt) |
+| ppl | Nondeterminism | 0.769 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-Nondeterminism.v.txt) |
+| ppl | Booleans | 0.447 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-Booleans.v.txt) |
+| ppl | Tests | 0.501 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-Tests.v.txt) |
+| ppl | RegularPrograms | 0.404 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-RegularPrograms.v.txt) |
+| ppl | Temporal | 0.411 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-Temporal.v.txt) |
+| ppl | RuleCoverage | 0.903 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-RuleCoverage.v.txt) |
+| ppl | CheckerNegative | 0.254 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-CheckerNegative.v.txt) |
+| ppl | Cyclic | 0.872 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-Cyclic.v.txt) |
+| ppl | CyclicTags | 1.078 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-CyclicTags.v.txt) |
+| ppl | SafetySystem | 0.429 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-SafetySystem.v.txt) |
+| ppl | NestedProgram | 0.503 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T164319313299Z/Benchmarks-PPL-NestedProgram.v.txt) |
 
 ## Checked coverage and graph sizes
 

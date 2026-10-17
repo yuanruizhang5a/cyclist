@@ -12,7 +12,7 @@ Definition s := Idle.
 Example successful_test : program_holds M (Test safe) [s;s].
 Proof. exists s; split; [reflexivity|change (Idle<>Bad); discriminate]. Qed.
 Example failed_test : ~ program_holds M (Test Falsity) [s;s].
-Proof. intros [start [_ H]]; exact H. Qed.
+Proof. intros [start [_ H]]; exact (H I). Qed.
 (** This guard is intentionally temporal rather than pure arithmetic. Its
     success on a stutter checks that tests use the full formula semantics. *)
 Example singleton_sensitive_guard : ~ formula_holds M (Next Truth) [s].

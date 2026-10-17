@@ -1,0 +1,25 @@
+{
+  "source": "Benchmarks/PPL/RuleCoverage.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/RuleCoverage.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.8855563830002211,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "3134a5d93a09f3406e5f4b01ac2f079b866decd36c3fad9cc4374882488424b4",
+  "dependency_sha256": {
+    "LPL/Benchmarks/PPL/Support.v": "8cad1bfdcfdfa0211ba224d843fb29ec6256743cc8016b846fc8aaf2c721b84b"
+  },
+  "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-RuleCoverage.v.txt"
+}

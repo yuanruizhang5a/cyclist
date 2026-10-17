@@ -492,9 +492,9 @@ Qed.
 
 (** Each atomic action contributes one new state; all possible
     successors remain available in the relational model. *)
-Lemma atomic_execution prefix s action payload run :
-  execution_sequence (prefix ++ [s]) (Atomic action payload) run <->
-  exists next, interpret_action M action payload s next /\
+Lemma atomic_execution prefix s action run :
+  execution_sequence (prefix ++ [s]) (Atomic action) run <->
+  exists next, interpret_action M action s next /\
     run = [prefix ++ [s]; (prefix ++ [s]) ++ [next]].
 Proof.
   split.
@@ -511,12 +511,12 @@ Qed.
 
 (** A minimizing source counterexample selects ONE successor. Picking an
     unrelated successor would not establish this inequality. *)
-Lemma atomic_minimum_successor prefix s action payload body :
-  ~ formula_holds M (Box (Atomic action payload) body) (prefix ++ [s]) ->
-  exists next, interpret_action M action payload s next /\
+Lemma atomic_minimum_successor prefix s action body :
+  ~ formula_holds M (Box (Atomic action) body) (prefix ++ [s]) ->
+  exists next, interpret_action M action s next /\
     ~ formula_holds M body ((prefix ++ [s]) ++ [next]) /\
     minimum_counterexample body ((prefix ++ [s]) ++ [next]) <
-    minimum_counterexample (Box (Atomic action payload) body) (prefix ++ [s]).
+    minimum_counterexample (Box (Atomic action) body) (prefix ++ [s]).
 Proof.
   intro Hfalse.
   assert (prefix ++ [s] <> []) as Htr by (intro H; apply app_eq_nil in H; destruct H; discriminate).
@@ -542,7 +542,7 @@ Proof.
   { apply Htarget; exists rest; auto. }
   exists next; split; [exact Hstep|]. split; [exact Hbad|].
   change (length (prefix ++ [s]) + sequence_measure rest =
-    minimum_counterexample (Box (Atomic action payload) body) (prefix ++ [s])) in Hmeasure.
+    minimum_counterexample (Box (Atomic action) body) (prefix ++ [s])) in Hmeasure.
   rewrite length_app in Hmeasure; cbn in Hmeasure; lia.
 Qed.
 

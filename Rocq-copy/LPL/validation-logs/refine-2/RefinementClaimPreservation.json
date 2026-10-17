@@ -1,0 +1,147 @@
+{
+  "fopl/Labels": {
+    "statements": 12,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Signatures": {
+    "statements": 5,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Updates": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Tests": {
+    "statements": 9,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/RegularPrograms": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Booleans": {
+    "statements": 2,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Quantifiers": {
+    "statements": 10,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Temporal": {
+    "statements": 12,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/AssignmentChange": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/RuleCoverage": {
+    "statements": 76,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/CheckerNegative": {
+    "statements": 11,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/Cyclic": {
+    "statements": 7,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/CyclicTags": {
+    "statements": 6,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/CounterLoop": {
+    "statements": 7,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "fopl/NestedProgram": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/Instances": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/LabelsRelations": {
+    "statements": 12,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/AtomicActions": {
+    "statements": 24,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/Nondeterminism": {
+    "statements": 10,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/Booleans": {
+    "statements": 2,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/Tests": {
+    "statements": 9,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/RegularPrograms": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/Temporal": {
+    "statements": 12,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/RuleCoverage": {
+    "statements": 71,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/CheckerNegative": {
+    "statements": 12,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/Cyclic": {
+    "statements": 12,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/CyclicTags": {
+    "statements": 6,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/SafetySystem": {
+    "statements": 8,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  },
+  "ppl/NestedProgram": {
+    "statements": 5,
+    "all_retained_in_order": true,
+    "normalization": "removed unary-carrier argument/value fields only"
+  }
+}

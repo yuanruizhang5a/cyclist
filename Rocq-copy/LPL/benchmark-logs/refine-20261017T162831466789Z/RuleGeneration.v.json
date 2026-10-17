@@ -1,0 +1,29 @@
+{
+  "source": "RuleGeneration.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "RuleGeneration.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.8306336219993682,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "540b0ce0dc365fd19b9996ed51bb69038591f1527eff88f32b5c9d1650768063",
+  "dependency_sha256": {
+    "LPL/Signature.v": "22d08a481e4fd3009312bc720fc6e2fdfa9266fd73f4ad7ab1ee1897a917eb38",
+    "LPL/Syntax.v": "cb357ddcdb8e9c56d53604d09dc30921f8c7632149ef040cb02a47948ea9cc11",
+    "LPL/Semantics.v": "129b258d3ea5e9f35b50739413aeb222d3808f89dec5d7d45a94bf73cae4ac0f",
+    "LPL/Progress.v": "ece31c01ed1bac12fffbddc4f316986b45e146abb495e8f414eee7eea4495589",
+    "LPL/Rules.v": "111ad897bf02d5845bf3ae7471806d88aa3e8b381d9ab330b896b61e030f4471"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/RuleGeneration.v.txt"
+}

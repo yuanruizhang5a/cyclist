@@ -16,26 +16,19 @@ Module Type VOCABULARY.
 End VOCABULARY.
 
 Module MakeLanguage (V : VOCABULARY) <: LANGUAGE.
-  Definition atom_symbol := V.proposition.
-  Definition argument := Empty_set.
+  Definition atom := V.proposition.
   Definition binder := Empty_set.
-  Definition action_symbol := V.action.
-  Definition action_argument := unit.
+  Definition action := V.action.
   Definition world_term := nat.
   Definition relation_symbol := V.relation_symbol.
   Definition atom_eq_dec := V.proposition_eq_dec.
-  Definition argument_eq_dec (x y : argument) : {x=y}+{x<>y} := match x with end.
-  Definition binder_eq_dec := argument_eq_dec.
+  Definition binder_eq_dec (x y : binder) : {x=y}+{x<>y} := match x with end.
   Definition action_eq_dec := V.action_eq_dec.
-  Definition action_argument_eq_dec (x y : unit) : {x=y}+{x<>y}.
-  Proof. decide equality. Defined.
   Definition world_term_eq_dec := Nat.eq_dec.
   Definition relation_eq_dec := V.relation_eq_dec.
-  Definition atom_wfb (_ : atom_symbol) (args : list argument) := Nat.eqb (length args) 0.
-  Definition binary_atom_wfb (x y : argument) : bool := match x with end.
+  Definition atom_wfb (_ : atom) := true.
   Definition extension_wfb (x : binder) (_ : bool) : bool := match x with end.
-  Definition coextension_wfb := extension_wfb.
-  Definition action_wfb (_ : action_symbol) (_ : unit) := true.
+  Definition action_wfb (_ : action) := true.
   Definition world_term_wfb (_ : nat) := true.
   Definition custom_relation_wfb := V.relation_wfb.
   Definition world_name (x : nat) := x.
@@ -60,12 +53,10 @@ Module MakeInstance (V : VOCABULARY) (F : FRAME V).
     Proof.
       refine {| Sem.carrier := F.State;
         Sem.carrier_inhabitant := F.inhabitant;
-        Sem.interpret_atom := fun p _ s => F.proposition_holds p s;
-        Sem.interpret_binary_atom := fun x _ _ => match x with end;
+        Sem.interpret_atom := F.proposition_holds;
         Sem.interpret_extension := fun x _ _ => match x with end;
-        Sem.interpret_coextension := fun x _ _ => match x with end;
-        Sem.interpret_action := fun a _ s t => F.step a s t;
-        Sem.interpret_atomic_trace := fun a _ tr => exists s t, tr=[s;t] /\ F.step a s t;
+        Sem.interpret_action := F.step;
+        Sem.interpret_atomic_trace := fun a tr => exists s t, tr=[s;t] /\ F.step a s t;
         Sem.interpret_world_term := fun rho x => rho x;
         Sem.interpret_relation := F.relation_holds |}.
       - intros; reflexivity.

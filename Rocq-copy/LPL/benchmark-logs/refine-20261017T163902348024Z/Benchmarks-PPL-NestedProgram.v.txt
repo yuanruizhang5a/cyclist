@@ -1,0 +1,5 @@
+File "./Benchmarks/PPL/NestedProgram.v", line 37, characters 26-28:
+Error:
+The term "[]" has type "list ?A" while it is expected to have type
+ "Instance.Language.atom".
+

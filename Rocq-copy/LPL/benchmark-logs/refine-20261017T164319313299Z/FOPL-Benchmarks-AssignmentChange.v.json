@@ -1,0 +1,25 @@
+{
+  "source": "FOPL/Benchmarks/AssignmentChange.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/AssignmentChange.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.7323256170002423,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "264e12949bb287afe8e64a2bf1689897a7cb9af9627ef17fe9c25715aabaa5b9",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "6e2e8ddd6486af9560e33578c349729dcad9d8f2a05fb1b09db9f20234293c3a"
+  },
+  "log": "benchmark-logs/refine-20261017T164319313299Z/FOPL-Benchmarks-AssignmentChange.v.txt"
+}

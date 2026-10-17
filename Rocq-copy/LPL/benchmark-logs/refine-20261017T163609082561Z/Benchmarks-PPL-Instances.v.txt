@@ -1,0 +1,6 @@
+File "./Benchmarks/PPL/Instances.v", line 36, characters 58-82:
+Error: Illegal application (Non-functional construction): 
+The expression "Boolean.Syn.Atom true" of type "Boolean.Syn.formula"
+cannot be applied to the term
+ "[]" : "list ?A"
+

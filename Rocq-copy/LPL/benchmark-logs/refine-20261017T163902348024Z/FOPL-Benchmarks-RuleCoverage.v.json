@@ -1,0 +1,25 @@
+{
+  "source": "FOPL/Benchmarks/RuleCoverage.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/RuleCoverage.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 1.2090217120003217,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "78c11c9ac5e5e7e2ae26bf918ee48b1fb093c0364f2d28a8fb2cb4d15a7c2fee",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "ca06e62690a45725cd7ae38a38c387aeb1414d99b48af5ca6dcf5b342590d31b"
+  },
+  "log": "benchmark-logs/refine-20261017T163902348024Z/FOPL-Benchmarks-RuleCoverage.v.txt"
+}

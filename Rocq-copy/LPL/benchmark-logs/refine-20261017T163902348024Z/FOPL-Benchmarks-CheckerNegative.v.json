@@ -1,0 +1,25 @@
+{
+  "source": "FOPL/Benchmarks/CheckerNegative.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/CheckerNegative.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.46863473700068425,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "66f3c844b9d2bec4c293ab2ca26d08a0c82447cc4cae317993bafca46378f258",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "ca06e62690a45725cd7ae38a38c387aeb1414d99b48af5ca6dcf5b342590d31b"
+  },
+  "log": "benchmark-logs/refine-20261017T163902348024Z/FOPL-Benchmarks-CheckerNegative.v.txt"
+}

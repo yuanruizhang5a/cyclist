@@ -1,0 +1,23 @@
+{
+  "primitive_formula_constructors": [
+    "Truth",
+    "Atom",
+    "Neg",
+    "Conj",
+    "Extension",
+    "First",
+    "Suffix",
+    "Box"
+  ],
+  "derived_definitions": {
+    "Falsity": "Neg Truth",
+    "Disj a b": "Neg (Conj (Neg a) (Neg b))",
+    "Impl a b": "Neg (Conj a (Neg b))",
+    "Coextension x a": "Neg (Extension x (Neg a))",
+    "DualSuffix a b": "Neg (Suffix (Neg a) (Neg b))",
+    "Diamond p a": "Neg (Box p (Neg a))"
+  },
+  "opaque_unary_interfaces": true,
+  "view_reconstruction_and_candidate_order": true,
+  "shared_trace_algebra": true
+}

@@ -11,29 +11,51 @@ Import ListNotations.
 Module MakeSyntax (L : LANGUAGE).
 (** Formulas contain programs in modalities; programs contain formulas in
     tests. The mutual definition permits both kinds of nesting. [Extension]
-    and [Coextension] receive meanings from an instance, so their names alone
-    do not make them quantifiers in this generic module. *)
+    receives its meaning from an instance; [Coextension] is defined by duality. *)
 Inductive formula : Type :=
-| Truth | Falsity
-| Atom (p : L.atom_symbol) (args : list L.argument)
-| BinaryAtom (a b : L.argument)
+| Truth
+| Atom (p : L.atom)
 | Neg (a : formula)
 | Conj (a b : formula)
-| Disj (a b : formula)
-| Impl (a b : formula)
 | Extension (x : L.binder) (body : formula)
-| Coextension (x : L.binder) (body : formula)
 | First (a : formula)
 | Suffix (a b : formula)
-| DualSuffix (a b : formula)
 | Box (p : program) (a : formula)
-| Diamond (p : program) (a : formula)
 with program : Type :=
-| Atomic (x : L.action_symbol) (value : L.action_argument)
+| Atomic (x : L.action)
 | Test (guard : formula)
 | Seq (a b : program)
 | Choice (a b : program)
 | Star (body : program).
+
+Definition Falsity := Neg Truth.
+Definition Disj a b := Neg (Conj (Neg a) (Neg b)).
+Definition Impl a b := Neg (Conj a (Neg b)).
+Definition Coextension x a := Neg (Extension x (Neg a)).
+Definition DualSuffix a b := Neg (Suffix (Neg a) (Neg b)).
+Definition Diamond p a := Neg (Box p (Neg a)).
+
+(** Computational views expose every applicable derived encoding. They are
+    intentionally independent: for example a disjunction is an implication
+    too, and both named rules must remain available. *)
+Definition falsity_view a := match a with Neg Truth => true | _ => false end.
+Definition disj_view a := match a with Neg (Conj (Neg b) (Neg c)) => Some (b,c) | _ => None end.
+Definition impl_view a := match a with Neg (Conj b (Neg c)) => Some (b,c) | _ => None end.
+Definition coextension_view a := match a with Neg (Extension x (Neg b)) => Some (x,b) | _ => None end.
+Definition dual_suffix_view a := match a with Neg (Suffix (Neg b) (Neg c)) => Some (b,c) | _ => None end.
+Definition diamond_view a := match a with Neg (Box p (Neg b)) => Some (p,b) | _ => None end.
+Lemma falsity_view_sound a : falsity_view a = true -> a = Falsity.
+Proof. destruct a; try discriminate; destruct a; discriminate || reflexivity. Qed.
+Lemma disj_view_sound a b c : disj_view a = Some (b,c) -> a = Disj b c.
+Proof. destruct a; try discriminate; destruct a; try discriminate; destruct a1; try discriminate; destruct a2; intros H; inversion H; reflexivity. Qed.
+Lemma impl_view_sound a b c : impl_view a = Some (b,c) -> a = Impl b c.
+Proof. destruct a; try discriminate; destruct a; try discriminate; destruct a2; intros H; inversion H; reflexivity. Qed.
+Lemma coextension_view_sound a x b : coextension_view a = Some (x,b) -> a = Coextension x b.
+Proof. destruct a; try discriminate; destruct a; try discriminate; destruct a; intros H; inversion H; reflexivity. Qed.
+Lemma dual_suffix_view_sound a b c : dual_suffix_view a = Some (b,c) -> a = DualSuffix b c.
+Proof. destruct a; try discriminate; destruct a; try discriminate; destruct a1; try discriminate; destruct a2; intros H; inversion H; reflexivity. Qed.
+Lemma diamond_view_sound a p b : diamond_view a = Some (p,b) -> a = Diamond p b.
+Proof. destruct a; try discriminate; destruct a; try discriminate; destruct a; intros H; inversion H; reflexivity. Qed.
 
 (** A combined induction principle supplies hypotheses for both syntax
     trees. It is needed when a property crosses from a modality into its
@@ -49,10 +71,9 @@ Fixpoint formula_eq_dec (a b : formula) : {a = b} + {a <> b}
 with program_eq_dec (a b : program) : {a = b} + {a <> b}.
 Proof.
   - decide equality; try apply formula_eq_dec; try apply program_eq_dec;
-      try apply L.argument_eq_dec; try apply L.binder_eq_dec; try apply L.atom_eq_dec.
-    apply list_eq_dec; exact L.argument_eq_dec.
+      try apply L.binder_eq_dec; try apply L.atom_eq_dec.
   - decide equality; try apply program_eq_dec; try apply formula_eq_dec;
-      try apply L.action_argument_eq_dec; apply L.action_eq_dec.
+      apply L.action_eq_dec.
 Defined.
 
 (** Purity here means membership in a syntactic nonmodal fragment. It does
@@ -60,9 +81,9 @@ Defined.
     extension interpretations are arbitrary until an instance supplies laws. *)
 Fixpoint pureb (a : formula) : bool :=
   match a with
-  | Truth | Falsity | Atom _ _ | BinaryAtom _ _ => true
-  | Neg a | Extension _ a | Coextension _ a => pureb a
-  | Conj a b | Disj a b | Impl a b => pureb a && pureb b
+  | Truth | Atom _ => true
+  | Neg a | Extension _ a => pureb a
+  | Conj a b => pureb a && pureb b
   | _ => false
   end.
 
@@ -70,19 +91,17 @@ Fixpoint pureb (a : formula) : bool :=
     the nonmodal-fragment bit to that policy; FOPL requires it to be true. *)
 Fixpoint formula_wfb (a : formula) : bool :=
   match a with
-  | Truth | Falsity => true
-  | Atom p ts => L.atom_wfb p ts
-  | BinaryAtom a b => L.binary_atom_wfb a b
+  | Truth => true
+  | Atom p => L.atom_wfb p
   | Neg a | First a => formula_wfb a
-  | Conj a b | Disj a b | Impl a b | Suffix a b | DualSuffix a b =>
+  | Conj a b | Suffix a b =>
       formula_wfb a && formula_wfb b
   | Extension x a => L.extension_wfb x (pureb a) && formula_wfb a
-  | Coextension x a => L.coextension_wfb x (pureb a) && formula_wfb a
-  | Box p a | Diamond p a => program_wfb p && formula_wfb a
+  | Box p a => program_wfb p && formula_wfb a
   end
 with program_wfb (p : program) : bool :=
   match p with
-  | Atomic x t => L.action_wfb x t
+  | Atomic x => L.action_wfb x
   | Test a => formula_wfb a
   | Seq a b | Choice a b => program_wfb a && program_wfb b
   | Star a => program_wfb a
@@ -194,7 +213,7 @@ Fixpoint unit_label (path : list bool) (on_left insert : bool) (l : label) : lab
 (** These are the only formula shapes allowed to carry cyclic trace tags.
     This policy concerns proof progress, separately from formula truth. *)
 Definition traceableb (a : formula) : bool :=
-  match a with Box _ _ | Suffix _ _ | DualSuffix _ _ => true | _ => false end.
+  match a with Box _ _ | Suffix _ _ => true | _ => match dual_suffix_view a with Some _ => true | None => false end end.
 
 (** Tags are proof metadata: Semantics.v ignores them when interpreting
     truth, while Progress.v uses them to find the occurrence whose rank is
@@ -209,21 +228,21 @@ Record occurrence : Type := Occ {
 (** Relational assumptions are explicit and untagged. The ordinary Jdg
     abbreviation denotes exactly the relation-free legacy fragment. *)
 Inductive relation_atom : Type :=
-| ActionRelation (action : L.action_symbol) (payload : L.action_argument) (source target : label)
+| ActionRelation (action : L.action) (source target : label)
 | CustomRelation (symbol : L.relation_symbol) (arguments : list label).
 Definition relation_labels r := match r with
-  | ActionRelation _ _ source target => [source;target]
+  | ActionRelation _ source target => [source;target]
   | CustomRelation _ arguments => arguments end.
 Definition map_relation (f : label -> label) r := match r with
-  | ActionRelation a p s t => ActionRelation a p (f s) (f t)
+  | ActionRelation a s t => ActionRelation a (f s) (f t)
   | CustomRelation symbol arguments => CustomRelation symbol (map f arguments) end.
 Definition relation_wfb r :=
-  (match r with ActionRelation a p _ _ => L.action_wfb a p
+  (match r with ActionRelation a _ _ => L.action_wfb a
    | CustomRelation symbol arguments => L.custom_relation_wfb symbol (length arguments) end) &&
   forallb (fun l => label_wfb l && label_nonemptyb l) (relation_labels r).
 Definition relation_eq_dec : forall a b : relation_atom, {a=b}+{a<>b}.
 Proof.
-  decide equality; try apply L.action_eq_dec; try apply L.action_argument_eq_dec;
+  decide equality; try apply L.action_eq_dec;
     try apply label_eq_dec; try apply L.relation_eq_dec.
   apply list_eq_dec; apply label_eq_dec.
 Defined.
@@ -303,20 +322,15 @@ Proof.
 Qed.
 
 (** This inductive predicate is the proof-facing version of [pureb]. Its
-    constructors support induction over pure formulas; [pureb_spec] bridges
-    it to the executable test. The historical constructor names [PureAll]
-    and [PureEx] refer to generic extension slots here. *)
+    constructors support induction over primitive pure formulas; [pureb_spec]
+    bridges it to the executable test. Derived pure operators follow by
+    their expansions. *)
 Inductive pure_formula : formula -> Prop :=
 | PureTruth : pure_formula Truth
-| PureFalsity : pure_formula Falsity
-| PurePred p ts : pure_formula (Atom p ts)
-| PureEqual t u : pure_formula (BinaryAtom t u)
+| PurePred p : pure_formula (Atom p)
 | PureNeg a : pure_formula a -> pure_formula (Neg a)
 | PureConj a b : pure_formula a -> pure_formula b -> pure_formula (Conj a b)
-| PureDisj a b : pure_formula a -> pure_formula b -> pure_formula (Disj a b)
-| PureImpl a b : pure_formula a -> pure_formula b -> pure_formula (Impl a b)
-| PureAll x a : pure_formula a -> pure_formula (Extension x a)
-| PureEx x a : pure_formula a -> pure_formula (Coextension x a).
+| PureAll x a : pure_formula a -> pure_formula (Extension x a).
 
 Lemma pureb_spec a : pureb a = true <-> pure_formula a.
 Proof.
@@ -348,16 +362,14 @@ Proof. unfold world_freshb; rewrite negb_true_iff; apply occursb_false. Qed.
     usable in proofs, and conversely. Thus generation can compute checks
     while soundness proofs reason with conjunctions, [Forall] and [NoDup]. *)
 Fixpoint formula_wf a : Prop := match a with
-  | Truth | Falsity => True
-  | Atom p args => L.atom_wfb p args = true
-  | BinaryAtom a b => L.binary_atom_wfb a b = true
+  | Truth => True
+  | Atom p => L.atom_wfb p = true
   | Neg a | First a => formula_wf a
-  | Conj a b | Disj a b | Impl a b | Suffix a b | DualSuffix a b => formula_wf a /\ formula_wf b
+  | Conj a b | Suffix a b => formula_wf a /\ formula_wf b
   | Extension x a => L.extension_wfb x (pureb a) = true /\ formula_wf a
-  | Coextension x a => L.coextension_wfb x (pureb a) = true /\ formula_wf a
-  | Box p a | Diamond p a => program_wf p /\ formula_wf a end
+  | Box p a => program_wf p /\ formula_wf a end
 with program_wf p : Prop := match p with
-  | Atomic action payload => L.action_wfb action payload = true
+  | Atomic action => L.action_wfb action = true
   | Test a => formula_wf a
   | Seq a b | Choice a b => program_wf a /\ program_wf b
   | Star a => program_wf a end.
@@ -387,7 +399,7 @@ Proof.
     split; [intros [[Hl Hne] Hrest]; constructor; auto|intro H; inversion H; tauto].
 Qed.
 Definition relation_wf r :=
-  (match r with ActionRelation a p _ _ => L.action_wfb a p
+  (match r with ActionRelation a _ _ => L.action_wfb a
     | CustomRelation symbol args => L.custom_relation_wfb symbol (length args) end) = true /\
   Forall (fun l => label_wf l /\ label_nonemptyb l = true) (relation_labels r).
 Lemma relation_wfb_spec r : relation_wfb r = true <-> relation_wf r.

@@ -1,0 +1,27 @@
+{
+  "source": "FOPL/RuleGeneration.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/RuleGeneration.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 1.9385803980003402,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "a31786893f224c4512f7967eae061df5b109f0b5050b4030bfed3b46404dd040",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/FOPL/Rules.v": "3eb8a0607365a19b90778df11b83502f19d944fb761cd078e812ca168b92c7d8",
+    "LPL/RuleGeneration.v": "832351787a4c3daaa67c00ce4e8d694a0f506f0f21f220766638230b947ea011"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/FOPL-RuleGeneration.v.txt"
+}

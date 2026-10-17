@@ -34,12 +34,12 @@ Module S := Instance.Syn.
 Module Sem := Instance.Sem.
 Module Safety := MakeSafety Instance.Language Instance.Syn Instance.Sem.
 Definition M := Instance.Model.interpretation.
-Definition atom := S.Atom tt [].
-Definition action x := S.Atomic x tt.
+Definition atom := S.Atom tt.
+Definition action x := S.Atomic x.
 Definition nested := S.Seq (S.Star (S.Choice (action 0) (S.Seq (S.Test S.Truth) (action 1))))
   (S.Choice (action 2) (S.Star (action 1))).
 Definition Inv (s : F.State) := D.property (snd s).
-Lemma preserves a payload s t : Sem.interpret_action M a payload s t -> Inv s -> Inv t.
+Lemma preserves a s t : Sem.interpret_action M a s t -> Inv s -> Inv t.
 Proof. intros [_ Heq] H; unfold Inv in *; now rewrite Heq. Qed.
 Theorem all_visited_preserved : trace_safe Inv (Sem.program_holds M nested).
 Proof. exact (Safety.program_safe M Inv preserves nested). Qed.

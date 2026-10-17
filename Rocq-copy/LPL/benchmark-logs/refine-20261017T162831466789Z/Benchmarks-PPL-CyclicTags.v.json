@@ -1,0 +1,26 @@
+{
+  "source": "Benchmarks/PPL/CyclicTags.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/CyclicTags.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 1.0397007250012393,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "a940ae53e61bd468a9530fbd87951e74917437eb252ee3469bc8fb5789659cd1",
+  "dependency_sha256": {
+    "LPL/Benchmarks/PPL/Support.v": "ed3924b25ed53ef8929eb4a2286640a3548aa575478c189f1bdc4e88fb1c1fef",
+    "LPL/Benchmarks/PPL/Cyclic.v": "0019542f21f48f3a0ec932e6111cecf465886ca5a515cf92fb90e0658a96d71d"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/Benchmarks-PPL-CyclicTags.v.txt"
+}

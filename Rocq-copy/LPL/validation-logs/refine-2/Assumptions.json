@@ -1,0 +1,22 @@
+{
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "repl",
+    "-quiet",
+    "-Q",
+    "..",
+    "CyclistRocq"
+  ],
+  "elapsed_seconds": 2.22152954700141,
+  "exit_status": 0,
+  "errors": 0,
+  "principles": [
+    "ClassicalEpsilon.constructive_indefinite_description",
+    "Classical_Prop.classic",
+    "Description.constructive_definite_description",
+    "FunctionalExtensionality.functional_extensionality_dep"
+  ]
+}

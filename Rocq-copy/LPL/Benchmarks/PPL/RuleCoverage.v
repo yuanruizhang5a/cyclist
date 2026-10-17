@@ -189,8 +189,8 @@ Proof. vm_compute; reflexivity. Qed.
 (** Relational action schemas at non-head positions, with unrelated relations
     on both sides of the selected transition. *)
 Definition rp := [CustomRelation SameState [l1;l1]].
-Definition rq := [action_relation Stutter tt 1 2].
-Definition edge := action_relation Acquire tt u 1.
+Definition rq := [action_relation Stutter 1 2].
+Definition edge := action_relation Acquire u 1.
 Definition full_relations := rp ++ edge :: rq.
 Example atomic_box_left_shape :
   has_shape (Rdg full_relations (gamma ++ [assertion joined (Box p a)]) delta) (AtomicUse OnLeft 1 1)
@@ -202,11 +202,11 @@ Example atomic_diamond_right_shape :
 Proof. vm_compute; reflexivity. Qed.
 Example atomic_box_right_shape :
   has_shape (Rdg (rp ++ rq) gamma (delta ++ [assertion joined (Box p a)])) (AtomicEigen OnRight 1 3)
-    [Rdg ((rp ++ rq) ++ [action_relation Acquire tt u 3]) gamma (delta ++ [assertion (action_label sigma u 3) a])] = true.
+    [Rdg ((rp ++ rq) ++ [action_relation Acquire u 3]) gamma (delta ++ [assertion (action_label sigma u 3) a])] = true.
 Proof. vm_compute; reflexivity. Qed.
 Example atomic_diamond_left_shape :
   has_shape (Rdg (rp ++ rq) (gamma ++ [assertion joined (Diamond p a)]) delta) (AtomicEigen OnLeft 1 3)
-    [Rdg ((rp ++ rq) ++ [action_relation Acquire tt u 3]) (gamma ++ [assertion (action_label sigma u 3) a]) delta] = true.
+    [Rdg ((rp ++ rq) ++ [action_relation Acquire u 3]) (gamma ++ [assertion (action_label sigma u 3) a]) delta] = true.
 Proof. vm_compute; reflexivity. Qed.
 Example relation_weakening_shape : has_shape (Rdg full_relations gamma delta) (WeakenRelation 1)
   [Rdg (rp ++ rq) gamma delta] = true.

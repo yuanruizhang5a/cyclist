@@ -1,0 +1,16 @@
+{
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "repl",
+    "-quiet",
+    "-Q",
+    "..",
+    "CyclistRocq"
+  ],
+  "elapsed_seconds": 2.044517137999719,
+  "exit_status": 0,
+  "errors": 2
+}

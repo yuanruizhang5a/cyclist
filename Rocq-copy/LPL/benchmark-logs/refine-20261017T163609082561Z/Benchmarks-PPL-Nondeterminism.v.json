@@ -1,0 +1,25 @@
+{
+  "source": "Benchmarks/PPL/Nondeterminism.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/Nondeterminism.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.22263033500166785,
+  "exit_status": 1,
+  "timeout": false,
+  "source_sha256": "931436a3a3c3151a66cdfc7337e3ec2ab6b4af77da8713025036ee467cc1c7a9",
+  "dependency_sha256": {
+    "LPL/Benchmarks/PPL/Support.v": "8cad1bfdcfdfa0211ba224d843fb29ec6256743cc8016b846fc8aaf2c721b84b"
+  },
+  "log": "benchmark-logs/refine-20261017T163609082561Z/Benchmarks-PPL-Nondeterminism.v.txt"
+}

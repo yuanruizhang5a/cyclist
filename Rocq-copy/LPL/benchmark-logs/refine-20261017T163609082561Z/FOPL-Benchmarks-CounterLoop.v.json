@@ -1,0 +1,26 @@
+{
+  "source": "FOPL/Benchmarks/CounterLoop.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/CounterLoop.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.6706041889992775,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "5fa6de2092d4404dc8f6ad2b5628869ba8fded047e35353d395812eee58b7c52",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "d05cde2ea7e552fb74ef1ddde33b8d58390daaf4fd1f0dff9ed64c1857858bdb",
+    "LPL/TraceSafety.v": "6973ce84688486aac3eb50d27c56da4b52e98182109720e360d6e70b40a2af81"
+  },
+  "log": "benchmark-logs/refine-20261017T163609082561Z/FOPL-Benchmarks-CounterLoop.v.txt"
+}

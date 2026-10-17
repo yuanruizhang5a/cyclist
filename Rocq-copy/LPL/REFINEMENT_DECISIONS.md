@@ -10,11 +10,22 @@ D1–D4 remain controlling as recorded in IMPLEMENTATION_PLAN.md.
 
 The common implementation lives directly in the eight root theory files.
 FOPL payloads and adapters live in `FOPL/`.
-Two parameterized atomic/extension slots preserve the legacy constructor
-organization and induction structure. Their meanings remain supplied by the
-instance; plain PPL has no extension tokens. This is a representation choice,
-with full legacy semantic and rank-preservation theorems.
+Atoms/actions are opaque unary carriers. The common syntax contains only
+`Truth`, `Atom`, `Neg`, `Conj`, `Extension`, `First`, `Suffix`, and `Box`.
+All other formula operators are definitions, including `Coextension` by
+duality. PPL uses its vocabulary carriers directly; FOPL owns structured
+predicate/equality and assignment payloads. Decidable syntax and Boolean
+well-formedness stay executable; no semantic equality/truth oracle is needed.
 
+Independent computational views enumerate overlapping derived encodings before
+primitive fallback in a fixed order. Ordinary negations gain no cyclic progress;
+only the expanded dual suffix is traceable alongside boxes and suffixes. Its
+right continuation still strictly decreases the counterexample rank.
+
+The legacy translation preserves formula/program checks, meanings and ranks.
+Tag/judgment admissibility is preserved forward because expansions erase old
+constructor distinctions. The exact acceptance claims are recorded in
+[FOPL_COMPATIBILITY.md](FOPL_COMPATIBILITY.md).
 The first-order atomic-trace interpretation keeps its original definitional
 shape. Every frame proves an `atomic_trace_law` equating that interpretation
 with exactly the length-two traces of its action relation. This preserves old
@@ -68,3 +79,17 @@ Obsolete snapshots, diagnostic executables, old logs, generated debris and the
 completed progress summary were moved out of the project without permanent
 deletion. [CLEANUP.json](CLEANUP.json) records their recoverable archive location.
 [VALIDATION.md](VALIDATION.md) contains the current verification evidence.
+
+## Refinement 2 evidence
+
+The baseline snapshot, compiler version, benchmark claims and first full run
+were saved before theory edits in `validation-logs/refine-2/baseline/`.
+`validation-logs/refine-2/OutsideBaseline.json` hashes every non-LPL workspace
+file before implementation. The final integrity run compares those hashes.
+Historical refinement-1 records above remain historical; current results and
+actual failures/timings are recorded in [VALIDATION.md](VALIDATION.md).
+
+Trace-safety composition and finite iteration now use the shared polymorphic
+semantic algebra; no second production implementation of these combinators
+remains. Existing sources and useful thin adapters are retained. This migration
+created no obsolete source files requiring removal.

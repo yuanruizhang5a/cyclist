@@ -1,0 +1,6 @@
+File "./Benchmarks/PPL/SafetySystem.v", line 9, characters 44-81:
+Error: Illegal application (Non-functional construction): 
+The expression "interpret_action M action payload s" of type 
+"Prop" cannot be applied to the term
+ "t" : "?T"
+

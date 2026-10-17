@@ -1,0 +1,30 @@
+{
+  "source": "FOPL/Benchmarks/NestedProgram.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/NestedProgram.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 6.358301669999491,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "a27e04e37e102356cbbe6bcc5a8326b1c511d427e5adaf0a4c0636fb0662af3d",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/FOPL/Rules.v": "c05c12a6d0be2b232eedb2a0d0913cf2bc8a005228231f80da04d4cbc0c03a99",
+    "LPL/FOPL/RuleGeneration.v": "211814605327d3525829cdaf5783e2e67f731f2af911e4ff75867d490edd071e",
+    "LPL/FOPL/Certification.v": "13b01c48b66ee615a1e08625a764ee137c300b30bce258b268ccbf39b41edd28",
+    "LPL/FOPL/Benchmarks/Support.v": "d05cde2ea7e552fb74ef1ddde33b8d58390daaf4fd1f0dff9ed64c1857858bdb",
+    "LPL/TraceSafety.v": "6973ce84688486aac3eb50d27c56da4b52e98182109720e360d6e70b40a2af81"
+  },
+  "log": "benchmark-logs/refine-20261017T163609082561Z/FOPL-Benchmarks-NestedProgram.v.txt"
+}

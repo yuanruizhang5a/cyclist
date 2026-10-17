@@ -419,3 +419,33 @@ action schemes, relation structural operations, both cut forms, label algebra,
 and concrete rejection cases. `FOPL/Benchmarks/RuleCoverage.v` retains the
 original 50 premise-shape checks. T1 is resolved: all test guards in these
 schemes are evaluated on the two-state stutter `[s; s]`.
+
+
+## Primitive syntax and deterministic view order
+
+The shared datatype contains `Truth`, `Atom`, `Neg`, `Conj`, `Extension`,
+`First`, `Suffix`, and `Box`. The formula names used in the displays retain
+their mathematical meaning through these definitions:
+
+```coq
+Falsity             := Neg Truth
+Disj a b            := Neg (Conj (Neg a) (Neg b))
+Impl a b            := Neg (Conj a (Neg b))
+Coextension x a     := Neg (Extension x (Neg a))
+DualSuffix a b      := Neg (Suffix (Neg a) (Neg b))
+Diamond p a         := Neg (Box p (Neg a))
+```
+
+A local occurrence contributes candidates in order: `disj_view`, `impl_view`,
+`diamond_view`, `dual_suffix_view`, then its primitive case. The lists append;
+a successful disjunction view does not suppress implication or negation rules.
+FOPL places quantifier/assignment candidates before primitive fallback. Each
+view has a reconstruction theorem in `Syntax.v`. Named rule requests select
+from these candidates and still validate the exact source and ordered premises.
+
+`Atom` and `Atomic` take one opaque payload. `ActionRelation action source target`
+and the common `action_relation action u v` have no separate argument/value
+field. FOPL's `Pred`, `Equal`, and `Assign` construct its own structured payloads.
+The 50 FOPL / 53 PPL premise-shape checks and the displayed rule names remain.
+Expanded dual suffixes retain their right continuation and strict rank decrease;
+other negations receive no additional progress edge.

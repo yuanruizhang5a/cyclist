@@ -1,0 +1,26 @@
+{
+  "source": "Benchmarks/PPL/NestedProgram.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/NestedProgram.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.31367110700011835,
+  "exit_status": 1,
+  "timeout": false,
+  "source_sha256": "8b1644994e92bc1f39b658f43c1ed19947ac92dd3d9f3e432f6aceb72d1dee22",
+  "dependency_sha256": {
+    "LPL/PPL/Instance.v": "9df0428ac6b6b6052ddc2cc1d0a9192fea83d0b383731aed893833caddef30e3",
+    "LPL/TraceSafety.v": "5aa4310d2e76bbe13faa87d96a331c0126e31cfcbb6b330c8f1dc3f879444919"
+  },
+  "log": "benchmark-logs/refine-20261017T163902348024Z/Benchmarks-PPL-NestedProgram.v.txt"
+}

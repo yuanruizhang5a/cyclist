@@ -269,7 +269,7 @@ Proof.
   destruct Hprincipal as [Hne Hprincipal]; change (eval_label M w l <> []) in Hne.
   destruct (eval_label M w l) as [|s tail] eqn:Hlabel_eval; [contradiction|].
   change (formula_holds M (Ex u body) (eval_label M w l)) in Hprincipal.
-  rewrite Hlabel_eval, (pure_head M (Ex u body) Hpure) in Hprincipal.
+  rewrite Hlabel_eval, (pure_head M (Ex u body) Hpure), fol_ex in Hprincipal.
   set (d := epsilon (inhabits (domain_inhabitant M)) (fun d => fol_holds M body (write M s u d))).
   assert (fol_holds M body (write M s u d)) as Hgood by (unfold d; apply epsilon_spec; exact Hprincipal).
   set (f := swap_values M (s v) d).
@@ -304,7 +304,7 @@ Definition pure_terminalb j :=
 
 Definition atom_terminalb j :=
   forallb (fun o => match occurrence_label o, occurrence_formula o with
-    | StateLabel _, Pred _ _ | StateLabel _, Equal _ _ => true
+    | StateLabel _, Atom _ => true
     | _, _ => false end) (j.(antecedent) ++ j.(succedent)).
 
 (** Here the caller supplies the actual shallow sequent proof in Rocq.

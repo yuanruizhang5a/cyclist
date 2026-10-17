@@ -7,8 +7,8 @@ From Stdlib Require Import List Bool Arith Lia Classical_Prop Classical_Pred_Typ
 From Stdlib Require Import Logic.FunctionalExtensionality Logic.ClassicalDescription.
 From CyclistRocq.LPL Require Import Signature Syntax.
 Import ListNotations.
-Module MakeSemantics (L : LANGUAGE) (Syn : SYNTAX L).
-Export Syn.
+(** Polymorphic trace algebra shared by semantics, ranks and safety. *)
+Module TraceAlgebra.
 (** Overlap merges one shared endpoint: [[s;t]] followed by [[t;u]] gives
     [[s;t;u]]. The existential decomposition also proves that both inputs
     are nonempty and that their boundary states agree. This generic list
@@ -130,6 +130,21 @@ Proof.
         destruct (overlap_list_head _ _ _ Hab) as [x [r [r' [_ ->]]]]; discriminate.
 Qed.
 
+Definition trace_compose {A : Type} (R T : list A -> Prop) (tr : list A) : Prop :=
+  exists a b, R a /\ T b /\ overlap_list a b tr.
+Section Powers.
+Context {A : Type}.
+Fixpoint trace_power (R : list A -> Prop) (n : nat) (tr : list A) : Prop :=
+  match n with
+  | 0 => exists s, tr = [s;s]
+  | S n => trace_compose R (trace_power R n) tr
+  end.
+End Powers.
+End TraceAlgebra.
+
+Module MakeSemantics (L : LANGUAGE) (Syn : SYNTAX L).
+Export Syn.
+Include TraceAlgebra.
 (** A model supplies meanings and the laws needed by the generic proofs.
     It need not provide finite states, decidable truth or deterministic
     actions. Extension meanings receive the child's entire trace predicate,
@@ -137,17 +152,15 @@ Qed.
 Record model : Type := Model {
   carrier : Type;
   carrier_inhabitant : carrier;
-  interpret_atom : L.atom_symbol -> list L.argument -> carrier -> Prop;
-  interpret_binary_atom : L.argument -> L.argument -> carrier -> Prop;
+  interpret_atom : L.atom -> carrier -> Prop;
   interpret_extension : L.binder -> (list carrier -> Prop) -> list carrier -> Prop;
-  interpret_coextension : L.binder -> (list carrier -> Prop) -> list carrier -> Prop;
-  interpret_action : L.action_symbol -> L.action_argument -> carrier -> carrier -> Prop;
-  interpret_atomic_trace : L.action_symbol -> L.action_argument -> list carrier -> Prop;
+  interpret_action : L.action -> carrier -> carrier -> Prop;
+  interpret_atomic_trace : L.action -> list carrier -> Prop;
   (** This law connects two presentations of an atomic step: a binary state
       relation for relational rules, and a length-two execution trace for
       program semantics. Neither presentation alone implies determinism. *)
-  atomic_trace_law : forall action payload tr, interpret_atomic_trace action payload tr <->
-    exists s t, tr = [s;t] /\ interpret_action action payload s t;
+  atomic_trace_law : forall action tr, interpret_atomic_trace action tr <->
+    exists s t, tr = [s;t] /\ interpret_action action s t;
   interpret_world_term : (nat -> carrier) -> L.world_term -> carrier;
   interpret_relation : L.relation_symbol -> list (list carrier) -> Prop;
   (** Names are interpreted by lookup; a term depends only on its declared
@@ -281,17 +294,10 @@ Qed.
     evaluation it can fail, and it never deletes a stuttering transition. *)
 Definition overlap : trace -> trace -> trace -> Prop := @overlap_list state.
 
-Definition compose (R T : trace -> Prop) (tr : trace) : Prop :=
-  exists a b, R a /\ T b /\ overlap a b tr.
-
-(** The base case is the successful true test, not a singleton identity
-    trace. Thus even zero iterations record [s;s], and a positive finite
-    unfolding ends in the final stutter supplied by its zero-power tail. *)
-Fixpoint finite_power (R : trace -> Prop) (n : nat) (tr : trace) : Prop :=
-  match n with
-  | 0 => exists s, tr = [s; s]
-  | S n => compose R (finite_power R n) tr
-  end.
+(** Composition and finite iteration use the same polymorphic operations
+    as the all-state safety proofs. Zero iterations retain the stutter. *)
+Definition compose := @TraceAlgebra.trace_compose state.
+Definition finite_power := @TraceAlgebra.trace_power state.
 
 (** Both the suffix and the removed prefix are nonempty. Suffix modalities
     therefore move strictly forward, and cannot succeed on a singleton. *)
@@ -315,31 +321,21 @@ Fixpoint formula_holds (a : formula) (tr : trace) : Prop :=
   | s :: tail =>
     match a with
     | Truth => True
-    | Falsity => False
-    | Atom p ts => interpret_atom M p ts s
-    | BinaryAtom a b => interpret_binary_atom M a b s
+    | Atom p => interpret_atom M p s
     | Neg a => ~ formula_holds a tr
     | Conj a b => formula_holds a tr /\ formula_holds b tr
-    | Disj a b => formula_holds a tr \/ formula_holds b tr
-    | Impl a b => formula_holds a tr -> formula_holds b tr
     | Extension x a => interpret_extension M x (formula_holds a) tr
-    | Coextension x a => interpret_coextension M x (formula_holds a) tr
     | First a => formula_holds a [s]
     | Suffix a b =>
         exists suffix, proper_suffix suffix tr /\ formula_holds b suffix /\
           forall middle, proper_suffix suffix middle -> proper_suffix middle tr -> formula_holds a middle
-    | DualSuffix a b =>
-        ~ (exists suffix, proper_suffix suffix tr /\ ~ formula_holds b suffix /\
-          forall middle, proper_suffix suffix middle -> proper_suffix middle tr -> ~ formula_holds a middle)
     | Box p a => forall execution result,
         program_holds p execution -> overlap tr execution result -> formula_holds a result
-    | Diamond p a => exists execution result,
-        program_holds p execution /\ overlap tr execution result /\ formula_holds a result
     end
   end
 with program_holds (p : program) (tr : trace) : Prop :=
   match p with
-  | Atomic x t => interpret_atomic_trace M x t tr
+  | Atomic x => interpret_atomic_trace M x tr
   | Test a => exists s, tr = [s; s] /\ formula_holds a [s; s]
   | Seq a b => compose (program_holds a) (program_holds b) tr
   | Choice a b => program_holds a tr \/ program_holds b tr
@@ -354,9 +350,9 @@ Definition relation_admissible w r := Forall (label_admissible w) (relation_labe
     relations receive the full evaluated argument traces. A longer label
     cannot be silently treated as an action's first or last state. *)
 Definition relation_holds w r := match r with
-  | ActionRelation action payload source target =>
+  | ActionRelation action source target =>
       exists s t, eval_label w source = [s] /\ eval_label w target = [t] /\
-        interpret_action M action payload s t
+        interpret_action M action s t
   | CustomRelation symbol arguments => interpret_relation M symbol (map (eval_label w) arguments)
   end.
 Definition relations_hold w context := Forall (relation_holds w) context.
@@ -380,7 +376,7 @@ Lemma relation_mapping f w w' :
   (forall l, eval_label w (f l) = eval_label w' l) -> forall r,
   relation_holds w (map_relation f r) <-> relation_holds w' r.
 Proof.
-  intros H [a p s t|symbol arguments]; cbn [relation_holds map_relation].
+  intros H [a s t|symbol arguments]; cbn [relation_holds map_relation].
   - now rewrite !H.
   - rewrite map_map. assert (map (fun l => eval_label w (f l)) arguments = map (eval_label w') arguments) as ->.
     { apply map_ext; exact H. } reflexivity.
@@ -552,6 +548,40 @@ Proof. apply overlap_list_snoc. Qed.
     [prefix ++ [s]] exposes its last state. A successful test appends one
     more [s], retaining the stutter in the accumulated trace. Boxes require
     the body when the guard holds; diamonds require both guard and body. *)
+(** Derived operators obey their usual laws only on nonempty traces. *)
+Lemma falsity_false tr : ~ formula_holds Falsity tr.
+Proof. destruct tr; cbn; tauto. Qed.
+Lemma coextension_dual x a tr : tr <> [] ->
+  (formula_holds (Coextension x a) tr <-> ~ formula_holds (Extension x (Neg a)) tr).
+Proof. destruct tr; cbn; tauto. Qed.
+Lemma nonempty_disj a b tr : tr <> [] ->
+  (formula_holds (Disj a b) tr <-> formula_holds a tr \/ formula_holds b tr).
+Proof. destruct tr; cbn; tauto. Qed.
+Lemma nonempty_impl a b tr : tr <> [] ->
+  (formula_holds (Impl a b) tr <-> (formula_holds a tr -> formula_holds b tr)).
+Proof. destruct tr; cbn; tauto. Qed.
+Lemma diamond_clause p a tr : tr <> [] ->
+  (formula_holds (Diamond p a) tr <-> exists execution result,
+    program_holds p execution /\ overlap tr execution result /\ formula_holds a result).
+Proof.
+  intro Hne; destruct tr as [|s tail]; [contradiction|].
+  change (~ (forall execution result, program_holds p execution ->
+    overlap (s::tail) execution result -> formula_holds (Neg a) result) <->
+    exists execution result, program_holds p execution /\ overlap (s::tail) execution result /\ formula_holds a result).
+  split.
+  - intro H; apply not_all_ex_not in H as [execution H].
+    apply not_all_ex_not in H as [result H].
+    assert (program_holds p execution /\ overlap (s::tail) execution result /\
+      ~ formula_holds (Neg a) result) as [Hp [Ho Hb]] by tauto.
+    exists execution, result; repeat split; try assumption.
+    destruct (overlap_nonempty _ _ _ Ho) as [_ [_ Hresult]].
+    destruct result; [contradiction|]; cbn [formula_holds] in Hb; tauto.
+  - intros [execution [result [Hp [Ho Hb]]]] H.
+    specialize (H execution result Hp Ho).
+    destruct (overlap_nonempty _ _ _ Ho) as [_ [_ Hresult]].
+    destruct result; [contradiction|]; exact (H Hb).
+Qed.
+
 Lemma box_test prefix s guard a :
   formula_holds (Box (Test guard) a) (prefix ++ [s]) <->
   (formula_holds guard [s;s] -> formula_holds a ((prefix ++ [s]) ++ [s])).
@@ -571,6 +601,7 @@ Lemma diamond_test prefix s guard a :
   formula_holds guard [s;s] /\ formula_holds a ((prefix ++ [s]) ++ [s]).
 Proof.
   assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
+  rewrite diamond_clause by exact Hne.
   destruct (prefix ++ [s]) as [|head tail] eqn:Htr; [contradiction|].
   cbn [formula_holds]. split.
   - intros [execution [result [[start [-> Hg]] [Ho Ha]]]].
@@ -634,18 +665,19 @@ Qed.
 Lemma diamond_sequence a b body tr : tr <> [] ->
   (formula_holds (Diamond (Seq a b) body) tr <-> formula_holds (Diamond a (Diamond b body)) tr).
 Proof.
-  intro Hne; destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds program_holds].
+  intro Hne; rewrite !diamond_clause by exact Hne; destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds program_holds].
   split.
   - intros [execution [result [[first [second [Ha [Hb Hexecution]]]] [Ho Hbody]]]].
     assert (exists middle, overlap_list (s :: tail) first middle /\ overlap_list middle second result) as Hmiddle.
     { apply overlap_list_assoc; exists execution; auto. }
     destruct Hmiddle as [middle [Ho1 Ho2]]. exists first, middle; split; [exact Ha|].
     split; [exact Ho1|]. destruct (overlap_nonempty _ _ _ Ho1) as [_ [_ Hne']].
-    destruct middle as [|m rest]; [contradiction|]; cbn [formula_holds].
+    destruct middle as [|m rest]; [contradiction|]; rewrite diamond_clause by discriminate.
     exists second, result; auto.
   - intros [first [middle [Ha [Ho1 Hbody]]]].
     destruct (overlap_nonempty _ _ _ Ho1) as [_ [_ Hne']].
     destruct middle as [|m rest]; [contradiction|].
+    rewrite diamond_clause in Hbody by discriminate.
     destruct Hbody as [second [result [Hb [Ho2 Hbody]]]].
     assert (exists execution, overlap_list first second execution /\ overlap_list (s :: tail) execution result) as Hexecution.
     { apply overlap_list_assoc; exists (m :: rest); auto. }
@@ -657,7 +689,7 @@ Lemma diamond_choice a b body tr : tr <> [] ->
   (formula_holds (Diamond (Choice a b) body) tr <->
    formula_holds (Diamond a body) tr \/ formula_holds (Diamond b body) tr).
 Proof.
-  intro Hne; destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds program_holds].
+  intro Hne; rewrite !diamond_clause by exact Hne; destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds program_holds].
   split.
   - intros [execution [result [[Ha|Hb] [Ho Hbody]]]];
       [left|right]; exists execution, result; auto.
@@ -670,6 +702,7 @@ Lemma diamond_star a body tr : tr <> [] ->
    formula_holds (Diamond (Test Truth) body) tr \/ formula_holds (Diamond a (Diamond (Star a) body)) tr).
 Proof.
   intro Hne; rewrite <- diamond_sequence by exact Hne.
+  rewrite !diamond_clause by exact Hne.
   destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds program_holds].
   split.
   - intros [execution [result [[n Hn] [Ho Hbody]]]]. destruct n.
@@ -685,21 +718,7 @@ Qed.
 
 Lemma diamond_dual p a tr : tr <> [] ->
   (formula_holds (Diamond p a) tr <-> ~ formula_holds (Box p (Neg a)) tr).
-Proof.
-  intro Hne; destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds].
-  split.
-  - intros [execution [result [Hp [Ho Ha]]]] Hbox.
-    specialize (Hbox execution result Hp Ho).
-    destruct (overlap_nonempty _ _ _ Ho) as [_ [_ Hresult]].
-    destruct result; [contradiction|]. exact (Hbox Ha).
-  - intro Hbox; apply not_all_ex_not in Hbox as [execution Hbox].
-    apply not_all_ex_not in Hbox as [result Hbox].
-    assert (program_holds p execution /\ overlap (s :: tail) execution result /\
-      ~ formula_holds (Neg a) result) as [Hp [Ho Hbad]] by tauto.
-    exists execution, result; split; [exact Hp|]; split; [exact Ho|].
-    destruct (overlap_nonempty _ _ _ Ho) as [_ [_ Hresult]].
-    destruct result; [contradiction|]. cbn [formula_holds] in Hbad; tauto.
-Qed.
+Proof. intro Hne; destruct tr; cbn; tauto. Qed.
 
 (** Instantiate the test equations at evaluated labels. These forms match
     the literal label trees in RULE_EXPANSIONS.md, including both copies of
@@ -745,7 +764,7 @@ Proof.
 Qed.
 
 Lemma atom_head_label w u sigma body tag tag' :
-  (match body with Atom _ _ | BinaryAtom _ _ => true | _ => false end) = true ->
+  (match body with Atom _ => true | _ => false end) = true ->
   (labelled_holds w (Occ (Join (StateLabel u) sigma) body tag) <->
    labelled_holds w (Occ (StateLabel u) body tag')).
 Proof.
@@ -825,20 +844,7 @@ Proof. destruct tr; cbn; tauto. Qed.
     one-step law is obtained from suffix unfolding and classical logic. *)
 Lemma dual_suffix_dual a b tr : tr <> [] ->
   (formula_holds (DualSuffix a b) tr <-> ~ formula_holds (Suffix (Neg a) (Neg b)) tr).
-Proof.
-  intro Hne; destruct tr as [|s tail]; [contradiction|]; cbn [formula_holds].
-  assert ((exists small, proper_suffix small (s :: tail) /\ ~ formula_holds b small /\
-    forall middle, proper_suffix small middle -> proper_suffix middle (s :: tail) -> ~ formula_holds a middle) <->
-    (exists small, proper_suffix small (s :: tail) /\ formula_holds (Neg b) small /\
-    forall middle, proper_suffix small middle -> proper_suffix middle (s :: tail) -> formula_holds (Neg a) middle)) as H.
-  { split; intros [small [Hp [Hb Ha]]]; exists small; split; [exact Hp| |exact Hp|].
-    - split; [apply nonempty_neg; [exact (proj1 Hp)|exact Hb]|].
-      intros middle Hsm Hmt; apply nonempty_neg; [exact (proj1 Hmt)|eauto].
-    - split; [apply nonempty_neg in Hb; [exact Hb|exact (proj1 Hp)]|].
-      intros middle Hsm Hmt; specialize (Ha middle Hsm Hmt).
-      apply nonempty_neg in Ha; [exact Ha|exact (proj1 Hmt)]. }
-  tauto.
-Qed.
+Proof. intro Hne; destruct tr; cbn; tauto. Qed.
 
 Lemma dual_suffix_step s tail a b : tail <> [] ->
   (formula_holds (DualSuffix a b) (s :: tail) <->
@@ -941,7 +947,7 @@ Lemma relation_fresh w x value r :
   (forall l, In l (relation_labels r) -> ~ In x (label_world_names l)) ->
   (relation_holds (replace_world w x value) r <-> relation_holds w r).
 Proof.
-  destruct r as [a p source target|symbol args]; intro H; cbn [relation_holds].
+  destruct r as [a source target|symbol args]; intro H; cbn [relation_holds].
   - rewrite !eval_label_fresh; try reflexivity; apply H; cbn; auto.
   - assert (map (eval_label (replace_world w x value)) args = map (eval_label w) args) as ->.
     { apply map_ext_in; intros l Hin; apply eval_label_fresh, H; exact Hin. }
@@ -960,9 +966,9 @@ Qed.
     The atomic-trace law and [overlap_snoc] eliminate the execution/result
     witnesses. These equations are the common semantic basis of all four
     atomic-action rules; no unique successor is assumed. *)
-Lemma box_atomic prefix s action payload body :
-  formula_holds (Box (Atomic action payload) body) (prefix ++ [s]) <->
-  forall next, interpret_action M action payload s next ->
+Lemma box_atomic prefix s action body :
+  formula_holds (Box (Atomic action) body) (prefix ++ [s]) <->
+  forall next, interpret_action M action s next ->
     formula_holds body ((prefix ++ [s]) ++ [next]).
 Proof.
   assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
@@ -977,12 +983,13 @@ Proof.
     rewrite <- Htr in Ho; apply overlap_snoc in Ho as [-> ->].
     rewrite Htr; apply H; exact Hstep.
 Qed.
-Lemma diamond_atomic prefix s action payload body :
-  formula_holds (Diamond (Atomic action payload) body) (prefix ++ [s]) <->
-  exists next, interpret_action M action payload s next /\
+Lemma diamond_atomic prefix s action body :
+  formula_holds (Diamond (Atomic action) body) (prefix ++ [s]) <->
+  exists next, interpret_action M action s next /\
     formula_holds body ((prefix ++ [s]) ++ [next]).
 Proof.
   assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
+  rewrite diamond_clause by exact Hne.
   destruct (prefix ++ [s]) as [|head tail] eqn:Htr; [contradiction|].
   cbn [formula_holds]; split.
   - intros [execution [result [Hp [Ho Hbody]]]].

@@ -6,7 +6,7 @@ From CyclistRocq.LPL.Benchmarks.PPL Require Import Support.
 Import ListNotations.
 Module Safety := MakeSafety Machine.Language Machine.Syn Machine.Sem.
 Definition Inv (s : machine_state) := s<>Bad.
-Lemma actions_preserve action payload s t : interpret_action M action payload s t -> Inv s -> Inv t.
+Lemma actions_preserve action s t : interpret_action M action s t -> Inv s -> Inv t.
 Proof. intros Hstep Hsafe; exact (action_safe action s t Hsafe Hstep). Qed.
 Lemma every_program_safe p : trace_safe Inv (program_holds M p).
 Proof. exact (Safety.program_safe M Inv actions_preserve p). Qed.

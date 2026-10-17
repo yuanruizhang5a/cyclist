@@ -1,0 +1,27 @@
+{
+  "source": "TraceSafety.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "TraceSafety.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.38998516900028335,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "ebac21fbcde26d2cec0185f5e8cfca2113e313ba779a3770ce86cae29b75f782",
+  "dependency_sha256": {
+    "LPL/Signature.v": "22d08a481e4fd3009312bc720fc6e2fdfa9266fd73f4ad7ab1ee1897a917eb38",
+    "LPL/Syntax.v": "cb357ddcdb8e9c56d53604d09dc30921f8c7632149ef040cb02a47948ea9cc11",
+    "LPL/Semantics.v": "129b258d3ea5e9f35b50739413aeb222d3808f89dec5d7d45a94bf73cae4ac0f"
+  },
+  "log": "benchmark-logs/refine-20261017T162831466789Z/TraceSafety.v.txt"
+}

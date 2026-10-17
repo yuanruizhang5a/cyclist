@@ -59,7 +59,7 @@ Example wrong_companion_rejected :
   (Cyclic.run_script root [Cyclic.ApplyRule 0 exact;Cyclic.AddBacklink 1 1 exact]).(Cyclic.build_ok) = false.
 Proof. vm_compute; reflexivity. Qed.
 
-Definition relational_root := Rdg [action_relation Acquire tt 0 1] root.(antecedent) root.(succedent).
+Definition relational_root := Rdg [action_relation Acquire 0 1] root.(antecedent) root.(succedent).
 Definition forget_relation := requested relational_root (WeakenRelation 0) ltac:(vm_compute; reflexivity).
 Example relations_cannot_be_ignored_by_backlinks :
   (Cyclic.run_script relational_root [Cyclic.ApplyRule 0 forget_relation;Cyclic.AddBacklink 1 0 exact]).(Cyclic.build_ok) = false.
