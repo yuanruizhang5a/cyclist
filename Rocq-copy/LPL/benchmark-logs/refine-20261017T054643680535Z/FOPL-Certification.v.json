@@ -1,0 +1,27 @@
+{
+  "source": "FOPL/Certification.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Certification.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 2.0249855809961446,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "a82945ec2959d433ba4da2faddd1e2a0f2c776a5aabe712ee7b147a0714ee033",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/FOPL/Rules.v": "e170b3b711085537000313279bb6b690ab3edc274832c445457375fbbddd591a",
+    "LPL/Certification.v": "ae604b6b1868fbc37401ad6af08c2d90c82346d3c2a80a72dec4ddd97033aece"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Certification.v.txt"
+}

@@ -1,0 +1,28 @@
+{
+  "source": "FOPL/LegacyReference/Progress.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/LegacyReference/Progress.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.6462579880026169,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "6c4723708e571775d244c121f56846748cabdf2521576a73fad24da5e4a963e4",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/FOPL/LegacyReference/Syntax.v": "87be9e815bddcc5987879a4cc64e2b58084e3e848b19b1e8b8427860962f6ca5",
+    "LPL/FOPL/LegacyReference/Semantics.v": "dae1f950598d1520f262744a09116a5b51fb6ccbe22df778f21e6117adf088e8",
+    "Cyclic/Framework.v": "008c3becbbc3ed9c9d656c3eda10db11b545ef6d31082519aeabff38a68fec8b"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-LegacyReference-Progress.v.txt"
+}

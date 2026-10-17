@@ -1,6 +1,6 @@
 From Stdlib Require Import List Bool Arith Lia String Classical_Prop.
 
-From CyclistRocq.LPL Require Import Signature Rules.
+From CyclistRocq.LPL Require Import Signature Syntax Semantics Progress Rules.
 
 Import ListNotations.
 Open Scope string_scope.
@@ -22,12 +22,12 @@ Open Scope string_scope.
     graph representation and use the [rule_counter_step] theorem already
     stored in every LPL rule instance. *)
 
-Module MakeCertification (S : SIGNATURE) (Kernel : KERNEL S).
+Module MakeCertification (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn)
+  (Pr : PROGRESS L Syn Sem) (Kernel : KERNEL L Syn Sem Pr).
 (** These aliases share syntax, model and rule types with RuleGeneration.v.
     A graph can therefore contain the very rule records returned by that
     generator, with no translation or second kernel instantiation. *)
-Module Export Sem := Kernel.Core.Pr.Sem.
-Module Export Syn := Sem.Syn.
+Export Syn Sem.
 Module Export P := Kernel.P.
 Module Export K := Kernel.
 

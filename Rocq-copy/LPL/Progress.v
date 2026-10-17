@@ -16,12 +16,9 @@ From CyclistRocq.LPL Require Import Signature Syntax Semantics.
 From CyclistRocq.Cyclic Require Import Framework.
 Import ListNotations.
 
-Module MakeProgress (S : SIGNATURE).
-Module Export Sem := MakeSemantics S.
-
-Module ForModel (I : INTERPRETATION).
-(** Fix the model once for the framework instance. [trace] is just a local
-    abbreviation for the semantic state-list type at that model. *)
+Module MakeProgress (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn).
+Export Syn Sem.
+Module ForModel (I : Sem.INTERPRETATION).
 Definition M := I.interpretation.
 Definition trace := Sem.trace M.
 
@@ -210,23 +207,6 @@ Proof.
   exfalso; eapply Hshape; reflexivity.
 Qed.
 
-(** Assignments and tests have a unique execution-history shape: the old
-    accumulated trace followed by the trace with one appended state. For a
-    test the shape is available exactly when its guard holds on [s;s]. *)
-Lemma assignment_execution prefix s x t run :
-  execution_sequence (prefix ++ [s]) (Assign x t) run <->
-  run = [prefix ++ [s]; (prefix ++ [s]) ++ [write M s x (eval_term M s t)]].
-Proof.
-  split.
-  - intros [start [steps [result [[initial Heq] [_ [Ho Hrun]]]]]].
-    inversion Heq; subst start steps. apply overlap_snoc in Ho as [-> ->].
-    rewrite Hrun. reflexivity.
-  - intro Hrun. exists s, [write M s x (eval_term M s t)],
-      ((prefix ++ [s]) ++ [write M s x (eval_term M s t)]).
-    split; [exists s; reflexivity|]. split; [discriminate|].
-    split; [apply overlap_snoc; auto|exact Hrun].
-Qed.
-
 Lemma test_execution prefix s guard run :
   execution_sequence (prefix ++ [s]) (Test guard) run <->
   formula_holds M guard [s;s] /\ run = [prefix ++ [s]; (prefix ++ [s]) ++ [s]].
@@ -285,25 +265,6 @@ Proof.
     - apply (atomic_counterexample p tr next G body _ Hstep); eauto.
     - change (length tr + sequence_measure target_history = length tr + minimum_counterexample body next). now rewrite Htarget_measure. }
   change (length tr + sequence_measure rest = minimum_counterexample (Box p body) tr) in Hmeasure. lia.
-Qed.
-
-(** Removing this positive [length tr] contribution proves strict descent.
-    Notice that the premise label retains both old and new states: the rank
-    argument is about counterexample histories, not about shortening that
-    label or pretending an assignment has a singleton execution. *)
-Lemma assignment_decrease prefix s x t body :
-  ~ formula_holds M (Box (Assign x t) body) (prefix ++ [s]) ->
-  minimum_counterexample body ((prefix ++ [s]) ++ [write M s x (eval_term M s t)]) <
-  minimum_counterexample (Box (Assign x t) body) (prefix ++ [s]).
-Proof.
-  intro Hfalse.
-  assert (prefix ++ [s] <> []) as Htr by (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  assert ((prefix ++ [s]) ++ [write M s x (eval_term M s t)] <> []) as Hnext
-    by (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  assert (forall run, execution_sequence (prefix ++ [s]) (Assign x t) run <-> True /\ run = [prefix ++ [s]; (prefix ++ [s]) ++ [write M s x (eval_term M s t)]]) as Hstep.
-  { intro run. rewrite assignment_execution. tauto. }
-  destruct (atomic_minimum (Assign x t) (prefix ++ [s]) ((prefix ++ [s]) ++ [write M s x (eval_term M s t)]) True body Htr Hnext Hstep Hfalse) as [_ [_ Hrank]].
-  destruct prefix; cbn in *; lia.
 Qed.
 
 Lemma test_decrease prefix s guard body :
@@ -495,77 +456,6 @@ Proof.
   cbn; lia.
 Qed.
 
-(** ** Rank preservation for fresh eigenvariables
-
-    Lift Semantics.v's reversible state switch to every state of every
-    history component. It transports executions and failures without changing
-    list lengths. Equal sets of possible measures then give equal minima,
-    including the documented fallback if both sets are empty. *)
-Section CounterSwitch.
-Context (v : nat) (f : domain M -> domain M) (Hf : forall d, f (f d) = d).
-Let T := switch M v f.
-Let HT := switch_involutive M v f Hf.
-Definition map_history := map (map T).
-
-Lemma history_switch tr rest :
-  map_history (execution_history tr rest) = execution_history (map T tr) (map T rest).
-Proof.
-  revert tr; induction rest as [|s rest IH]; intro tr; cbn [map_history execution_history map]; [reflexivity|].
-  rewrite IH, map_app; reflexivity.
-Qed.
-
-Lemma last_map_history history : last (map_history history) [] = map T (last history []).
-Proof.
-  induction history as [|tr history IH]; [reflexivity|].
-  destruct history; cbn [map_history map last] in *; assumption || reflexivity.
-Qed.
-
-Lemma execution_switch tr p history : ~ In v (program_vars p) ->
-  execution_sequence tr p history -> execution_sequence (map T tr) p (map_history history).
-Proof.
-  intros Hfresh [s [rest [result [Hp [Hrest [Ho ->]]]]]].
-  exists (T s), (map T rest), (map T result); split.
-  - exact (proj2 (proj2 (switch_semantics M v f Hf) p Hfresh (s :: rest)) Hp).
-  - split.
-    + intro H; apply map_eq_nil in H; contradiction.
-    + split; [exact (overlap_list_map T _ _ _ Ho)|apply history_switch].
-Qed.
-
-Lemma counterexample_switch_forward a : ~ In v (formula_vars a) -> forall tr history,
-  counterexample a tr history -> counterexample a (map T tr) (map_history history).
-Proof.
-  induction a; intros Hfresh tr history Hce; cbn [counterexample] in *;
-    try solve [destruct Hce as [Hbad ->]; split; [intro H; apply Hbad;
-      exact (proj1 (proj1 (switch_semantics M v f Hf) _ Hfresh tr) H)|reflexivity]].
-  assert (~ In v (program_vars p)) as Hp by (intro H; apply Hfresh; apply in_app_iff; auto).
-  assert (~ In v (formula_vars a)) as Ha by (intro H; apply Hfresh; apply in_app_iff; auto).
-  destruct Hce as [run [final [rest [Hrun [Hlast [Hrest Ho]]]]]].
-  exists (map_history run), (map T final), (map_history rest); split.
-  - apply execution_switch; assumption.
-  - split; [rewrite last_map_history; exact (f_equal (map T) Hlast)|]. split; [apply IHa; assumption|].
-    exact (overlap_list_map (map T) _ _ _ Ho).
-Qed.
-
-Lemma map_history_measure history : sequence_measure (map_history history) = sequence_measure history.
-Proof.
-  induction history; cbn [map_history map sequence_measure] in *; [reflexivity|].
-  change (length (map T a) + sequence_measure (map_history history) = length a + sequence_measure history).
-  rewrite length_map, IHhistory; reflexivity.
-Qed.
-
-Lemma measure_switch a tr n : ~ In v (formula_vars a) ->
-  (measure_possible a (map T tr) n <-> measure_possible a tr n).
-Proof.
-  intro Hfresh; split; intros [history [Hce Hmeasure]]; exists (map_history history); split.
-  - pose proof (counterexample_switch_forward a Hfresh _ _ Hce) as H.
-    rewrite (map_involutive T HT tr) in H; exact H.
-  - now rewrite map_history_measure.
-  - apply counterexample_switch_forward; assumption.
-  - now rewrite map_history_measure.
-Qed.
-
-End CounterSwitch.
-
 Lemma minimum_extensional a tr b tr' :
   (forall n, measure_possible a tr n <-> measure_possible b tr' n) ->
   minimum_counterexample a tr = minimum_counterexample b tr'.
@@ -581,13 +471,59 @@ Proof.
       [contradiction|reflexivity].
 Qed.
 
-Lemma minimum_switch v f (Hf : forall d, f (f d) = d) a tr : ~ In v (formula_vars a) ->
-  minimum_counterexample a (map (switch M v f) tr) = minimum_counterexample a tr.
-Proof. intro Hfresh; apply minimum_extensional; intro n; apply (measure_switch v f Hf); exact Hfresh. Qed.
-(** Turn semantic formula ranks into the interface expected by the graph
-    framework. A well-formed succedent has unique tags, so looking up a tag
-    identifies one occurrence. The empty-list fallback only totalizes lookup;
-    it is not a substitute for proving decrease on real trace elements. *)
+(** Each atomic action contributes one new state; all possible
+    successors remain available in the relational model. *)
+Lemma atomic_execution prefix s action payload run :
+  execution_sequence (prefix ++ [s]) (Atomic action payload) run <->
+  exists next, interpret_action M action payload s next /\
+    run = [prefix ++ [s]; (prefix ++ [s]) ++ [next]].
+Proof.
+  split.
+  - intros [start [steps [result [Hp [_ [Ho Hrun]]]]]].
+    cbn [program_holds] in Hp; apply atomic_trace_law in Hp.
+    destruct Hp as [initial [next [Heq Hstep]]].
+    inversion Heq; subst start steps. apply overlap_snoc in Ho as [-> ->].
+    exists next; split; [exact Hstep|]. rewrite Hrun; reflexivity.
+  - intros [next [Hstep Hrun]].
+    exists s, [next], ((prefix ++ [s]) ++ [next]); split.
+    + cbn [program_holds]; apply atomic_trace_law; exists s, next; auto.
+    + split; [discriminate|]. split; [apply overlap_snoc; auto|exact Hrun].
+Qed.
+
+(** A minimizing source counterexample selects ONE successor. Picking an
+    unrelated successor would not establish this inequality. *)
+Lemma atomic_minimum_successor prefix s action payload body :
+  ~ formula_holds M (Box (Atomic action payload) body) (prefix ++ [s]) ->
+  exists next, interpret_action M action payload s next /\
+    ~ formula_holds M body ((prefix ++ [s]) ++ [next]) /\
+    minimum_counterexample body ((prefix ++ [s]) ++ [next]) <
+    minimum_counterexample (Box (Atomic action payload) body) (prefix ++ [s]).
+Proof.
+  intro Hfalse.
+  assert (prefix ++ [s] <> []) as Htr by (intro H; apply app_eq_nil in H; destruct H; discriminate).
+  destruct (minimum_spec _ _ (false_minimum_exists _ _ Htr Hfalse)) as [[history [Hce Hmeasure]] Hleast].
+  cbn [counterexample] in Hce.
+  destruct Hce as [run [final [rest [Hrun [Hfinal [Hrest Hjoin]]]]]].
+  apply atomic_execution in Hrun as [next [Hstep ->]].
+  cbn in Hfinal; subst final.
+  assert ((prefix ++ [s]) ++ [next] <> []) as Hnext by (intro H; apply app_eq_nil in H; destruct H; discriminate).
+  pose proof (counterexample_false _ _ _ Hnext Hrest) as Hbad.
+  destruct (counterexample_head _ _ _ Hrest) as [tail Hhead].
+  rewrite Hhead in Hjoin.
+  change (overlap_list ([prefix ++ [s]] ++ [(prefix ++ [s]) ++ [next]])
+    (((prefix ++ [s]) ++ [next]) :: tail) history) in Hjoin.
+  apply overlap_list_snoc in Hjoin as [_ Hhistory].
+  assert (history = (prefix ++ [s]) :: rest) as ->.
+  { rewrite Hhead, Hhistory; reflexivity. }
+  destruct (minimum_spec _ _ (false_minimum_exists _ _ Hnext Hbad)) as [_ Htarget].
+  assert (minimum_counterexample body ((prefix ++ [s]) ++ [next]) <= sequence_measure rest) as Hbound.
+  { apply Htarget; exists rest; auto. }
+  exists next; split; [exact Hstep|]. split; [exact Hbad|].
+  change (length (prefix ++ [s]) + sequence_measure rest =
+    minimum_counterexample (Box (Atomic action payload) body) (prefix ++ [s])) in Hmeasure.
+  rewrite length_app in Hmeasure; cbn in Hmeasure; lia.
+Qed.
+
 Definition occurrence_rank (o : occurrence) (w : world M) :=
   minimum_counterexample o.(occurrence_formula) (eval_label M w o.(occurrence_label)).
 
@@ -631,4 +567,10 @@ End LPLTheory.
 Module Cyclic := Framework.Make LPLTheory.
 
 End ForModel.
+Module Type MODEL (I : Sem.INTERPRETATION).
+  Include ForModel I.
+End MODEL.
 End MakeProgress.
+Module Type PROGRESS (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn).
+  Include MakeProgress L Syn Sem.
+End PROGRESS.

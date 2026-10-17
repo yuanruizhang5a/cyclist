@@ -1,0 +1,23 @@
+{
+  "source": "Signature.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Signature.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.14396092099923408,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "9746c32c7ab04b5833b87365db18201fca8718e6b84af5608dab190ce98280ee",
+  "dependency_sha256": {},
+  "log": "benchmark-logs/refine-20261017T054643680535Z/Signature.v.txt"
+}

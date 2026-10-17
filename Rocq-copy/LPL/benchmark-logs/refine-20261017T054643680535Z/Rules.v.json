@@ -1,0 +1,28 @@
+{
+  "source": "Rules.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Rules.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 1.8758445669955108,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "daaec8e8b60eabeb00cba458ece388ee4f173a9e2e86fc710553045533fa8ecb",
+  "dependency_sha256": {
+    "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad",
+    "LPL/Syntax.v": "81f7fc9a15ac6a39ece68af0357ca2f2859de4892a5e1a9349ec5fb003b439c1",
+    "LPL/Semantics.v": "5b1bc1a8c7f91c358030e67301700a71ad98e236e985f30a5f5ffecb0d6397a9",
+    "LPL/Progress.v": "e454a61c2d1d31ad788892d34a7f9b73883ba825b8924e8f88d1200479924061"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/Rules.v.txt"
+}

@@ -1,76 +1,99 @@
-# LPL benchmark results
+# Refinement benchmark results
 
-UTC run: `20261016T172216122771Z`. **15/15 units passed.**
+UTC run `20261017T054643680535Z`: **29/29 attempted units passed**.
+
+Every unit was compiled with `timeout --signal=KILL 600s` after its dependencies. These records describe this run only; earlier reports/logs are historical evidence.
 
 ```text
 The Rocq Prover, version 9.1.0
 compiled with OCaml 4.14.1
 ```
 
-Common dependencies: `make lpl-common`, exit 0, 0.002s.
-Every isolated benchmark uses `timeout --signal=KILL 600s`; the limit is never increased.
+| Suite | Unit | Seconds | Exit | Proof mode | Output / assumptions |
+| --- | --- | ---: | ---: | --- | --- |
+| fopl | Labels | 0.731 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Labels.v.txt) |
+| fopl | Signatures | 13.878 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Signatures.v.txt) |
+| fopl | Updates | 0.676 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Updates.v.txt) |
+| fopl | Tests | 0.765 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Tests.v.txt) |
+| fopl | RegularPrograms | 0.778 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-RegularPrograms.v.txt) |
+| fopl | Booleans | 0.726 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Booleans.v.txt) |
+| fopl | Quantifiers | 0.744 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Quantifiers.v.txt) |
+| fopl | Temporal | 0.746 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Temporal.v.txt) |
+| fopl | AssignmentChange | 0.752 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-AssignmentChange.v.txt) |
+| fopl | RuleCoverage | 1.343 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-RuleCoverage.v.txt) |
+| fopl | CheckerNegative | 0.505 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CheckerNegative.v.txt) |
+| fopl | Cyclic | 1.122 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Cyclic.v.txt) |
+| fopl | CyclicTags | 1.335 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CyclicTags.v.txt) |
+| fopl | CounterLoop | 0.868 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-CounterLoop.v.txt) |
+| fopl | NestedProgram | 6.726 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-NestedProgram.v.txt) |
+| ppl | Instances | 1.069 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Instances.v.txt) |
+| ppl | LabelsRelations | 0.239 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-LabelsRelations.v.txt) |
+| ppl | AtomicActions | 1.104 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-AtomicActions.v.txt) |
+| ppl | Nondeterminism | 0.746 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Nondeterminism.v.txt) |
+| ppl | Booleans | 0.446 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Booleans.v.txt) |
+| ppl | Tests | 0.450 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Tests.v.txt) |
+| ppl | RegularPrograms | 0.412 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-RegularPrograms.v.txt) |
+| ppl | Temporal | 0.418 | 0 | semantic proof / generated certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Temporal.v.txt) |
+| ppl | RuleCoverage | 0.920 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-RuleCoverage.v.txt) |
+| ppl | CheckerNegative | 0.259 | 0 | syntax / rule / checker checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-CheckerNegative.v.txt) |
+| ppl | Cyclic | 0.862 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-Cyclic.v.txt) |
+| ppl | CyclicTags | 1.076 | 0 | cyclic certificate | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-CyclicTags.v.txt) |
+| ppl | SafetySystem | 0.451 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-SafetySystem.v.txt) |
+| ppl | NestedProgram | 0.671 | 0 | semantic proof / instance checks | [log](benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-NestedProgram.v.txt) |
 
-| Unit | Seconds | Exit | Evidence | Compiler output / assumptions |
-| --- | ---: | ---: | --- | --- |
-| Labels | 0.469 | 0 | D1/D4, units, differing states, overlap; 1-node certificate | [log](benchmark-logs/20261016T172216122771Z/Labels.txt) |
-| Signatures | 6.953 | 0 | arbitrary models and independent Boolean signature; leaf certificates | [log](benchmark-logs/20261016T172216122771Z/Signatures.txt) |
-| Updates | 0.456 | 0 | identity, changed/dependent assignments, intermediate states; pure certificate | [log](benchmark-logs/20261016T172216122771Z/Updates.txt) |
-| Tests | 0.531 | 0 | successful/failed and trace-sensitive tests; 2-node certificate | [log](benchmark-logs/20261016T172216122771Z/Tests.txt) |
-| RegularPrograms | 0.456 | 0 | sequence, choice, zero/one/nested finite iteration; semantic validity | [log](benchmark-logs/20261016T172216122771Z/RegularPrograms.txt) |
-| Booleans | 0.551 | 0 | mixed modal Boolean formula; 3-node certificate | [log](benchmark-logs/20261016T172216122771Z/Booleans.txt) |
-| Quantifiers | 0.526 | 0 | capture avoidance, shadowing, eigenvariables; 2-node certificate | [log](benchmark-logs/20261016T172216122771Z/Quantifiers.txt) |
-| Temporal | 0.470 | 0 | immediate/postponed suffix, dual, first, next-at-end, sum measure; certificate | [log](benchmark-logs/20261016T172216122771Z/Temporal.txt) |
-| AssignmentChange | 0.534 | 0 | changed next-state value; 6-node certificate, 1 distinct tag | [log](benchmark-logs/20261016T172216122771Z/AssignmentChange.txt) |
-| RuleCoverage | 1.014 | 0 | 50 exact rule/request premise shapes, positive/negative syntax checks | [log](benchmark-logs/20261016T172216122771Z/RuleCoverage.txt) |
-| CheckerNegative | 0.344 | 0 | open/dangling/mismatched graphs, absent tags, closed nonprogressing cycle | [log](benchmark-logs/20261016T172216122771Z/CheckerNegative.txt) |
-| Cyclic | 0.744 | 0 | 11-node star cycle, real backlink, 1 distinct tag, explicit potential | [log](benchmark-logs/20261016T172216122771Z/Cyclic.txt) |
-| CyclicTags | 0.904 | 0 | 12-node star cycle, explicit tag-renaming backlink, 2 distinct tags | [log](benchmark-logs/20261016T172216122771Z/CyclicTags.txt) |
-| CounterLoop | 0.582 | 0 | guarded integer decrement loop, every visited state and finite stopping point | [log](benchmark-logs/20261016T172216122771Z/CounterLoop.txt) |
-| NestedProgram | 2.859 | 0 | nested sequence/choice/star, arbitrary uninterpreted predicate of unchanged variable | [log](benchmark-logs/20261016T172216122771Z/NestedProgram.txt) |
+## Checked coverage and graph sizes
+
+| Suite | Unit | Premise-shape examples | Graph/tag measurements |
+| --- | --- | ---: | --- |
+| fopl | AssignmentChange | 0 | distinct_tag_count=1, graph_size=6 |
+| fopl | RuleCoverage | 50 |  |
+| fopl | Cyclic | 0 | graph_size=11, distinct_tag_count=1 |
+| fopl | CyclicTags | 0 | graph_size=12, distinct_tag_count=2 |
+| ppl | AtomicActions | 0 | br_graph_nodes=4, br_tag_count=0, bl_graph_nodes=2, bl_tag_count=0, dr_graph_nodes=2, dr_tag_count=0, dl_graph_nodes=4, dl_tag_count=0 |
+| ppl | RuleCoverage | 53 |  |
+| ppl | Cyclic | 0 | graph_size=12, distinct_tag_count=1 |
+| ppl | CyclicTags | 0 | graph_size=13, distinct_tag_count=2 |
 
 ## Commands
 
-Commands ran from `Rocq-copy/`, after compiling common dependencies.
+Commands ran from `Rocq-copy/LPL/`.
 
 ```sh
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Labels.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Signatures.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Updates.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Tests.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/RegularPrograms.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Booleans.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Quantifiers.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Temporal.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/AssignmentChange.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/RuleCoverage.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/CheckerNegative.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/Cyclic.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/CyclicTags.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/CounterLoop.v
-timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LPL/Benchmarks/NestedProgram.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Labels.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Signatures.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Updates.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Tests.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/RegularPrograms.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Booleans.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Quantifiers.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Temporal.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/AssignmentChange.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/RuleCoverage.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/CheckerNegative.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/Cyclic.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/CyclicTags.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/CounterLoop.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob FOPL/Benchmarks/NestedProgram.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/Instances.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/LabelsRelations.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/AtomicActions.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/Nondeterminism.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/Booleans.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/Tests.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/RegularPrograms.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/Temporal.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/RuleCoverage.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/CheckerNegative.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/Cyclic.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/CyclicTags.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/SafetySystem.v
+timeout --signal=KILL 600s rocq compile -Q .. CyclistRocq -noglob Benchmarks/PPL/NestedProgram.v
 ```
 
-## Scope and assumptions
+## Evidence and limits
 
-All requested primitive/derived rule families are implemented; generators return proof-backed records and check object syntax, conclusions, and edge endpoints. RuleCoverage checks 50 exact premise lists, including non-head positions and the empty context-only weakening premise. Pure goals stop at the caller-supplied proof boundary.
+The source hashes and dependency hashes are retained in the JSON report. `Print Assumptions` output is in each compiler log; exported names are also listed in JSON. The JSON records admissibility, antecedent, relation, and execution example statements as nonvacuity evidence, retaining their conditions and negative cases. Concrete checker computations and semantic examples are distinguished from validity theorems in the source.
 
-Cyclic and CyclicTags are actual star cycles with explicit finite tag/potential witnesses. They preserve a first-state observation. CounterLoop and NestedProgram separately prove properties of **every visited state**, over arbitrary finite iterations; these two complex invariants are direct semantic proofs, not cyclic graph certificates. No claim of mandatory loop exit is made.
+Cyclic/CyclicTags require real backlinks and explicit finite tag/potential witnesses. The complex all-visited-state invariants use direct semantic proofs. The framework selects at most one tag per node; acceptance of every manuscript preproof is not claimed.
 
-Print Assumptions output is retained in the linked logs. The union for concrete exported theorems and representative rule/certification kernels consists only of standard-library classical excluded middle, definite/indefinite description, and functional extensionality. No project-defined soundness axioms or admitted proofs are used. Signature/model parameters in the abstract-model functors are explicit parameters, not soundness assumptions.
-
-The framework witness is conservative: it chooses at most one tag per node. Acceptance of every manuscript preproof is not claimed. No proof search, witness discovery, external solver, or project FirstOrder/LTL imports are present.
-
-## Development timeout and simplification
-
-An initial Cyclic.v run hit the 600-second limit (exit 137) while kernel conversion compared an entire proof-carrying backlink record in an auxiliary existential example. That auxiliary check was replaced with a Boolean check of the node payload and companion index. The real backlink, star graph, semantic rules, certificate, and validity theorem were retained. The final timed run is reported above. No expensive obligation was retried with a larger limit.
-
-## Immutable framework
-
-```text
-Cyclic/Framework.v  b9f93e89931a196bb1d2f7649f240cb65920ed972fa02a2ae4af46a2e7a3ce02
-Cyclic/Relations.v  85f1f25747e3eb661f24f50b6a9e6aae3cbcb173169bb7bfb6d06ac7addeb90f
-```
-
-The complete Cyclic directory also matched the pre-implementation file manifest during the implementation audit.
-
-See [VALIDATION.md](VALIDATION.md) for the independent kernel check, existing-theory regressions, and source-scope audit.
+T1 is resolved by the user: tests evaluate their guard on `[s; s]`. No benchmark is allowed to increase the 600-second cap. Failed/timed-out cases remain failures in this record.

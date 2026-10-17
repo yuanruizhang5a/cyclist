@@ -1,122 +1,131 @@
 #!/usr/bin/env python3
-"""Compile isolated LPL benchmarks with an unconditional 600-second limit.
-
-Run from Rocq-copy with `make lpl-benchmarks`. Common dependencies are built
-first. This is a build/report utility, not an object-logic proof-search driver.
-It preserves compiler output in timestamped directories and deletes no files.
-"""
+"""Run both process-logic suites with a hard 600-second limit per unit."""
 from __future__ import annotations
-
 import argparse
 from datetime import datetime, timezone
-import hashlib
 import json
 from pathlib import Path
-import shlex
+import re
 import subprocess
-import time
-
-ROOT = Path(__file__).resolve().parent.parent
-BENCHMARKS = [
-    ("Labels", "D1/D4, units, differing states, overlap; 1-node certificate"),
-    ("Signatures", "arbitrary models and independent Boolean signature; leaf certificates"),
-    ("Updates", "identity, changed/dependent assignments, intermediate states; pure certificate"),
-    ("Tests", "successful/failed and trace-sensitive tests; 2-node certificate"),
-    ("RegularPrograms", "sequence, choice, zero/one/nested finite iteration; semantic validity"),
-    ("Booleans", "mixed modal Boolean formula; 3-node certificate"),
-    ("Quantifiers", "capture avoidance, shadowing, eigenvariables; 2-node certificate"),
-    ("Temporal", "immediate/postponed suffix, dual, first, next-at-end, sum measure; certificate"),
-    ("AssignmentChange", "changed next-state value; 6-node certificate, 1 distinct tag"),
-    ("RuleCoverage", "50 exact rule/request premise shapes, positive/negative syntax checks"),
-    ("CheckerNegative", "open/dangling/mismatched graphs, absent tags, closed nonprogressing cycle"),
-    ("Cyclic", "11-node star cycle, real backlink, 1 distinct tag, explicit potential"),
-    ("CyclicTags", "12-node star cycle, explicit tag-renaming backlink, 2 distinct tags"),
-    ("CounterLoop", "guarded integer decrement loop, every visited state and finite stopping point"),
-    ("NestedProgram", "nested sequence/choice/star, arbitrary uninterpreted predicate of unchanged variable"),
-]
-FRAMEWORK_HASHES = {
-    "Cyclic/Framework.v": "b9f93e89931a196bb1d2f7649f240cb65920ed972fa02a2ae4af46a2e7a3ce02",
-    "Cyclic/Relations.v": "85f1f25747e3eb661f24f50b6a9e6aae3cbcb173169bb7bfb6d06ac7addeb90f",
-}
+from build import Builder, BuildFailure, HERE, ROOT, FOPL_BENCHMARKS, PPL_BENCHMARKS, inside, digest
 
 
-def run(command: list[str]) -> tuple[subprocess.CompletedProcess[str], float]:
-    start = time.monotonic()
-    result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, check=False)
-    return result, time.monotonic() - start
+def proof_mode(suite: str, name: str) -> str:
+    if name in ('Cyclic', 'CyclicTags'):
+        return 'cyclic certificate'
+    if name in ('CounterLoop', 'NestedProgram', 'SafetySystem', 'Nondeterminism', 'RegularPrograms', 'Instances'):
+        return 'semantic proof / instance checks'
+    if name in ('RuleCoverage', 'CheckerNegative', 'LabelsRelations'):
+        return 'syntax / rule / checker checks'
+    return 'semantic proof / generated certificate'
+
+
+def execution_evidence(source_text: str) -> list[dict]:
+    """Record checked statements, retaining conditional and negative cases."""
+    statements = re.findall(
+        r'\b(?:Example|Lemma|Theorem)\s+(\w+)\b(.*?)\.\s*Proof\.',
+        source_text, flags=re.DOTALL)
+    return [{'name': name, 'statement': ' '.join(statement.split())}
+            for name, statement in statements
+            if re.search(r'\b(?:admissible|left_holds|relations_hold|program_holds)\b', statement)]
+
+
+def write_reports(report: Path, stamp: str, version: str, records: list[dict], common: list[dict],
+                  common_failure: dict | None = None):
+    passed = sum(r['exit_status'] == 0 for r in records)
+    manifest = {'run_utc': stamp, 'compiler': version, 'benchmark_limit_seconds': 600,
+                'status': 'failed' if common_failure or passed != len(records) else 'passed',
+                'common_failure': common_failure,
+                'common_build': common, 'benchmarks': records,
+                'source_sha256': {str(p.relative_to(HERE)): digest(p)
+                                  for p in HERE.rglob('*.v') if '.build' not in p.parts},
+                'immutable_framework_sha256': {n: digest(ROOT / n)
+                    for n in ('Cyclic/Framework.v', 'Cyclic/Relations.v')}}
+    report.with_suffix('.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    outcome = ('**common build failed; benchmarks were not run**' if common_failure else
+               f'**{passed}/{len(records)} attempted units passed**')
+    lines = ['# Refinement benchmark results', '', f'UTC run `{stamp}`: {outcome}.', '',
+             'Every unit was compiled with `timeout --signal=KILL 600s` after its dependencies. '
+             'These records describe this run only; earlier reports/logs are historical evidence.', '',
+             '```text', version, '```', '',
+             '| Suite | Unit | Seconds | Exit | Proof mode | Output / assumptions |',
+             '| --- | --- | ---: | ---: | --- | --- |']
+    for r in records:
+        lines.append(f"| {r['suite']} | {r['benchmark']} | {r.get('elapsed_seconds', 0):.3f} | "
+                     f"{r['exit_status']} | {r['proof_mode']} | [log]({r['log']}) |")
+    lines += ['', '## Checked coverage and graph sizes', '',
+              '| Suite | Unit | Premise-shape examples | Graph/tag measurements |',
+              '| --- | --- | ---: | --- |']
+    for r in records:
+        if r['checked_premise_shape_examples'] or r['checked_graph_metrics']:
+            measurements = ', '.join(f'{key}={value}' for key, value in r['checked_graph_metrics'].items())
+            lines.append(f"| {r['suite']} | {r['benchmark']} | {r['checked_premise_shape_examples']} | {measurements} |")
+    lines += ['', '## Commands', '', 'Commands ran from `Rocq-copy/LPL/`.', '', '```sh']
+    import shlex
+    lines += [shlex.join(r['command']) for r in records]
+    lines += ['```', '', '## Evidence and limits', '',
+              'The source hashes and dependency hashes are retained in the JSON report. '
+              '`Print Assumptions` output is in each compiler log; exported names are also listed in JSON. '
+              'The JSON records admissibility, antecedent, relation, and execution example statements '
+              'as nonvacuity evidence, retaining their conditions and negative cases. '
+              'Concrete checker computations and semantic examples are distinguished from validity theorems in the source.', '',
+              'Cyclic/CyclicTags require real backlinks and explicit finite tag/potential witnesses. '
+              'The complex all-visited-state invariants use direct semantic proofs. '
+              'The framework selects at most one tag per node; acceptance of every manuscript preproof is not claimed.', '',
+              'T1 is resolved by the user: tests evaluate their guard on `[s; s]`. '
+              'No benchmark is allowed to increase the 600-second cap. Failed/timed-out cases remain failures in this record.', '']
+    report.write_text('\n'.join(lines))
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report", type=Path, default=ROOT / "LPL/BENCHMARK_RESULTS.md")
+    parser.add_argument('--suite', choices=['fopl', 'ppl', 'all'], default='all')
+    parser.add_argument('--report', type=Path, default=HERE / 'BENCHMARK_RESULTS.md')
     args = parser.parse_args()
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    logs = ROOT / "LPL/benchmark-logs" / stamp
-    logs.mkdir(parents=True, exist_ok=False)
-    version = subprocess.run(["rocq", "--version"], cwd=ROOT, text=True,
-                             stdout=subprocess.PIPE, check=True).stdout.strip()
-    actual_hashes = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                     for name in FRAMEWORK_HASHES}
-    if actual_hashes != FRAMEWORK_HASHES:
-        raise SystemExit("Immutable Cyclic source hashes differ from the agreed baseline.")
-    common_command = ["make", "lpl-common"]
-    common, common_elapsed = run(common_command)
-    (logs / "common.txt").write_text(common.stdout)
-    if common.returncode:
-        print(common.stdout, end="")
-        return common.returncode
+    report = inside(args.report)
+    report.parent.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    logs = HERE / 'benchmark-logs' / ('refine-' + stamp)
+    logs.mkdir(parents=True)
+    version = subprocess.run(['rocq', '--version'], text=True, stdout=subprocess.PIPE, check=True).stdout.strip()
+    builder = Builder(logs)
+    try:
+        common = builder.common()
+    except (BuildFailure, RuntimeError, FileNotFoundError) as error:
+        print(error)
+        (logs / 'CommonFailure.txt').write_text(str(error) + '\n')
+        failure = dict(getattr(error, 'record', {}), message=str(error),
+                       failure_log=str((logs / 'CommonFailure.txt').relative_to(HERE)))
+        write_reports(report, stamp, version, [], [], common_failure=failure)
+        return 1
     records = []
-    for name, evidence in BENCHMARKS:
-        source = f"LPL/Benchmarks/{name}.v"
-        command = ["timeout", "--signal=KILL", "600s", "rocq", "compile", "-Q", ".", "CyclistRocq", source]
-        result, elapsed = run(command)
-        (logs / f"{name}.txt").write_text(result.stdout)
-        records.append({"benchmark": name, "source": source, "command": command,
-                        "elapsed_seconds": elapsed, "exit_status": result.returncode,
-                        "evidence": evidence,
-                        "source_sha256": hashlib.sha256((ROOT / source).read_bytes()).hexdigest(),
-                        "log": str((logs / f"{name}.txt").relative_to(ROOT / "LPL"))})
-        print(f"{name}: exit {result.returncode}, {elapsed:.3f}s", flush=True)
-        if result.returncode:
-            print(result.stdout, end="", flush=True)
-    passed = sum(row["exit_status"] == 0 for row in records)
-    lines = ["# LPL benchmark results", "", f"UTC run: `{stamp}`. **{passed}/{len(records)} units passed.**", "",
-             "```text", version, "```", "",
-             f"Common dependencies: `{shlex.join(common_command)}`, exit {common.returncode}, {common_elapsed:.3f}s.",
-             "Every isolated benchmark uses `timeout --signal=KILL 600s`; the limit is never increased.", "",
-             "| Unit | Seconds | Exit | Evidence | Compiler output / assumptions |",
-             "| --- | ---: | ---: | --- | --- |"]
-    for row in records:
-        lines.append(f"| {row['benchmark']} | {row['elapsed_seconds']:.3f} | {row['exit_status']} | "
-                     f"{row['evidence']} | [log]({row['log']}) |")
-    lines += ["", "## Commands", "", "Commands ran from `Rocq-copy/`, after compiling common dependencies.", "", "```sh"]
-    lines += [shlex.join(row["command"]) for row in records]
-    lines += ["```", "", "## Scope and assumptions", "",
-              "All requested primitive/derived rule families are implemented; generators return proof-backed records and check object syntax, conclusions, and edge endpoints. RuleCoverage checks 50 exact premise lists, including non-head positions and the empty context-only weakening premise. Pure goals stop at the caller-supplied proof boundary.", "",
-              "Cyclic and CyclicTags are actual star cycles with explicit finite tag/potential witnesses. They preserve a first-state observation. CounterLoop and NestedProgram separately prove properties of **every visited state**, over arbitrary finite iterations; these two complex invariants are direct semantic proofs, not cyclic graph certificates. No claim of mandatory loop exit is made.", "",
-              "Print Assumptions output is retained in the linked logs. The union for concrete exported theorems and representative rule/certification kernels consists only of standard-library classical excluded middle, definite/indefinite description, and functional extensionality. No project-defined soundness axioms or admitted proofs are used. Signature/model parameters in the abstract-model functors are explicit parameters, not soundness assumptions.", "",
-              "The framework witness is conservative: it chooses at most one tag per node. Acceptance of every manuscript preproof is not claimed. No proof search, witness discovery, external solver, or project FirstOrder/LTL imports are present.", "",
-              "## Development timeout and simplification", "",
-              "An initial Cyclic.v run hit the 600-second limit (exit 137) while kernel conversion compared an entire proof-carrying backlink record in an auxiliary existential example. That auxiliary check was replaced with a Boolean check of the node payload and companion index. The real backlink, star graph, semantic rules, certificate, and validity theorem were retained. The final timed run is reported above. No expensive obligation was retried with a larger limit.", "",
-              "## Immutable framework", "", "```text"]
-    lines += [f"{name}  {digest}" for name, digest in actual_hashes.items()]
-    lines += ["```", "", "The complete Cyclic directory also matched the pre-implementation file manifest during the implementation audit.", "",
-              "See [VALIDATION.md](VALIDATION.md) for the independent kernel check, existing-theory regressions, and source-scope audit.", ""]
-    args.report.parent.mkdir(parents=True, exist_ok=True)
-    args.report.write_text("\n".join(lines))
-    common_sources = sorted((ROOT / "LPL").glob("*.v")) + [
-        ROOT / "LPL/Benchmarks/Support.v", ROOT / "LPL/Benchmarks/InvariantSupport.v"]
-    manifest = {"run_utc": stamp, "compiler": version,
-                "common_command": common_command, "common_exit_status": common.returncode,
-                "common_elapsed_seconds": common_elapsed,
-                "common_source_sha256": {
-                    str(source.relative_to(ROOT)): hashlib.sha256(source.read_bytes()).hexdigest()
-                    for source in common_sources},
-                "framework_sha256": actual_hashes, "benchmarks": records}
-    args.report.with_suffix(".json").write_text(json.dumps(manifest, indent=2) + "\n")
-    return 0 if passed == len(records) else 1
+    suites = [('fopl', FOPL_BENCHMARKS, 'FOPL/Benchmarks'), ('ppl', PPL_BENCHMARKS, 'Benchmarks/PPL')]
+    for suite, names, directory in suites:
+        if args.suite not in (suite, 'all'):
+            continue
+        for name in names:
+            source = HERE / directory / (name + '.v')
+            try:
+                record = builder.compile(source, force=True)
+            except BuildFailure as error:
+                record = dict(error.record)
+                if record['source'] != str(source.relative_to(HERE)):
+                    record['failed_dependency'] = record['source']
+                    record['requested_source'] = str(source.relative_to(HERE))
+            source_text = source.read_text()
+            metrics = {metric: int(value) for metric, expression, value in re.findall(
+                r'(?:Example|Lemma)\s+(\w+)\s*:\s*List\.length\s+([^=]+)=\s*(\d+)\.', source_text)
+                if 'graph_nodes' in expression or 'all_graph_tags' in expression}
+            record.update(suite=suite, benchmark=name, proof_mode=proof_mode(suite, name),
+                          checked_graph_metrics=metrics if record['exit_status'] == 0 else {},
+                          checked_premise_shape_examples=(len(re.findall(r'Example\s+\w+\s*:\s*has_shape\b', source_text))
+                                                         if record['exit_status'] == 0 else 0),
+                          nonvacuity_evidence=(execution_evidence(source_text) if record['exit_status'] == 0 else []),
+                          assumption_theorems=re.findall(r'Print\s+Assumptions\s+([\w.]+)\s*\.', source.read_text()))
+            records.append(record)
+            write_reports(report, stamp, version, records, common)
+    return 0 if all(r['exit_status'] == 0 for r in records) else 1
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())

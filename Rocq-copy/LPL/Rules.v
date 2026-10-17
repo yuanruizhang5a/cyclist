@@ -21,11 +21,10 @@ Import ListNotations.
 Open Scope string_scope.
 Open Scope list_scope.
 
-Module MakeRules (S : SIGNATURE).
-Module Export Pr := MakeProgress S.
-Module ForModel (I : INTERPRETATION).
+Module MakeRulesForModel (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn)
+    (Pr : PROGRESS L Syn Sem) (I : Sem.INTERPRETATION).
+Import Syn Sem.
 Module Export P := Pr.ForModel I.
-
 Definition context_tags (context : list occurrence) := judgment_tags (Jdg [] context).
 
 (** Tag uniqueness allows a list lookup to be replaced by the rank of a known
@@ -172,16 +171,14 @@ Lemma right_cons w o rest : right_holds M w (o :: rest) <-> labelled_holds M w o
 Proof. unfold right_holds; cbn; firstorder congruence. Qed.
 
 Lemma denote_wf j w : judgment_wfb j = true ->
-  (denote M j w <-> (left_holds M w j.(antecedent) -> right_holds M w j.(succedent))).
+  (denote M j w <-> (relations_hold M w j.(relations) -> left_holds M w j.(antecedent) -> right_holds M w j.(succedent))).
 Proof.
   intro Hwf; unfold denote. pose proof (judgment_wfb_admissible M j w Hwf); tauto.
 Qed.
 
-(** Split a context as [pre ++ principal :: post] to support any occurrence
-    position while preserving order. In [alternatives : list (list occurrence)],
-    the outer list enumerates premises; each inner list replaces the principal
-    within that premise. Thus [[]] means one context-only premise, whereas
-    [] would mean no premises. *)
+Section RelationContext.
+Context (R : list relation_atom).
+Local Notation Jdg := (Rdg R).
 Definition right_conclusion lhs pre post principal := Jdg lhs (pre ++ principal :: post).
 Definition right_targets lhs pre post alternatives :=
   map (fun replacement => Jdg lhs (pre ++ replacement ++ post)) alternatives.
@@ -202,11 +199,11 @@ Definition right_many (name : string) (lhs pre post : list occurrence) (principa
 Proof.
   apply (local_rule name _ _ Hs Ht). intros w Hall.
   apply (proj2 (denote_wf _ w Hs)). cbn [right_conclusion antecedent succedent].
-  intro Hlhs. rewrite right_app, right_cons.
+  intros Hrelations Hlhs. rewrite right_app, right_cons.
   destruct (classic (right_holds M w pre \/ right_holds M w post)) as [[Hpre|Hpost]|Hnone]; auto.
   right; left. apply Hdecompose.
   - pose proof (judgment_wfb_admissible M _ w Hs) as Ha.
-    unfold admissible in Ha; rewrite Forall_forall in Ha.
+    destruct Ha as [Ha _]; rewrite Forall_forall in Ha.
     apply (Ha principal). cbn; rewrite !in_app_iff; cbn; tauto.
   - intros replacement Hin.
     set (target := Jdg lhs (pre ++ replacement ++ post)).
@@ -216,7 +213,7 @@ Proof.
     rewrite Forall_forall in Ht.
     pose proof (proj1 (denote_wf target w (Ht target Hmember)) Hall) as Hraw.
     clear Hall; rename Hraw into Hall.
-    specialize (Hall Hlhs). unfold target in Hall; cbn in Hall.
+    specialize (Hall Hrelations Hlhs). unfold target in Hall; cbn in Hall.
     rewrite !right_app in Hall. tauto.
 Defined.
 
@@ -229,7 +226,7 @@ Definition left_many (name : string) (pre post rhs : list occurrence) (principal
 Proof.
   apply (local_rule name _ _ Hs Ht). intros w Hall.
   apply (proj2 (denote_wf _ w Hs)). cbn [left_conclusion antecedent succedent].
-  rewrite left_app, left_cons. intros [Hpre [Hprincipal Hpost]].
+  intro Hrelations. rewrite left_app, left_cons. intros [Hpre [Hprincipal Hpost]].
   destruct (Hdecompose w Hprincipal) as [replacement [Hin Hreplacement]].
   set (target := Jdg (pre ++ replacement ++ post) rhs).
   assert (In target (left_targets pre post rhs alternatives)) as Hmember.
@@ -238,7 +235,7 @@ Proof.
   rewrite Forall_forall in Ht.
     pose proof (proj1 (denote_wf target w (Ht target Hmember)) Hall) as Hraw.
     clear Hall; rename Hraw into Hall.
-  apply Hall. unfold target; cbn. rewrite !left_app; auto.
+  apply Hall; [exact Hrelations|]. unfold target; cbn. rewrite !left_app; auto.
 Defined.
 
 Lemma right_singleton w o : right_holds M w [o] <-> labelled_holds M w o.
@@ -403,26 +400,6 @@ Definition left_label_equivalent (name : string) (pre post rhs : list occurrence
 (** The [_base] suffix marks a semantically proved rule before principal
     rank metadata is strengthened. Assignment expands a final state update
     into old/new label components; it does not discard the existing prefix. *)
-Definition box_assignment_right_base lhs pre post sigma u x t body ta tb Hs Ht :=
-  right_label_equivalent "B.Assign.R" lhs pre post
-    (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)
-    (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb) Hs Ht
-    (fun w => assignment_label M w sigma u x t body ta tb).
-Definition box_assignment_left pre post rhs sigma u x t body ta tb Hs Ht :=
-  left_label_equivalent "B.Assign.L" pre post rhs
-    (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)
-    (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb) Hs Ht
-    (fun w => assignment_label M w sigma u x t body ta tb).
-Definition diamond_assignment_right lhs pre post sigma u x t body ta tb Hs Ht :=
-  right_label_equivalent "D.Assign.R" lhs pre post
-    (Occ (Join sigma (StateLabel u)) (Diamond (Assign x t) body) ta)
-    (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb) Hs Ht
-    (fun w => diamond_assignment_label M w sigma u x t body ta tb).
-Definition diamond_assignment_left pre post rhs sigma u x t body ta tb Hs Ht :=
-  left_label_equivalent "D.Assign.L" pre post rhs
-    (Occ (Join sigma (StateLabel u)) (Diamond (Assign x t) body) ta)
-    (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb) Hs Ht
-    (fun w => diamond_assignment_label M w sigma u x t body ta tb).
 Definition first_right lhs pre post u sigma body ta tb Hs Ht :=
   right_label_equivalent "First.R" lhs pre post
     (Occ (Join (StateLabel u) sigma) (First body) ta) (Occ (StateLabel u) body tb) Hs Ht
@@ -435,17 +412,17 @@ Definition first_left pre post rhs u sigma body ta tb Hs Ht :=
 (** The manuscript's At rule only exposes atoms/equalities at the head.
     [First] above is the separate rule for an explicit singleton observation
     of an arbitrary compound formula. *)
-Definition atomb a := match a with Pred _ _ | Equal _ _ => true | _ => false end.
+Definition atomb a := match a with Atom _ _ | BinaryAtom _ _ => true | _ => false end.
 Lemma atomb_pure a : atomb a = true -> pureb a = true.
 Proof. destruct a; cbn; congruence. Qed.
 Definition atom_head_right lhs pre post u sigma body ta tb Hs Ht (Ha : atomb body = true) :=
   right_label_equivalent "At.R" lhs pre post
     (Occ (Join (StateLabel u) sigma) body ta) (Occ (StateLabel u) body tb) Hs Ht
-    (fun w => pure_head_label M w u sigma body ta tb (atomb_pure body Ha)).
+    (fun w => atom_head_label M w u sigma body ta tb Ha).
 Definition atom_head_left pre post rhs u sigma body ta tb Hs Ht (Ha : atomb body = true) :=
   left_label_equivalent "At.L" pre post rhs
     (Occ (Join (StateLabel u) sigma) body ta) (Occ (StateLabel u) body tb) Hs Ht
-    (fun w => pure_head_label M w u sigma body ta tb (atomb_pure body Ha)).
+    (fun w => atom_head_label M w u sigma body ta tb Ha).
 
 (** A changed principal can be followed only if both occurrences carry tags.
     Valid pairs require nonincrease; progressing pairs additionally require
@@ -510,7 +487,7 @@ Lemma false_right_replacement lhs pre post principal replacement w :
 Proof.
   intros Hwf Hfalse Hreplacement Htarget.
   destruct (false_right_parts _ _ _ _ _ Hfalse) as [Hl [Hpre [_ Hpost]]].
-  pose proof (proj1 (denote_wf _ _ Hwf) Htarget Hl) as Hright.
+  pose proof (proj1 (denote_wf _ _ Hwf) Htarget (false_relations M _ _ Hfalse) Hl) as Hright.
   cbn [right_conclusion succedent] in Hright. rewrite right_app, right_cons in Hright. tauto.
 Qed.
 
@@ -708,31 +685,6 @@ Proof.
   destruct (sequence_nonincrease _ _ _ _ Hne Hfalse) as [Hbad' Hrank].
   exists (Occ l (Box a (Box b body)) tb); split; [cbn; auto|].
   split; [intros [_ H]; exact (Hbad' H)|]. split; [exact Hrank|discriminate].
-Defined.
-
-Definition box_assignment_right (lhs pre post : list occurrence) (sigma : label) (u : update)
-    (x : nat) (t : term) (body : formula) (ta tb : option nat)
-    (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)) = true)
-    (Ht : Forall (fun j => judgment_wfb j = true)
-      (right_targets lhs pre post [[Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb]]))
-    : Cyclic.rule_instance.
-Proof.
-  refine (enhance_right (box_assignment_right_base lhs pre post sigma u x t body ta tb Hs Ht)
-    lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta)
-    [Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb] true
-    Hs Ht eq_refl eq_refl _).
-  intros w Hne Hbad.
-  assert (~ formula_holds M (Box (Assign x t) body)
-    (eval_label M w sigma ++ [eval_update M w u])) as Hfalse.
-  { intro H; apply Hbad; split; assumption. }
-  pose proof (assignment_decrease (eval_label M w sigma) (eval_update M w u) x t body Hfalse) as Hrank.
-  exists (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb).
-  split; [cbn; auto|]. split.
-  - intro H; apply Hbad; apply (proj2 (assignment_label M w sigma u x t body ta tb)); exact H.
-  - assert (occurrence_rank
-      (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tb) w <
-      occurrence_rank (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) ta) w) as Hstrict by exact Hrank.
-    split; [lia|intro H; exact Hstrict].
 Defined.
 
 Definition box_choice_right (lhs pre post : list occurrence) (l : label) (a b : program) (body : formula)
@@ -935,7 +887,7 @@ Definition diamond_star_left pre post rhs l a body ta tb tc Hs Ht :=
 (** The one-step suffix laws apply after exposing an initial state and a
     nonempty tail. Keep the exact two ordered premises from the catalog;
     the right rules' first premises contain no recursive principal. *)
-Definition suffix_right_base (lhs pre post : list occurrence) (u : update) (sigma : label) (a b : formula)
+Definition suffix_right_base (lhs pre post : list occurrence) (u : L.world_term) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true)
@@ -951,7 +903,7 @@ Proof.
   apply (proj2 (suffix_label M w u sigma a b ta tb tc td Htail)); tauto.
 Defined.
 
-Definition suffix_left (pre post rhs : list occurrence) (u : update) (sigma : label) (a b : formula)
+Definition suffix_left (pre post rhs : list occurrence) (u : L.world_term) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true)
@@ -967,7 +919,7 @@ Proof.
     rewrite left_cons, left_singleton; auto.
 Defined.
 
-Definition dual_suffix_right_base (lhs pre post : list occurrence) (u : update) (sigma : label) (a b : formula)
+Definition dual_suffix_right_base (lhs pre post : list occurrence) (u : L.world_term) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true)
@@ -983,7 +935,7 @@ Proof.
   apply (proj2 (dual_suffix_label M w u sigma a b ta tb tc td Htail)); tauto.
 Defined.
 
-Definition dual_suffix_left (pre post rhs : list occurrence) (u : update) (sigma : label) (a b : formula)
+Definition dual_suffix_left (pre post rhs : list occurrence) (u : L.world_term) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (left_conclusion pre post rhs (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true)
@@ -1008,7 +960,7 @@ Definition suffix_singleton_axiom j (Hwf : judgment_wfb j = true) o u a b
     (Hf : o.(occurrence_formula) = Suffix a b) : Cyclic.axiom_instance.
 Proof.
   refine {| Cyclic.axiom_name := "Suffix.singleton"; Cyclic.axiom_conclusion := j |}.
-  intros w Hadm Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
+  intros w Hadm Hrelations Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
   specialize (Hleft o Hin). destruct Hleft as [_ Hfalse]. rewrite Hl, Hf in Hfalse.
   exfalso; exact (suffix_singleton M a b (eval_update M w u) Hfalse).
 Defined.
@@ -1067,7 +1019,7 @@ Qed.
     progress. The other premise receives retained context pairs alone.
     [redecorate_sameworld] reuses the base rule's selected false premise,
     and the local edge proof handles whichever premise it selected. *)
-Definition suffix_right (lhs pre post : list occurrence) (u : update) (sigma : label) (a b : formula)
+Definition suffix_right (lhs pre post : list occurrence) (u : L.world_term) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (Suffix a b) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true) (right_targets lhs pre post [[Occ sigma b tb;Occ sigma a tc];[Occ sigma b tb;Occ sigma (Suffix a b) td]])) : Cyclic.rule_instance.
@@ -1095,7 +1047,7 @@ Proof.
     + apply retained_edge_respects; assumption.
 Defined.
 
-Definition dual_suffix_right (lhs pre post : list occurrence) (u : update) (sigma : label) (a b : formula)
+Definition dual_suffix_right (lhs pre post : list occurrence) (u : L.world_term) (sigma : label) (a b : formula)
     (ta tb tc td : option nat) (Htail : label_nonemptyb sigma = true)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join (StateLabel u) sigma) (DualSuffix a b) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true) (right_targets lhs pre post [[Occ sigma b tb];[Occ sigma a tc;Occ sigma (DualSuffix a b) td]])) : Cyclic.rule_instance.
@@ -1126,7 +1078,7 @@ Defined.
 (** A test also gives strict principal descent, now with a guard added to
     the premise antecedent. This needs the test-specific minimum theorem,
     rather than merely treating a repeated state as unchanged syntax. *)
-Definition box_test_right (lhs pre post : list occurrence) (sigma : label) (u : update) (guard body : formula)
+Definition box_test_right (lhs pre post : list occurrence) (sigma : label) (u : L.world_term) (guard body : formula)
     (ta tb : option nat)
     (Hs : judgment_wfb (right_conclusion lhs pre post (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta)) = true)
     (Ht : Forall (fun j => judgment_wfb j = true)
@@ -1207,43 +1159,6 @@ Definition trace_substitution_rule original x replacement (Hne : label_nonemptyb
     (fun w l => eval_trace_label_substitution M w x replacement
       (proj1 (label_nonemptyb_spec M w replacement) Hne) l) Hs Ht.
 
-(** Freshness has two obligations for a cyclic eigenvariable rule: preserve
-    the truth of surrounding contexts and preserve ranks of their tagged
-    succedent occurrences. Semantics.v proves the first; these switch lemmas
-    use Progress.v to supply the second. *)
-Lemma occurrence_rank_switch v f (Hf : forall d, f (f d) = d) o w :
-  ~ In v (occurrence_vars o) ->
-  occurrence_rank o (switch_world M v f w) = occurrence_rank o w.
-Proof.
-  intro Hfresh; unfold occurrence_rank; rewrite switch_label.
-  - apply (minimum_switch v f Hf); intro H; apply Hfresh; apply in_app_iff; auto.
-  - intro H; apply Hfresh; apply in_app_iff; auto.
-Qed.
-
-Lemma retained_edge_switch_respects source target v f (Hf : forall d, f (f d) = d) w :
-  judgment_wfb source = true -> judgment_wfb target = true ->
-  (forall o tag, In o source.(succedent) -> o.(occurrence_tag) = Some tag -> ~ In v (occurrence_vars o)) ->
-  Cyclic.respects_edge source target w (switch_world M v f w) (retained_edge source target).
-Proof.
-  intros Hs Ht Hfresh; split.
-  - intros a b Hin; apply retained_pairs_spec in Hin as [-> [o [Hsocc [Htocc Htag]]]].
-    unfold LPLTheory.rank.
-    rewrite (rank_context_occ _ _ o _ (wf_unique _ Hs) Hsocc Htag).
-    rewrite (rank_context_occ _ _ o _ (wf_unique _ Ht) Htocc Htag).
-    rewrite occurrence_rank_switch; [apply Nat.le_refl|exact Hf|eapply Hfresh; eauto].
-  - intros a b H; inversion H.
-Qed.
-
-Lemma context_variable_fresh j v : ~ In v (judgment_vars j) ->
-  forall o, In o (j.(antecedent) ++ j.(succedent)) -> ~ In v (occurrence_vars o).
-Proof.
-  intros Hfresh o Hin Hv; apply Hfresh; apply in_flat_map; exists o; auto.
-Qed.
-
-(** For a one-premise rule it can be easier to prove the backward semantic
-    step first. Classical contradiction then derives ordinary soundness from
-    it. Concrete callers and the generator still supply syntax/edge checks;
-    this general semantic helper does not impose those syntactic policies. *)
 Definition counter_rule (name : string) (source target : judgment) (edge : Cyclic.edge_info)
     (Hcounter : forall w, ~ denote M source w ->
       { w' : world M | ~ denote M target w' /\ Cyclic.respects_edge source target w w' edge })
@@ -1257,138 +1172,6 @@ Proof.
     exists 0, {| Cyclic.premise_judgment := target; Cyclic.premise_edge := edge |}, w'; auto.
 Defined.
 
-(** Term-instantiation rules use the public capture-avoiding substitution
-    and its pure-head semantic theorem. No term instantiation is inferred
-    from an execution or guessed by these constructors. *)
-Definition universal_left pre post rhs l u body t Hpure Hs Ht :=
-  left_one "All.L" pre post rhs (Occ l (All u body) None) (Occ l (subst_fo u t body) None) Hs Ht
-    (fun w H => conj (proj1 H) (all_instantiation M body u t _ Hpure (proj1 H) (proj2 H))).
-Definition existential_right lhs pre post l u body t Hpure Hs Ht :=
-  right_one "Ex.R" lhs pre post (Occ l (Ex u body) None) (Occ l (subst_fo u t body) None) Hs Ht
-    (fun w Hne H => conj Hne (ex_instantiation M body u t _ Hpure Hne (proj2 H))).
-
-(** Eigenvariable rules change the countermodel world. A failing universal
-    supplies a value [d]; swap it with the principal head's current [v] value
-    in every state. Freshness for contexts, body and principal label makes
-    the instance fail while preserving all context truths and trace ranks.
-    Existential-left below uses the corresponding satisfying witness. *)
-Definition universal_right (lhs pre post : list occurrence) (l : label) (u v : nat) (body : formula)
-    (Hpure : pureb body = true)
-    (Hfresh : eigen_freshb v (Jdg lhs (pre ++ post)) l body = true)
-    (Hs : judgment_wfb (right_conclusion lhs pre post (Occ l (All u body) None)) = true)
-    (Ht : judgment_wfb (right_conclusion lhs pre post (Occ l (subst_fo u (Var v) body) None)) = true)
-    : Cyclic.rule_instance.
-Proof.
-  apply (counter_rule "All.R"
-    (right_conclusion lhs pre post (Occ l (All u body) None))
-    (right_conclusion lhs pre post (Occ l (subst_fo u (Var v) body) None))
-    (retained_edge (right_conclusion lhs pre post (Occ l (All u body) None))
-    (right_conclusion lhs pre post (Occ l (subst_fo u (Var v) body) None)))).
-  intros w Hfalse.
-  apply eigen_freshb_spec in Hfresh.
-  assert (~ In v (judgment_vars (Jdg lhs (pre ++ post)))) as Hctx by
-    (intro H; apply Hfresh; apply in_app_iff; auto).
-  assert (~ In v (label_vars l)) as Hlabel by
-    (intro H; apply Hfresh; apply in_app_iff; right; apply in_app_iff; auto).
-  assert (~ In v (formula_vars body)) as Hbody by
-    (intro H; apply Hfresh; apply in_app_iff; right; apply in_app_iff; auto).
-  pose proof (context_variable_fresh _ _ Hctx) as Hocc.
-  destruct (false_right_parts _ _ _ _ _ Hfalse) as [Hleft [Hpre [Hprincipal Hpost]]].
-  pose proof (wellformed_principal _ _ _ _ w Hs) as Hne.
-  change (eval_label M w l <> []) in Hne.
-  destruct (eval_label M w l) as [|s tail] eqn:Hlabel_eval; [contradiction|].
-  assert (~ (forall d, fol_holds M body (write M s u d))) as Hnotall.
-  { intro Hall; apply Hprincipal; split; [unfold label_admissible; cbn; rewrite Hlabel_eval; discriminate|].
-    change (formula_holds M (All u body) (eval_label M w l)); rewrite Hlabel_eval.
-    apply (pure_head M (All u body) Hpure); exact Hall. }
-  (* This choice is mathematical countermodel evidence, not a generator
-     choosing a quantifier term. The model's inhabitant makes [epsilon] total. *)
-  set (d := epsilon (inhabits (domain_inhabitant M)) (fun d => ~ fol_holds M body (write M s u d))).
-  assert (~ fol_holds M body (write M s u d)) as Hbad.
-  { unfold d; apply epsilon_spec; now apply not_all_ex_not. }
-  set (f := swap_values M (s v) d).
-  set (w' := switch_world M v f w).
-  assert (forall o, In o lhs -> ~ In v (occurrence_vars o)) as Hl_fresh by
-    (intros o Hin; apply Hocc; cbn; apply in_app_iff; auto).
-  assert (forall o, In o pre -> ~ In v (occurrence_vars o)) as Hpre_fresh by
-    (intros o Hin; apply Hocc; cbn; rewrite !in_app_iff; auto).
-  assert (forall o, In o post -> ~ In v (occurrence_vars o)) as Hpost_fresh by
-    (intros o Hin; apply Hocc; cbn; rewrite !in_app_iff; auto).
-  exists w'; split.
-  - intro Hden; pose proof (proj1 (denote_wf _ w' Ht) Hden) as Hraw.
-    assert (left_holds M w' lhs) as Hl'.
-    { unfold w'; apply (proj2 (switch_left_context M v f (swap_values_involutive M _ _) w lhs Hl_fresh)); exact Hleft. }
-    specialize (Hraw Hl'); cbn [right_conclusion succedent] in Hraw; rewrite right_app, right_cons in Hraw.
-    destruct Hraw as [Hpre'|[Hinst|Hpost']].
-    + apply Hpre; apply (proj1 (switch_right_context M v f (swap_values_involutive M _ _) w pre Hpre_fresh)); exact Hpre'.
-    + destruct Hinst as [_ Hinst]; apply Hbad.
-      apply (proj1 (eigen_instance M w l u v body d s tail Hlabel_eval Hlabel Hpure Hbody)); exact Hinst.
-    + apply Hpost; apply (proj1 (switch_right_context M v f (swap_values_involutive M _ _) w post Hpost_fresh)); exact Hpost'.
-  - unfold w'; apply retained_edge_switch_respects; try assumption; [apply swap_values_involutive|].
-    intros o tag Hin Htag; cbn [right_conclusion succedent] in Hin.
-    apply in_app_iff in Hin as [Hin|[Heq|Hin]].
-    + apply Hpre_fresh; exact Hin.
-    + subst o; discriminate.
-    + apply Hpost_fresh; exact Hin.
-Defined.
-
-Definition existential_left (pre post rhs : list occurrence) (l : label) (u v : nat) (body : formula)
-    (Hpure : pureb body = true)
-    (Hfresh : eigen_freshb v (Jdg (pre ++ post) rhs) l body = true)
-    (Hs : judgment_wfb (left_conclusion pre post rhs (Occ l (Ex u body) None)) = true)
-    (Ht : judgment_wfb (left_conclusion pre post rhs (Occ l (subst_fo u (Var v) body) None)) = true)
-    : Cyclic.rule_instance.
-Proof.
-  apply (counter_rule "Ex.L"
-    (left_conclusion pre post rhs (Occ l (Ex u body) None))
-    (left_conclusion pre post rhs (Occ l (subst_fo u (Var v) body) None))
-    (retained_edge (left_conclusion pre post rhs (Occ l (Ex u body) None))
-    (left_conclusion pre post rhs (Occ l (subst_fo u (Var v) body) None)))).
-  intros w Hfalse; apply eigen_freshb_spec in Hfresh.
-  assert (~ In v (judgment_vars (Jdg (pre ++ post) rhs))) as Hctx by
-    (intro H; apply Hfresh; apply in_app_iff; auto).
-  assert (~ In v (label_vars l)) as Hlabel by
-    (intro H; apply Hfresh; apply in_app_iff; right; apply in_app_iff; auto).
-  assert (~ In v (formula_vars body)) as Hbody by
-    (intro H; apply Hfresh; apply in_app_iff; right; apply in_app_iff; auto).
-  pose proof (context_variable_fresh _ _ Hctx) as Hocc.
-  destruct (false_sequent M _ _ Hfalse) as [Hadm [Hleft Hright]].
-  cbn [left_conclusion antecedent] in Hleft; rewrite left_app, left_cons in Hleft.
-  destruct Hleft as [Hpre [Hprincipal Hpost]].
-  destruct Hprincipal as [Hne Hprincipal]; change (eval_label M w l <> []) in Hne.
-  destruct (eval_label M w l) as [|s tail] eqn:Hlabel_eval; [contradiction|].
-  change (formula_holds M (Ex u body) (eval_label M w l)) in Hprincipal.
-  rewrite Hlabel_eval, (pure_head M (Ex u body) Hpure) in Hprincipal.
-  set (d := epsilon (inhabits (domain_inhabitant M)) (fun d => fol_holds M body (write M s u d))).
-  assert (fol_holds M body (write M s u d)) as Hgood by (unfold d; apply epsilon_spec; exact Hprincipal).
-  set (f := swap_values M (s v) d).
-  set (w' := switch_world M v f w).
-  assert (forall o, In o pre -> ~ In v (occurrence_vars o)) as Hpre_fresh by
-    (intros o Hin; apply Hocc; cbn; rewrite !in_app_iff; auto).
-  assert (forall o, In o post -> ~ In v (occurrence_vars o)) as Hpost_fresh by
-    (intros o Hin; apply Hocc; cbn; rewrite !in_app_iff; auto).
-  assert (forall o, In o rhs -> ~ In v (occurrence_vars o)) as Hr_fresh by
-    (intros o Hin; apply Hocc; cbn; rewrite !in_app_iff; auto).
-  exists w'; split.
-  - intro Hden; pose proof (proj1 (denote_wf _ w' Ht) Hden) as Hraw.
-    assert (left_holds M w' (pre ++ Occ l (subst_fo u (Var v) body) None :: post)) as Hl'.
-    { rewrite left_app, left_cons; split.
-      - unfold w'; apply (proj2 (switch_left_context M v f (swap_values_involutive M _ _) w pre Hpre_fresh)); exact Hpre.
-      - split.
-        + split.
-          * apply (wellformed_left_principal _ _ _ _ w' Ht).
-          * apply (proj2 (eigen_instance M w l u v body d s tail Hlabel_eval Hlabel Hpure Hbody)); exact Hgood.
-        + unfold w'; apply (proj2 (switch_left_context M v f (swap_values_involutive M _ _) w post Hpost_fresh)); exact Hpost. }
-    specialize (Hraw Hl').
-    apply (proj1 (switch_right_context M v f (swap_values_involutive M _ _) w rhs Hr_fresh)) in Hraw.
-    destruct Hraw as [o [Hin Ho]]; apply (Hright o Hin); exact Ho.
-  - unfold w'; apply retained_edge_switch_respects; try assumption; [apply swap_values_involutive|].
-    intros o tag Hin Htag; apply Hr_fresh; exact Hin.
-Defined.
-
-(** A backlink record is an ordinary nonprogressing semantic rule. Only the
-    graph builder's [AddBacklink] connects it to an earlier companion node;
-    the global checker, not this local equality, establishes cyclic progress. *)
 Definition exact_backlink j Hwf :=
   local_rule "Backlink.exact" j [j] Hwf (Forall_cons _ Hwf (Forall_nil _))
     (fun w Hall => Hall j (or_introl eq_refl)).
@@ -1423,17 +1206,17 @@ Defined.
 
 (** Lists are not silently quotiented by permutation. Explicit evidence for
     left/right permutations justifies exchange and preserves tagged ranks. *)
-Definition exchange_rule source target Hs Ht
+Definition exchange_rule source target Hs Ht (Hrelations : relations source = relations target)
     (Hl : Permutation source.(antecedent) target.(antecedent))
     (Hr : Permutation source.(succedent) target.(succedent)) :=
   local_rule "Exchange" source [target] Hs Ht
     (fun w Hall => ltac:(
       pose proof (Hall target (or_introl eq_refl)) as H;
       pose proof (proj1 (denote_wf target w (Forall_inv Ht)) H) as Hraw;
-      apply (proj2 (denote_wf source w Hs)); intro Hleft;
+      apply (proj2 (denote_wf source w Hs)); intros Hrel Hleft;
       assert (left_holds M w (antecedent target)) as Htargetleft by
         (unfold left_holds in *; eapply Permutation_Forall; eauto);
-      specialize (Hraw Htargetleft); destruct Hraw as [o [Hin Ho]];
+      specialize (Hraw ltac:(rewrite <- Hrelations; exact Hrel) Htargetleft); destruct Hraw as [o [Hin Ho]];
       exists o; split; [apply (Permutation_in o (Permutation_sym Hr)); exact Hin|exact Ho])).
 
 (** Cut combines two context partitions and has two premises. A classical
@@ -1447,7 +1230,7 @@ Definition cut_rule gamma sigma delta lambda cutformula Hs Ht :=
       pose proof (Hall _ (or_intror (or_introl eq_refl))) as H2;
       pose proof (proj1 (denote_wf _ w (Forall_inv Ht)) H1) as R1;
       pose proof (proj1 (denote_wf _ w (Forall_inv (Forall_inv_tail Ht))) H2) as R2;
-      apply (proj2 (denote_wf _ w Hs)); cbn [antecedent succedent] in *;
+      apply (proj2 (denote_wf _ w Hs)); intro Hrel; specialize (R1 Hrel); specialize (R2 Hrel); cbn [antecedent succedent] in *;
       rewrite right_cons in R1; rewrite left_app, left_singleton in R2;
       rewrite left_app, right_app; tauto)).
 
@@ -1458,9 +1241,9 @@ Definition truth_right_axiom j (Hwf : judgment_wfb j = true) o (Hin : In o j.(su
     (Hf : o.(occurrence_formula) = Truth) : Cyclic.axiom_instance.
 Proof.
   refine {| Cyclic.axiom_name := "True.R"; Cyclic.axiom_conclusion := j |}.
-  intros w Hadm Hleft.
+  intros w Hadm Hrelations Hleft.
   assert (label_admissible M w o.(occurrence_label)) as Hlabel.
-  { unfold admissible in Hadm; rewrite Forall_forall in Hadm; apply Hadm; apply in_app_iff; auto. }
+  { destruct Hadm as [Hadm _]; rewrite Forall_forall in Hadm; apply Hadm; apply in_app_iff; auto. }
   exists o; split; [exact Hin|]. split; [exact Hlabel|]. rewrite Hf.
   unfold label_admissible in Hlabel. destruct (eval_label M w o.(occurrence_label)); [contradiction|exact I].
 Defined.
@@ -1469,7 +1252,7 @@ Definition falsity_left_axiom j (Hwf : judgment_wfb j = true) o (Hin : In o j.(a
     (Hf : o.(occurrence_formula) = Falsity) : Cyclic.axiom_instance.
 Proof.
   refine {| Cyclic.axiom_name := "False.L"; Cyclic.axiom_conclusion := j |}.
-  intros w Hadm Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
+  intros w Hadm Hrelations Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
   destruct (Hleft o Hin) as [Hlabel Hfalse]; rewrite Hf in Hfalse.
   destruct (eval_label M w o.(occurrence_label)); contradiction.
 Defined.
@@ -1480,50 +1263,338 @@ Definition identity_axiom j (Hwf : judgment_wfb j = true) l r
     (Hformula : occurrence_formula l = occurrence_formula r) : Cyclic.axiom_instance.
 Proof.
   refine {| Cyclic.axiom_name := "Id"; Cyclic.axiom_conclusion := j |}.
-  intros w Ha Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
+  intros w Ha Hrelations Hleft. unfold left_holds in Hleft; rewrite Forall_forall in Hleft.
   specialize (Hleft l Hl). exists r; split; [exact Hr|].
   unfold labelled_holds in *; now rewrite <- Hlabel, <- Hformula.
 Defined.
 
-(** Manual pure terminals carry their proof explicitly. Generators never
-    decide predicate truth or invoke a first-order tactic. *)
-Definition pure_terminalb j :=
-  forallb (fun o => match occurrence_label o with
-    | StateLabel _ => pureb o.(occurrence_formula)
-    | _ => false end) (j.(antecedent) ++ j.(succedent)).
+End RelationContext.
 
-Definition atom_terminalb j :=
-  forallb (fun o => match occurrence_label o, occurrence_formula o with
-    | StateLabel _, Pred _ _ | StateLabel _, Equal _ _ => true
-    | _, _ => false end) (j.(antecedent) ++ j.(succedent)).
-
-(** Here the caller supplies the actual shallow sequent proof in Rocq.
-    The shape checks restrict the interface but do not decide pure truth.
-    [close_atoms] is the manuscript's narrower atom/equality boundary;
-    [close_pure] separately permits compound pure formulas at state updates. *)
-Definition close_pure j (_ : judgment_wfb j = true) (_ : pure_terminalb j = true)
-    (H : forall w, left_holds M w j.(antecedent) -> right_holds M w j.(succedent))
-    : Cyclic.axiom_instance.
+(** ** Atomic actions and explicit relational assumptions *)
+Lemma occurrence_rank_fresh source o w x value :
+  world_freshb x source = true -> In o (source.(antecedent) ++ source.(succedent)) ->
+  occurrence_rank o (replace_world M w x value) = occurrence_rank o w.
 Proof.
-  refine {| Cyclic.axiom_name := "Pure.manual"; Cyclic.axiom_conclusion := j |}.
-  intros w Ha; apply H.
+  intros Hfresh Hin; unfold occurrence_rank.
+  rewrite eval_label_fresh; [reflexivity|eapply fresh_occurrence; eauto].
+Qed.
+Lemma retained_edge_fresh source target w x value :
+  judgment_wfb source = true -> judgment_wfb target = true -> world_freshb x source = true ->
+  Cyclic.respects_edge source target w (replace_world M w x value) (retained_edge source target).
+Proof.
+  intros Hs Ht Hfresh; split.
+  - intros a b Hin; apply retained_pairs_spec in Hin as [-> [o [Hsocc [Htocc Htag]]]].
+    unfold LPLTheory.rank.
+    rewrite (rank_context_occ _ _ o _ (wf_unique _ Hs) Hsocc Htag).
+    rewrite (rank_context_occ _ _ o _ (wf_unique _ Ht) Htocc Htag).
+    rewrite (occurrence_rank_fresh source o w x value Hfresh); [lia|apply in_app_iff; auto].
+  - intros a b H; inversion H.
+Qed.
+Lemma fresh_left source context w x value : world_freshb x source = true ->
+  (forall o, In o context -> In o (source.(antecedent) ++ source.(succedent))) ->
+  (left_holds M (replace_world M w x value) context <-> left_holds M w context).
+Proof.
+  intros Hfresh Hinclude; unfold left_holds; rewrite !Forall_forall.
+  split; intros H o Hin; specialize (H o Hin);
+    assert (~ In x (label_world_names o.(occurrence_label))) as Hnames by
+      (eapply fresh_occurrence; [exact Hfresh|apply Hinclude; exact Hin]);
+    apply (labelled_fresh M w x value o Hnames); exact H.
+Qed.
+Lemma fresh_right source context w x value : world_freshb x source = true ->
+  (forall o, In o context -> In o (source.(antecedent) ++ source.(succedent))) ->
+  (right_holds M (replace_world M w x value) context <-> right_holds M w context).
+Proof.
+  intros Hfresh Hinclude; unfold right_holds; split;
+    intros [o [Hin Ho]]; exists o; split; [exact Hin| |exact Hin|];
+    assert (~ In x (label_world_names o.(occurrence_label))) as Hnames by
+      (eapply fresh_occurrence; [exact Hfresh|apply Hinclude; exact Hin]);
+    apply (labelled_fresh M w x value o Hnames); exact Ho.
+Qed.
+
+Lemma continuation_edge_worlds source target a b progress w w' :
+  judgment_wfb source = true -> judgment_wfb target = true ->
+  In a source.(succedent) -> In b target.(succedent) ->
+  Cyclic.respects_edge source target w w' (retained_edge source target) ->
+  occurrence_rank b w' <= occurrence_rank a w ->
+  (progress = true -> occurrence_rank b w' < occurrence_rank a w) ->
+  Cyclic.respects_edge source target w w' (continuation_edge source target a b progress).
+Proof.
+  intros Hs Ht Ha Hb Hretained Hle Hlt; split.
+  - intros x y Hin; apply in_app_iff in Hin as [Hret|Hcont].
+    + exact (proj1 Hretained x y Hret).
+    + unfold continuation_pairs in Hcont.
+      destruct (occurrence_tag a) as [ta|] eqn:Hta; [|contradiction].
+      destruct (occurrence_tag b) as [tb|] eqn:Htb; [|contradiction].
+      destruct Hcont as [Heq|Hno]; [inversion Heq; subst|contradiction].
+      unfold LPLTheory.rank.
+      rewrite (rank_context_occ _ _ a _ (wf_unique _ Hs) Ha Hta).
+      rewrite (rank_context_occ _ _ b _ (wf_unique _ Ht) Hb Htb); exact Hle.
+  - intros x y Hin.
+    change (In (x,y) (if progress then continuation_pairs a b else [])) in Hin.
+    destruct progress; [|contradiction].
+    unfold continuation_pairs in Hin.
+    destruct (occurrence_tag a) as [ta|] eqn:Hta; [|contradiction].
+    destruct (occurrence_tag b) as [tb|] eqn:Htb; [|contradiction].
+    destruct Hin as [Heq|Hno]; [inversion Heq; subst|contradiction].
+    unfold LPLTheory.rank.
+    rewrite (rank_context_occ _ _ a _ (wf_unique _ Hs) Ha Hta).
+    rewrite (rank_context_occ _ _ b _ (wf_unique _ Ht) Hb Htb); apply Hlt; reflexivity.
+Qed.
+
+Definition action_relation action payload u v :=
+  ActionRelation action payload (StateLabel u) (StateLabel v).
+Definition action_label sigma u v := Join (Join sigma (StateLabel u)) (StateLabel v).
+
+Lemma action_relation_holds w action payload u v :
+  relation_holds M w (action_relation action payload u v) <->
+  interpret_action M action payload (eval_update M w u) (eval_update M w v).
+Proof.
+  unfold action_relation; cbn [relation_holds eval_label]; split.
+  - intros [s [t [Hs [Ht Hstep]]]]; inversion Hs; inversion Ht; subst; exact Hstep.
+  - intro H; exists (eval_update M w u), (eval_update M w v); auto.
+Qed.
+Lemma box_action_use w sigma u v action payload body ta tb :
+  relation_holds M w (action_relation action payload u v) ->
+  labelled_holds M w (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta) ->
+  labelled_holds M w (Occ (action_label sigma u v) body tb).
+Proof.
+  intros Hrel [_ Hbox]; apply action_relation_holds in Hrel.
+  unfold labelled_holds, label_admissible, action_label; cbn [occurrence_label occurrence_formula eval_label] in *.
+  split; [intro H; apply app_eq_nil in H; destruct H; discriminate|].
+  apply (proj1 (box_atomic M (eval_label M w sigma) (eval_update M w u) action payload body)); exact Hbox || exact Hrel.
+Qed.
+Lemma diamond_action_use w sigma u v action payload body ta tb :
+  relation_holds M w (action_relation action payload u v) ->
+  labelled_holds M w (Occ (action_label sigma u v) body tb) ->
+  labelled_holds M w (Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta).
+Proof.
+  intros Hrel [_ Hbody]; apply action_relation_holds in Hrel.
+  unfold labelled_holds, label_admissible, action_label; cbn [occurrence_label occurrence_formula eval_label] in *.
+  split; [intro H; apply app_eq_nil in H; destruct H; discriminate|].
+  apply (proj2 (diamond_atomic M (eval_label M w sigma) (eval_update M w u) action payload body)); exists (eval_update M w v); auto.
+Qed.
+
+Definition box_atomic_right R lhs pre post sigma u action payload body y ta tb
+    (Hs : judgment_wfb (right_conclusion R lhs pre post
+      (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta)) = true)
+    (Ht : judgment_wfb (Rdg (R ++ [action_relation action payload u (L.world_name y)]) lhs
+      (pre ++ Occ (action_label sigma u (L.world_name y)) body tb :: post)) = true)
+    (Hfresh : world_freshb y (right_conclusion R lhs pre post
+      (Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta)) = true)
+    : Cyclic.rule_instance.
+Proof.
+  set (principal := Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta).
+  set (replacement := Occ (action_label sigma u (L.world_name y)) body tb).
+  set (source := right_conclusion R lhs pre post principal).
+  set (target := Rdg (R ++ [action_relation action payload u (L.world_name y)]) lhs (pre ++ replacement :: post)).
+  apply (counter_rule "B.Atomic.R" source target (continuation_edge source target principal replacement true)).
+  intros w Hfalse.
+  destruct (false_right_parts R lhs pre post principal w Hfalse) as [Hleft [Hpre [Hprincipal Hpost]]].
+  assert (~ formula_holds M (Box (Atomic action payload) body)
+    (eval_label M w sigma ++ [eval_update M w u])) as Hbad.
+  { intro H; apply Hprincipal; split; [unfold label_admissible; cbn [principal occurrence_label eval_label];
+      intro Heq; apply app_eq_nil in Heq; destruct Heq; discriminate|exact H]. }
+  set (Q := fun next => interpret_action M action payload (eval_update M w u) next /\
+    ~ formula_holds M body ((eval_label M w sigma ++ [eval_update M w u]) ++ [next]) /\
+    minimum_counterexample body ((eval_label M w sigma ++ [eval_update M w u]) ++ [next]) <
+    minimum_counterexample (Box (Atomic action payload) body) (eval_label M w sigma ++ [eval_update M w u])).
+  set (next := epsilon (inhabits (carrier_inhabitant M)) Q).
+  assert (Q next) as [Hstep [Hbody Hrank]].
+  { unfold next; apply epsilon_spec; apply atomic_minimum_successor; exact Hbad. }
+  set (w' := replace_world M w y next).
+  assert (eval_label M w' (Join sigma (StateLabel u)) = eval_label M w sigma ++ [eval_update M w u]) as Hprefix.
+  { unfold w'; rewrite eval_label_fresh; [reflexivity|].
+    apply (fresh_occurrence source y principal Hfresh); unfold source; cbn [right_conclusion antecedent succedent];
+      rewrite !in_app_iff; cbn; tauto. }
+  assert (eval_label M w' (action_label sigma u (L.world_name y)) =
+    (eval_label M w sigma ++ [eval_update M w u]) ++ [next]) as Hlabel.
+  { change (eval_label M w' (Join sigma (StateLabel u)) ++ [eval_update M w' (L.world_name y)] =
+      (eval_label M w sigma ++ [eval_update M w u]) ++ [next]).
+    rewrite Hprefix; unfold w'; rewrite eval_fresh_name; reflexivity. }
+  assert (eval_update M w' u = eval_update M w u) as Hu.
+  { unfold w'; apply eval_update_fresh; intro Hin.
+    assert (In principal (source.(antecedent) ++ source.(succedent))) as Hmember.
+    { unfold source; cbn [right_conclusion antecedent succedent]; rewrite !in_app_iff; cbn; tauto. }
+    pose proof (fresh_occurrence source y principal Hfresh Hmember) as Hnames.
+    apply Hnames; cbn [principal occurrence_label label_world_names]; apply in_app_iff; auto. }
+  exists w'; split.
+  - intro Hden; pose proof (proj1 (denote_wf target w' Ht) Hden) as Hraw.
+    assert (relations_hold M w' target.(relations)) as Hrelations.
+    { unfold target; cbn [relations]; unfold relations_hold; apply Forall_app; split.
+      - apply (proj2 (relations_fresh M source w y next Hfresh)); exact (false_relations M source w Hfalse).
+      - constructor; [apply action_relation_holds; rewrite Hu; unfold w'; rewrite eval_fresh_name; exact Hstep|constructor]. }
+    assert (left_holds M w' lhs) as Hl'.
+    { apply (proj2 (fresh_left source lhs w y next Hfresh ltac:(
+        intros o Hin; unfold source; cbn [right_conclusion antecedent succedent]; apply in_app_iff; auto))); exact Hleft. }
+    specialize (Hraw Hrelations Hl'); unfold target in Hraw; cbn [succedent] in Hraw;
+      rewrite right_app, right_cons in Hraw.
+    destruct Hraw as [Hpre'|[Hreplacement|Hpost']].
+    + apply Hpre; apply (proj1 (fresh_right source pre w y next Hfresh ltac:(
+        intros o Hin; unfold source; cbn [right_conclusion antecedent succedent]; rewrite !in_app_iff; cbn; auto))); exact Hpre'.
+    + apply Hbody; destruct Hreplacement as [_ Hholds]; cbn [replacement occurrence_formula occurrence_label] in Hholds; now rewrite Hlabel in Hholds.
+    + apply Hpost; apply (proj1 (fresh_right source post w y next Hfresh ltac:(
+        intros o Hin; unfold source; cbn [right_conclusion antecedent succedent]; rewrite !in_app_iff; cbn; auto))); exact Hpost'.
+  - apply continuation_edge_worlds; try exact Hs; try exact Ht.
+    + unfold source; cbn [right_conclusion succedent]; rewrite in_app_iff; cbn; auto.
+    + unfold target; cbn [succedent]; rewrite in_app_iff; cbn; auto.
+    + apply retained_edge_fresh; assumption.
+    + unfold occurrence_rank; cbn [principal replacement occurrence_label occurrence_formula]; rewrite Hlabel; cbn [eval_label]; lia.
+    + intros _; unfold occurrence_rank; cbn [principal replacement occurrence_label occurrence_formula]; rewrite Hlabel; exact Hrank.
 Defined.
 
-Definition close_atoms j (_ : judgment_wfb j = true) (_ : atom_terminalb j = true)
-    (H : forall w, left_holds M w j.(antecedent) -> right_holds M w j.(succedent))
-    : Cyclic.axiom_instance.
+Definition box_atomic_left Rpre Rpost pre post rhs sigma u v action payload body ta tb
+    (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action payload u v :: Rpost)
+      (pre ++ Occ (Join sigma (StateLabel u)) (Box (Atomic action payload) body) ta :: post) rhs) = true)
+    (Ht : judgment_wfb (Rdg (Rpre ++ Rpost)
+      (pre ++ Occ (action_label sigma u v) body tb :: post) rhs) = true)
+    : Cyclic.rule_instance.
 Proof.
-  refine {| Cyclic.axiom_name := "At.manual"; Cyclic.axiom_conclusion := j |}.
-  intros w Ha; apply H.
+  apply (local_rule "B.Atomic.L" _ _ Hs (Forall_cons _ Ht (Forall_nil _))).
+  intros w Hall; apply (proj2 (denote_wf _ w Hs)); intros Hrelations Hleft.
+  specialize (Hall _ (or_introl eq_refl)).
+  pose proof (proj1 (denote_wf _ w Ht) Hall) as Hraw.
+  cbn [relations antecedent succedent] in *.
+  unfold relations_hold in Hrelations; rewrite Forall_app, Forall_cons_iff in Hrelations.
+  destruct Hrelations as [HRpre [Hstep HRpost]].
+  apply Hraw.
+  - unfold relations_hold; apply Forall_app; auto.
+  - rewrite left_app, left_cons in *; destruct Hleft as [Hpre [Hbox Hpost]].
+    split; [exact Hpre|]. split; [eapply box_action_use; eauto|exact Hpost].
 Defined.
 
-End ForModel.
+Definition diamond_atomic_right Rpre Rpost lhs pre post sigma u v action payload body ta tb
+    (Hs : judgment_wfb (Rdg (Rpre ++ action_relation action payload u v :: Rpost) lhs
+      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post)) = true)
+    (Ht : judgment_wfb (Rdg (Rpre ++ Rpost) lhs
+      (pre ++ Occ (action_label sigma u v) body tb :: post)) = true)
+    : Cyclic.rule_instance.
+Proof.
+  apply (local_rule "D.Atomic.R" _ _ Hs (Forall_cons _ Ht (Forall_nil _))).
+  intros w Hall; apply (proj2 (denote_wf _ w Hs)); intros Hrelations Hleft.
+  specialize (Hall _ (or_introl eq_refl)).
+  pose proof (proj1 (denote_wf _ w Ht) Hall) as Hraw.
+  cbn [relations antecedent succedent] in *.
+  unfold relations_hold in Hrelations; rewrite Forall_app, Forall_cons_iff in Hrelations.
+  destruct Hrelations as [HRpre [Hstep HRpost]].
+  assert (relations_hold M w (Rpre ++ Rpost)) as HR by (unfold relations_hold; apply Forall_app; auto).
+  specialize (Hraw HR Hleft); rewrite right_app, right_cons in *.
+  destruct Hraw as [Hpre|[Hbody|Hpost]]; [auto| |auto].
+  right; left; eapply diamond_action_use; eauto.
+Defined.
+
+Definition diamond_atomic_left R pre post rhs sigma u action payload body y ta tb
+    (Hs : judgment_wfb (Rdg R
+      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post) rhs) = true)
+    (Ht : judgment_wfb (Rdg (R ++ [action_relation action payload u (L.world_name y)])
+      (pre ++ Occ (action_label sigma u (L.world_name y)) body tb :: post) rhs) = true)
+    (Hfresh : world_freshb y (Rdg R
+      (pre ++ Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta :: post) rhs) = true)
+    : Cyclic.rule_instance.
+Proof.
+  set (principal := Occ (Join sigma (StateLabel u)) (Diamond (Atomic action payload) body) ta).
+  set (replacement := Occ (action_label sigma u (L.world_name y)) body tb).
+  set (source := Rdg R (pre ++ principal :: post) rhs).
+  set (target := Rdg (R ++ [action_relation action payload u (L.world_name y)]) (pre ++ replacement :: post) rhs).
+  apply (counter_rule "D.Atomic.L" source target (retained_edge source target)).
+  intros w Hfalse.
+  destruct (false_sequent M source w Hfalse) as [_ [Hleft Hright]].
+  change (left_holds M w (pre ++ principal :: post)) in Hleft.
+  rewrite left_app, left_cons in Hleft; destruct Hleft as [Hpre [[Hne Hdiamond] Hpost]].
+  change (formula_holds M (Diamond (Atomic action payload) body)
+    (eval_label M w sigma ++ [eval_update M w u])) in Hdiamond.
+  apply diamond_atomic in Hdiamond.
+  set (Q := fun next => interpret_action M action payload (eval_update M w u) next /\
+    formula_holds M body ((eval_label M w sigma ++ [eval_update M w u]) ++ [next])).
+  set (next := epsilon (inhabits (carrier_inhabitant M)) Q).
+  assert (Q next) as [Hstep Hbody] by (unfold next; apply epsilon_spec; exact Hdiamond).
+  set (w' := replace_world M w y next).
+  assert (In principal (source.(antecedent) ++ source.(succedent))) as Hmember.
+  { unfold source; cbn [antecedent succedent]; rewrite !in_app_iff; cbn; tauto. }
+  pose proof (fresh_occurrence source y principal Hfresh Hmember) as Hnames.
+  assert (eval_update M w' u = eval_update M w u) as Hu.
+  { unfold w'; apply eval_update_fresh; intro Hin; apply Hnames;
+      cbn [principal occurrence_label label_world_names]; apply in_app_iff; auto. }
+  assert (eval_label M w' (action_label sigma u (L.world_name y)) =
+    (eval_label M w sigma ++ [eval_update M w u]) ++ [next]) as Hlabel.
+  { change (eval_label M w' (Join sigma (StateLabel u)) ++ [eval_update M w' (L.world_name y)] =
+      (eval_label M w sigma ++ [eval_update M w u]) ++ [next]).
+    unfold w'; rewrite eval_label_fresh by exact Hnames; rewrite eval_fresh_name; reflexivity. }
+  exists w'; split.
+  - intro Hden; pose proof (proj1 (denote_wf target w' Ht) Hden) as Hraw.
+    assert (relations_hold M w' target.(relations)) as Hrelations.
+    { unfold target; cbn [relations]; unfold relations_hold; apply Forall_app; split.
+      - apply (proj2 (relations_fresh M source w y next Hfresh)); exact (false_relations M source w Hfalse).
+      - constructor; [apply action_relation_holds; rewrite Hu; unfold w'; rewrite eval_fresh_name; exact Hstep|constructor]. }
+    assert (left_holds M w' (pre ++ replacement :: post)) as Hl'.
+    { rewrite left_app, left_cons; split.
+      - apply (proj2 (fresh_left source pre w y next Hfresh ltac:(
+          intros o Hin; unfold source; cbn [antecedent succedent]; rewrite !in_app_iff; cbn; auto))); exact Hpre.
+      - split.
+        + split; [apply (wellformed_left_principal (R ++ [action_relation action payload u (L.world_name y)]) pre post rhs replacement w' Ht)|].
+          cbn [replacement occurrence_formula occurrence_label]; rewrite Hlabel; exact Hbody.
+        + apply (proj2 (fresh_left source post w y next Hfresh ltac:(
+            intros o Hin; unfold source; cbn [antecedent succedent]; rewrite !in_app_iff; cbn; auto))); exact Hpost. }
+    specialize (Hraw Hrelations Hl').
+    assert (right_holds M w rhs) as Hr.
+    { apply (proj1 (fresh_right source rhs w y next Hfresh ltac:(
+        intros o Hin; unfold source; cbn [antecedent succedent]; apply in_app_iff; auto))); exact Hraw. }
+    destruct Hr as [o [Hin Ho]]; exact (Hright o Hin Ho).
+  - apply retained_edge_fresh; assumption.
+Defined.
+
+(** Relations can be explicitly weakened, exchanged, or contracted without
+    attaching formula-occurrence tags to them. *)
+Definition relation_structural source target Hs Ht
+    (Hformula_left : source.(antecedent) = target.(antecedent))
+    (Hformula_right : source.(succedent) = target.(succedent))
+    (Hrelations : forall w, relations_hold M w source.(relations) -> relations_hold M w target.(relations)) :=
+  local_rule "Rel.Structural" source [target] Hs Ht
+    (fun w Hall => ltac:(
+      pose proof (proj1 (denote_wf target w (Forall_inv Ht)) (Hall target (or_introl eq_refl))) as Hraw;
+      apply (proj2 (denote_wf source w Hs)); intros Hrel Hleft;
+      rewrite Hformula_left, Hformula_right in *; apply Hraw; [apply Hrelations; exact Hrel|exact Hleft])).
+Definition relation_weakening Rpre Rpost relation lhs rhs Hs Ht :=
+  relation_structural (Rdg (Rpre ++ relation :: Rpost) lhs rhs) (Rdg (Rpre ++ Rpost) lhs rhs)
+    Hs Ht eq_refl eq_refl (fun w H => ltac:(
+      cbn [relations] in *; unfold relations_hold in *; rewrite Forall_app, Forall_cons_iff in H;
+      apply Forall_app; tauto)).
+Definition relation_exchange source target Hs Ht Hl Hr
+    (Hrel : Permutation source.(relations) target.(relations)) :=
+  relation_structural source target Hs Ht Hl Hr
+    (fun w H => ltac:(unfold relations_hold in *; eapply Permutation_Forall; eauto)).
+Definition relation_contraction Rpre Rpost relation lhs rhs Hs Ht :=
+  relation_structural (Rdg (Rpre ++ relation :: Rpost) lhs rhs)
+    (Rdg (Rpre ++ relation :: relation :: Rpost) lhs rhs) Hs Ht eq_refl eq_refl
+    (fun w H => ltac:(cbn [relations] in *; unfold relations_hold in *;
+      rewrite !Forall_app, !Forall_cons_iff in *; tauto)).
+
+(** The manuscript's cut may split relational assumptions as well as formula
+    contexts. The older fixed-context cut remains a compatible specialization. *)
+Definition cut_relations Rgamma Rsigma gamma sigma delta lambda cutformula Hs Ht :=
+  local_rule "Cut.Relations" (Rdg (Rgamma ++ Rsigma) (gamma ++ sigma) (delta ++ lambda))
+    [Rdg Rgamma gamma (cutformula :: delta); Rdg Rsigma (sigma ++ [cutformula]) lambda] Hs Ht
+    (fun w Hall => ltac:(
+      pose proof (proj1 (denote_wf _ w (Forall_inv Ht)) (Hall _ (or_introl eq_refl))) as R1;
+      pose proof (proj1 (denote_wf _ w (Forall_inv (Forall_inv_tail Ht))) (Hall _ (or_intror (or_introl eq_refl)))) as R2;
+      apply (proj2 (denote_wf _ w Hs)); cbn [relations antecedent succedent] in *;
+      intros Hrel; unfold relations_hold in Hrel; apply Forall_app in Hrel as [Hrel1 Hrel2];
+      specialize (R1 Hrel1); specialize (R2 Hrel2);
+      rewrite right_cons in R1; rewrite left_app, left_singleton in R2;
+      rewrite left_app, right_app; tauto)).
+
+End MakeRulesForModel.
+
+(** Preserve the public two-stage construction while keeping the required
+    kernel signature free of an unused, unapplied generative rule factory. *)
+Module MakeRules (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn)
+    (Pr : PROGRESS L Syn Sem).
+  Export Syn Sem.
+  Module ForModel := MakeRulesForModel L Syn Sem Pr.
 End MakeRules.
 
-(** Share ONE instantiated kernel between generation and certification. Rocq
-    functor applications are generative for the inductive graph types. *)
-Module Type KERNEL (S : SIGNATURE).
-  Module Core := MakeRules S.
-  Declare Module Model : Core.Pr.Sem.INTERPRETATION.
-  Include Core.ForModel Model.
+(** One shared rule/progress instance is passed to generation and checking. *)
+Module Type KERNEL (L : LANGUAGE) (Syn : SYNTAX L) (Sem : SEMANTICS L Syn)
+    (Pr : PROGRESS L Syn Sem).
+  Declare Module Model : Sem.INTERPRETATION.
+  Include MakeRulesForModel L Syn Sem Pr Model.
 End KERNEL.

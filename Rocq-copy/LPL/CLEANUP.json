@@ -1,0 +1,1979 @@
+{
+  "run_utc": "20261017T054551957870Z",
+  "archive": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp",
+  "log_dir": "validation-logs/integrity-20261017T054551957870Z",
+  "before_files": 1353,
+  "before_bytes": 233037336,
+  "before_sources": {
+    "Certification.v": "a0a76f11415d15039dd44774453550cfd386818eb15329ad13c9722656c4b6a9",
+    "TraceSafety.v": "00597d5a0feb8dad767dcda38b1cb8a29b56c65e026590dde8951b3f1360f5c3",
+    "Progress.v": "1b1c59f318bf8e4f41902f20cda2317cf4adf482a8296d71e63a0d3f9ce57c44",
+    "Rules.v": "daaec8e8b60eabeb00cba458ece388ee4f173a9e2e86fc710553045533fa8ecb",
+    "Syntax.v": "20345e18f1eb1b1316fbc611e785d7e537b07726ccb688859488151ab270982c",
+    "RuleGeneration.v": "1c94a41eab565477c645f4c9ac33d2bdd5a7acf07000b157abee203d230ca4d3",
+    "Signature.v": "9746c32c7ab04b5833b87365db18201fca8718e6b84af5608dab190ce98280ee",
+    "Semantics.v": "9fdbe272bd52084e6423950f268dd41d2fb31d57c659602b80206307e819d107",
+    "FOPL/Certification.v": "a82945ec2959d433ba4da2faddd1e2a0f2c776a5aabe712ee7b147a0714ee033",
+    "FOPL/Progress.v": "ff085a8bc54571bfcefee1277bf958778c2435d1606d85b91cfc0ca27eab2493",
+    "FOPL/Rules.v": "0e6d953729b9a4cab4189ab964743ed4a060a6ddabb31d2ecf185b187f304425",
+    "FOPL/Syntax.v": "cbcecc3f036b5b502cd5fb5395e22fcfdea60f53838b33c24acdf155f4f14195",
+    "FOPL/RuleGeneration.v": "a31786893f224c4512f7967eae061df5b109f0b5050b4030bfed3b46404dd040",
+    "FOPL/Signature.v": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+    "FOPL/Semantics.v": "7d119e166003946e7ffe092bd501d88c2cb903c40e3c7ea445c7562b2f8a76f0",
+    "FOPL/Compatibility.v": "bd148d58a691428eca068fe5b7c503c3da415051669970a140be0491a5a0ce11",
+    "PPL/Instance.v": "da3c0c4f84c1781e2a11c14fb8fbe77ab7e16994fb7495264a49da640cd68fe9",
+    "Benchmarks/PPL/AtomicActions.v": "e09ef0d695998f172641e5e544cd0746c79d6774d2650fb7a28913f5ffc7acaa",
+    "Benchmarks/PPL/Instances.v": "99fdc63318e5fbb4736de8e059a05613aeac817056b91468b6a3b34e1cef52d9",
+    "Benchmarks/PPL/Temporal.v": "c1e7cb1c1886024a84df6d88344c930e75436a4982a4171975ffb34a117af5b0",
+    "Benchmarks/PPL/Cyclic.v": "5e367024c9b7c329288e1e66d033528ad64ab64a438139d8ffb14bc1f251ce8f",
+    "Benchmarks/PPL/Tests.v": "cca4a2f3e324426e486d44b4d59513a39d211a45948ccf766d4764971d3091f3",
+    "Benchmarks/PPL/Booleans.v": "1115c43c4f86a3666ad75e0ba3942d1a4c75c2fd38239cc345f8da11499bd0a7",
+    "Benchmarks/PPL/RuleCoverage.v": "4cb942fc596737ba9914be158c783fba50a465de75efebff4ed82490210e9539",
+    "Benchmarks/PPL/SafetySystem.v": "87cb85ef91feffe6a22abd28030b08f1ffaeee97afbd3549710b9438c23008f5",
+    "Benchmarks/PPL/RegularPrograms.v": "74a79eade194d09c409e9c2db01f79ac7c90c90326d3710bba07e63452476ed8",
+    "Benchmarks/PPL/Support.v": "ed60169777e7d935108f371d33bf745ccf7e118ce45c1d12e92d2070c0f305f4",
+    "Benchmarks/PPL/Nondeterminism.v": "08a27a584cd3ac7d32a27ba7ea7145002c16e5de7c5caed5640d1ee908b99613",
+    "Benchmarks/PPL/CyclicTags.v": "a940ae53e61bd468a9530fbd87951e74917437eb252ee3469bc8fb5789659cd1",
+    "Benchmarks/PPL/CheckerNegative.v": "193597a7dfe278cdf61cafe3e9b1d17c56e702aaf9457c2811f1338a8817e576",
+    "Benchmarks/PPL/LabelsRelations.v": "b222ea15dd4a946b3995097c477e4b1afa0f6ba4841673f66e4033f1d8d26947",
+    "Benchmarks/PPL/NestedProgram.v": "e3657832efa2ef29d973c22dd81102fe6840f6f3ffada8a1f2287b2fd6fd131b",
+    "FOPL/LegacyReference/Progress.v": "ed751c8c3dd61cdccb20cc2e10290b97ff7b33bf0d08d540b14568072034827e",
+    "FOPL/LegacyReference/Syntax.v": "027be1dc15f45fc0da9d7cb4671985f9bd7760461654db327819460b5bf0e041",
+    "FOPL/LegacyReference/Signature.v": "548985247232c6e3e9c2da81903d06568d854fb2c6f07669d98290559e98f931",
+    "FOPL/LegacyReference/Semantics.v": "e315afc40fc02c01fcfe6a115ca7dee585abeca8df3dfb7e1c2afae02cf659a5",
+    "FOPL/Benchmarks/Temporal.v": "0ea7bf4c7e54b44d4302508a2f6eff8cf4c17d8c72f6bdec9cfb36d13dcb8787",
+    "FOPL/Benchmarks/AssignmentChange.v": "264e12949bb287afe8e64a2bf1689897a7cb9af9627ef17fe9c25715aabaa5b9",
+    "FOPL/Benchmarks/Cyclic.v": "0ae5983c7bb05f659ce7b9c1a6cd94247bb0a6d48b9b8a0a3cebc2bb200fa21b",
+    "FOPL/Benchmarks/Tests.v": "832f05201027ce914d65ccf8b922848af9f5896abc6c502929ca759d13aba12f",
+    "FOPL/Benchmarks/Booleans.v": "16e79a86c0eca39fe1d682e5e6f8268523de9e474d095211440cbe1f3a86a3f2",
+    "FOPL/Benchmarks/RuleCoverage.v": "78c11c9ac5e5e7e2ae26bf918ee48b1fb093c0364f2d28a8fb2cb4d15a7c2fee",
+    "FOPL/Benchmarks/Quantifiers.v": "9e1489a908b71f736562961b6f94bf589d0429b1f9cf83881c73b929fd9c4adb",
+    "FOPL/Benchmarks/RegularPrograms.v": "62a60f33736363824fc1671f4b77432f35e5b88887f85b0a7189ac9b10a811a4",
+    "FOPL/Benchmarks/Support.v": "c28433d009f8471605f9db660e71968558711cd8ec2473dbee728b409b31e5bb",
+    "FOPL/Benchmarks/Labels.v": "6d6ca10bfc691111989df94a1f1270a7089f53fcdcd6945a233b2a425896a048",
+    "FOPL/Benchmarks/CounterLoop.v": "18c0643dbd881f07c0f95b11ddd44a2984cc9a38694ff3db6be8ec5b8e2f95a3",
+    "FOPL/Benchmarks/CyclicTags.v": "2ac1729b03f9f537fcf96426b64ff75427c2cbfc3d07f59a067efdf4c9115a60",
+    "FOPL/Benchmarks/Signatures.v": "272a73439e390da4e03d935a9a3cd8f7a655d63ac6d963fd028f5efb58c0da1a",
+    "FOPL/Benchmarks/Updates.v": "037a38d84b0baeffeb00d6ef554f8100bf57ff5ee0ac5298ae23cd65cf502f71",
+    "FOPL/Benchmarks/CheckerNegative.v": "66f3c844b9d2bec4c293ab2ca26d08a0c82447cc4cae317993bafca46378f258",
+    "FOPL/Benchmarks/NestedProgram.v": "530af76cda38e372004421c9fc3474ce43eadf79315b5293fe436512bb8fffe1",
+    "FOPL/Benchmarks/InvariantSupport.v": "78611126d2e8e65762c7af17dd44d4d6e832cc8d3100f7f3bb9c2cd495490b5b"
+  },
+  "moves": [
+    {
+      "path": ".build",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/obsolete/.build",
+      "reason": "Superseded development snapshots, verification runs, diagnostics or caches",
+      "files": 379,
+      "bytes": 46034157
+    },
+    {
+      "path": "benchmark-logs",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/obsolete/benchmark-logs",
+      "reason": "Superseded development snapshots, verification runs, diagnostics or caches",
+      "files": 530,
+      "bytes": 265642
+    },
+    {
+      "path": "validation-logs",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/obsolete/validation-logs",
+      "reason": "Superseded development snapshots, verification runs, diagnostics or caches",
+      "files": 104,
+      "bytes": 46635354
+    },
+    {
+      "path": "__pycache__",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/obsolete/__pycache__",
+      "reason": "Superseded development snapshots, verification runs, diagnostics or caches",
+      "files": 2,
+      "bytes": 20861
+    },
+    {
+      "path": "REFINEMENT_STATUS.md",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/obsolete/REFINEMENT_STATUS.md",
+      "reason": "Progress summary duplicates README and VALIDATION",
+      "files": 1,
+      "bytes": 1178
+    },
+    {
+      "path": "FOPL/Benchmarks/InvariantSupport.v",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/redundant-sources/FOPL/Benchmarks/InvariantSupport.v",
+      "reason": "Only forwards the shared TraceSafety module",
+      "files": 1,
+      "bytes": 129
+    },
+    {
+      "path": "FOPL/LegacyReference/Signature.v",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/redundant-sources/FOPL/LegacyReference/Signature.v",
+      "reason": "Byte-identical first-order signature; retain one shared unchanged interface",
+      "files": 1,
+      "bytes": 1322
+    },
+    {
+      "path": ".Certification.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.Certification.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 3908
+    },
+    {
+      "path": ".Progress.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.Progress.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 4929
+    },
+    {
+      "path": ".RuleGeneration.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.RuleGeneration.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1999
+    },
+    {
+      "path": ".Rules.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.Rules.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 11285
+    },
+    {
+      "path": ".Semantics.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.Semantics.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 12512
+    },
+    {
+      "path": ".Signature.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.Signature.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 120
+    },
+    {
+      "path": ".Syntax.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.Syntax.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2938
+    },
+    {
+      "path": ".TraceSafety.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.TraceSafety.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1222
+    },
+    {
+      "path": ".lia.cache",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/.lia.cache",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5401
+    },
+    {
+      "path": "Benchmarks/PPL/.AtomicActions.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.AtomicActions.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 4126
+    },
+    {
+      "path": "Benchmarks/PPL/.Booleans.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Booleans.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 449
+    },
+    {
+      "path": "Benchmarks/PPL/.CheckerNegative.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.CheckerNegative.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2290
+    },
+    {
+      "path": "Benchmarks/PPL/.Cyclic.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Cyclic.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2059
+    },
+    {
+      "path": "Benchmarks/PPL/.CyclicTags.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.CyclicTags.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1080
+    },
+    {
+      "path": "Benchmarks/PPL/.Instances.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Instances.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1760
+    },
+    {
+      "path": "Benchmarks/PPL/.LabelsRelations.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.LabelsRelations.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2216
+    },
+    {
+      "path": "Benchmarks/PPL/.NestedProgram.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.NestedProgram.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1146
+    },
+    {
+      "path": "Benchmarks/PPL/.Nondeterminism.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Nondeterminism.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1770
+    },
+    {
+      "path": "Benchmarks/PPL/.RegularPrograms.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.RegularPrograms.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1437
+    },
+    {
+      "path": "Benchmarks/PPL/.RuleCoverage.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.RuleCoverage.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 11637
+    },
+    {
+      "path": "Benchmarks/PPL/.SafetySystem.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.SafetySystem.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1411
+    },
+    {
+      "path": "Benchmarks/PPL/.Support.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Support.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1061
+    },
+    {
+      "path": "Benchmarks/PPL/.Temporal.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Temporal.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2078
+    },
+    {
+      "path": "Benchmarks/PPL/.Tests.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/.Tests.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1582
+    },
+    {
+      "path": "Benchmarks/PPL/AtomicActions.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/AtomicActions.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 35787
+    },
+    {
+      "path": "Benchmarks/PPL/AtomicActions.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/AtomicActions.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 20413
+    },
+    {
+      "path": "Benchmarks/PPL/AtomicActions.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/AtomicActions.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/AtomicActions.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/AtomicActions.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Booleans.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Booleans.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5019
+    },
+    {
+      "path": "Benchmarks/PPL/Booleans.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Booleans.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 4962
+    },
+    {
+      "path": "Benchmarks/PPL/Booleans.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Booleans.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Booleans.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Booleans.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/CheckerNegative.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CheckerNegative.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 15203
+    },
+    {
+      "path": "Benchmarks/PPL/CheckerNegative.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CheckerNegative.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 13052
+    },
+    {
+      "path": "Benchmarks/PPL/CheckerNegative.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CheckerNegative.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/CheckerNegative.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CheckerNegative.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Cyclic.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Cyclic.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 34613
+    },
+    {
+      "path": "Benchmarks/PPL/Cyclic.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Cyclic.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 23530
+    },
+    {
+      "path": "Benchmarks/PPL/Cyclic.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Cyclic.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Cyclic.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Cyclic.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/CyclicTags.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CyclicTags.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 7637
+    },
+    {
+      "path": "Benchmarks/PPL/CyclicTags.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CyclicTags.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 16969
+    },
+    {
+      "path": "Benchmarks/PPL/CyclicTags.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CyclicTags.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/CyclicTags.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/CyclicTags.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Instances.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Instances.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 32567
+    },
+    {
+      "path": "Benchmarks/PPL/Instances.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Instances.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1903165
+    },
+    {
+      "path": "Benchmarks/PPL/Instances.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Instances.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Instances.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Instances.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/LabelsRelations.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/LabelsRelations.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 12867
+    },
+    {
+      "path": "Benchmarks/PPL/LabelsRelations.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/LabelsRelations.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 7665
+    },
+    {
+      "path": "Benchmarks/PPL/LabelsRelations.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/LabelsRelations.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/LabelsRelations.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/LabelsRelations.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/NestedProgram.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/NestedProgram.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 22584
+    },
+    {
+      "path": "Benchmarks/PPL/NestedProgram.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/NestedProgram.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 397272
+    },
+    {
+      "path": "Benchmarks/PPL/NestedProgram.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/NestedProgram.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/NestedProgram.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/NestedProgram.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Nondeterminism.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Nondeterminism.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 21931
+    },
+    {
+      "path": "Benchmarks/PPL/Nondeterminism.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Nondeterminism.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 9722
+    },
+    {
+      "path": "Benchmarks/PPL/Nondeterminism.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Nondeterminism.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Nondeterminism.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Nondeterminism.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/RegularPrograms.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RegularPrograms.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 17402
+    },
+    {
+      "path": "Benchmarks/PPL/RegularPrograms.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RegularPrograms.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 9347
+    },
+    {
+      "path": "Benchmarks/PPL/RegularPrograms.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RegularPrograms.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/RegularPrograms.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RegularPrograms.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/RuleCoverage.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RuleCoverage.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 141387
+    },
+    {
+      "path": "Benchmarks/PPL/RuleCoverage.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RuleCoverage.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 38031
+    },
+    {
+      "path": "Benchmarks/PPL/RuleCoverage.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RuleCoverage.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/RuleCoverage.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/RuleCoverage.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/SafetySystem.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/SafetySystem.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 14053
+    },
+    {
+      "path": "Benchmarks/PPL/SafetySystem.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/SafetySystem.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 11432
+    },
+    {
+      "path": "Benchmarks/PPL/SafetySystem.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/SafetySystem.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/SafetySystem.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/SafetySystem.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Support.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Support.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 22580
+    },
+    {
+      "path": "Benchmarks/PPL/Support.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Support.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2562226
+    },
+    {
+      "path": "Benchmarks/PPL/Support.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Support.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Support.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Support.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Temporal.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Temporal.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 19472
+    },
+    {
+      "path": "Benchmarks/PPL/Temporal.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Temporal.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 7874
+    },
+    {
+      "path": "Benchmarks/PPL/Temporal.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Temporal.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Temporal.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Temporal.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Tests.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Tests.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 13340
+    },
+    {
+      "path": "Benchmarks/PPL/Tests.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Tests.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 8217
+    },
+    {
+      "path": "Benchmarks/PPL/Tests.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Tests.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Benchmarks/PPL/Tests.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Benchmarks/PPL/Tests.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Certification.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Certification.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 59383
+    },
+    {
+      "path": "Certification.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Certification.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2825376
+    },
+    {
+      "path": "Certification.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Certification.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Certification.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Certification.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/.Certification.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Certification.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 129
+    },
+    {
+      "path": "FOPL/.Compatibility.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Compatibility.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5459
+    },
+    {
+      "path": "FOPL/.Progress.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Progress.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1581
+    },
+    {
+      "path": "FOPL/.RuleGeneration.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.RuleGeneration.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 464
+    },
+    {
+      "path": "FOPL/.Rules.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Rules.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1164
+    },
+    {
+      "path": "FOPL/.Semantics.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Semantics.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 8029
+    },
+    {
+      "path": "FOPL/.Signature.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Signature.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 125
+    },
+    {
+      "path": "FOPL/.Syntax.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/.Syntax.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 4273
+    },
+    {
+      "path": "FOPL/Benchmarks/.AssignmentChange.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.AssignmentChange.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1646
+    },
+    {
+      "path": "FOPL/Benchmarks/.Booleans.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Booleans.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 450
+    },
+    {
+      "path": "FOPL/Benchmarks/.CheckerNegative.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.CheckerNegative.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2108
+    },
+    {
+      "path": "FOPL/Benchmarks/.CounterLoop.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.CounterLoop.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1285
+    },
+    {
+      "path": "FOPL/Benchmarks/.Cyclic.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Cyclic.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1229
+    },
+    {
+      "path": "FOPL/Benchmarks/.CyclicTags.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.CyclicTags.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1081
+    },
+    {
+      "path": "FOPL/Benchmarks/.InvariantSupport.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.InvariantSupport.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 143
+    },
+    {
+      "path": "FOPL/Benchmarks/.Labels.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Labels.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2199
+    },
+    {
+      "path": "FOPL/Benchmarks/.NestedProgram.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.NestedProgram.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1508
+    },
+    {
+      "path": "FOPL/Benchmarks/.Quantifiers.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Quantifiers.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1933
+    },
+    {
+      "path": "FOPL/Benchmarks/.RegularPrograms.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.RegularPrograms.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1456
+    },
+    {
+      "path": "FOPL/Benchmarks/.RuleCoverage.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.RuleCoverage.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 12363
+    },
+    {
+      "path": "FOPL/Benchmarks/.Signatures.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Signatures.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1369
+    },
+    {
+      "path": "FOPL/Benchmarks/.Support.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Support.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 761
+    },
+    {
+      "path": "FOPL/Benchmarks/.Temporal.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Temporal.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2079
+    },
+    {
+      "path": "FOPL/Benchmarks/.Tests.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Tests.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1583
+    },
+    {
+      "path": "FOPL/Benchmarks/.Updates.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/.Updates.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1552
+    },
+    {
+      "path": "FOPL/Benchmarks/AssignmentChange.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/AssignmentChange.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 15881
+    },
+    {
+      "path": "FOPL/Benchmarks/AssignmentChange.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/AssignmentChange.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 12540
+    },
+    {
+      "path": "FOPL/Benchmarks/AssignmentChange.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/AssignmentChange.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/AssignmentChange.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/AssignmentChange.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Booleans.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Booleans.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5207
+    },
+    {
+      "path": "FOPL/Benchmarks/Booleans.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Booleans.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5134
+    },
+    {
+      "path": "FOPL/Benchmarks/Booleans.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Booleans.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Booleans.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Booleans.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/CheckerNegative.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CheckerNegative.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 13776
+    },
+    {
+      "path": "FOPL/Benchmarks/CheckerNegative.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CheckerNegative.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 12231
+    },
+    {
+      "path": "FOPL/Benchmarks/CheckerNegative.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CheckerNegative.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/CheckerNegative.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CheckerNegative.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/CounterLoop.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CounterLoop.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 16957
+    },
+    {
+      "path": "FOPL/Benchmarks/CounterLoop.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CounterLoop.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 14543
+    },
+    {
+      "path": "FOPL/Benchmarks/CounterLoop.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CounterLoop.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/CounterLoop.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CounterLoop.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Cyclic.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Cyclic.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 18284
+    },
+    {
+      "path": "FOPL/Benchmarks/Cyclic.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Cyclic.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 15343
+    },
+    {
+      "path": "FOPL/Benchmarks/Cyclic.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Cyclic.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Cyclic.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Cyclic.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/CyclicTags.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CyclicTags.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 7796
+    },
+    {
+      "path": "FOPL/Benchmarks/CyclicTags.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CyclicTags.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 16111
+    },
+    {
+      "path": "FOPL/Benchmarks/CyclicTags.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CyclicTags.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/CyclicTags.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/CyclicTags.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/InvariantSupport.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/InvariantSupport.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 137
+    },
+    {
+      "path": "FOPL/Benchmarks/InvariantSupport.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/InvariantSupport.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 734
+    },
+    {
+      "path": "FOPL/Benchmarks/InvariantSupport.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/InvariantSupport.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/InvariantSupport.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/InvariantSupport.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Labels.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Labels.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 15365
+    },
+    {
+      "path": "FOPL/Benchmarks/Labels.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Labels.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 9592
+    },
+    {
+      "path": "FOPL/Benchmarks/Labels.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Labels.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Labels.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Labels.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/NestedProgram.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/NestedProgram.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 25008
+    },
+    {
+      "path": "FOPL/Benchmarks/NestedProgram.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/NestedProgram.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 11568578
+    },
+    {
+      "path": "FOPL/Benchmarks/NestedProgram.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/NestedProgram.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/NestedProgram.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/NestedProgram.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Quantifiers.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Quantifiers.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 14638
+    },
+    {
+      "path": "FOPL/Benchmarks/Quantifiers.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Quantifiers.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 16426
+    },
+    {
+      "path": "FOPL/Benchmarks/Quantifiers.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Quantifiers.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Quantifiers.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Quantifiers.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/RegularPrograms.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RegularPrograms.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 22362
+    },
+    {
+      "path": "FOPL/Benchmarks/RegularPrograms.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RegularPrograms.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 11153
+    },
+    {
+      "path": "FOPL/Benchmarks/RegularPrograms.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RegularPrograms.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/RegularPrograms.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RegularPrograms.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/RuleCoverage.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RuleCoverage.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 137695
+    },
+    {
+      "path": "FOPL/Benchmarks/RuleCoverage.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RuleCoverage.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 38192
+    },
+    {
+      "path": "FOPL/Benchmarks/RuleCoverage.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RuleCoverage.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/RuleCoverage.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/RuleCoverage.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Signatures.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Signatures.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 20308
+    },
+    {
+      "path": "FOPL/Benchmarks/Signatures.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Signatures.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 21575528
+    },
+    {
+      "path": "FOPL/Benchmarks/Signatures.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Signatures.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Signatures.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Signatures.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Support.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Support.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 16565
+    },
+    {
+      "path": "FOPL/Benchmarks/Support.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Support.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 8423681
+    },
+    {
+      "path": "FOPL/Benchmarks/Support.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Support.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Support.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Support.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Temporal.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Temporal.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 18901
+    },
+    {
+      "path": "FOPL/Benchmarks/Temporal.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Temporal.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 8961
+    },
+    {
+      "path": "FOPL/Benchmarks/Temporal.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Temporal.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Temporal.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Temporal.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Tests.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Tests.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 13489
+    },
+    {
+      "path": "FOPL/Benchmarks/Tests.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Tests.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 9497
+    },
+    {
+      "path": "FOPL/Benchmarks/Tests.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Tests.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Tests.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Tests.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Updates.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Updates.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 9720
+    },
+    {
+      "path": "FOPL/Benchmarks/Updates.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Updates.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 7334
+    },
+    {
+      "path": "FOPL/Benchmarks/Updates.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Updates.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Benchmarks/Updates.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Benchmarks/Updates.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Certification.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Certification.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1649
+    },
+    {
+      "path": "FOPL/Certification.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Certification.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 29783179
+    },
+    {
+      "path": "FOPL/Certification.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Certification.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Certification.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Certification.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Compatibility.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Compatibility.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 177388
+    },
+    {
+      "path": "FOPL/Compatibility.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Compatibility.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 921630
+    },
+    {
+      "path": "FOPL/Compatibility.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Compatibility.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Compatibility.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Compatibility.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/.Progress.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/.Progress.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 6123
+    },
+    {
+      "path": "FOPL/LegacyReference/.Semantics.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/.Semantics.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 18083
+    },
+    {
+      "path": "FOPL/LegacyReference/.Signature.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/.Signature.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 141
+    },
+    {
+      "path": "FOPL/LegacyReference/.Syntax.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/.Syntax.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5534
+    },
+    {
+      "path": "FOPL/LegacyReference/Progress.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Progress.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 185807
+    },
+    {
+      "path": "FOPL/LegacyReference/Progress.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Progress.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 312192
+    },
+    {
+      "path": "FOPL/LegacyReference/Progress.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Progress.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Progress.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Progress.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Semantics.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Semantics.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 490184
+    },
+    {
+      "path": "FOPL/LegacyReference/Semantics.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Semantics.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 414841
+    },
+    {
+      "path": "FOPL/LegacyReference/Semantics.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Semantics.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Semantics.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Semantics.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Signature.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Signature.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2342
+    },
+    {
+      "path": "FOPL/LegacyReference/Signature.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Signature.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2112
+    },
+    {
+      "path": "FOPL/LegacyReference/Signature.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Signature.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Signature.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Signature.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Syntax.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Syntax.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 187792
+    },
+    {
+      "path": "FOPL/LegacyReference/Syntax.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Syntax.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 264170
+    },
+    {
+      "path": "FOPL/LegacyReference/Syntax.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Syntax.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/LegacyReference/Syntax.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/LegacyReference/Syntax.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Progress.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Progress.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 46255
+    },
+    {
+      "path": "FOPL/Progress.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Progress.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 369378
+    },
+    {
+      "path": "FOPL/Progress.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Progress.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Progress.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Progress.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/RuleGeneration.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/RuleGeneration.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 60225
+    },
+    {
+      "path": "FOPL/RuleGeneration.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/RuleGeneration.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 29864306
+    },
+    {
+      "path": "FOPL/RuleGeneration.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/RuleGeneration.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/RuleGeneration.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/RuleGeneration.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Rules.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Rules.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 104949
+    },
+    {
+      "path": "FOPL/Rules.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Rules.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 9479745
+    },
+    {
+      "path": "FOPL/Rules.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Rules.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Rules.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Rules.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Semantics.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Semantics.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 278989
+    },
+    {
+      "path": "FOPL/Semantics.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Semantics.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 308208
+    },
+    {
+      "path": "FOPL/Semantics.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Semantics.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Semantics.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Semantics.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Signature.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Signature.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2118
+    },
+    {
+      "path": "FOPL/Signature.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Signature.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2024
+    },
+    {
+      "path": "FOPL/Signature.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Signature.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Signature.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Signature.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Syntax.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Syntax.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 126425
+    },
+    {
+      "path": "FOPL/Syntax.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Syntax.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 157979
+    },
+    {
+      "path": "FOPL/Syntax.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Syntax.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "FOPL/Syntax.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/FOPL/Syntax.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "PPL/.Instance.aux",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/PPL/.Instance.aux",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 331
+    },
+    {
+      "path": "PPL/Instance.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/PPL/Instance.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 18275
+    },
+    {
+      "path": "PPL/Instance.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/PPL/Instance.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 121179
+    },
+    {
+      "path": "PPL/Instance.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/PPL/Instance.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "PPL/Instance.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/PPL/Instance.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Progress.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Progress.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 132903
+    },
+    {
+      "path": "Progress.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Progress.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1657429
+    },
+    {
+      "path": "Progress.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Progress.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Progress.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Progress.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "RuleGeneration.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/RuleGeneration.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 226746
+    },
+    {
+      "path": "RuleGeneration.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/RuleGeneration.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 2845319
+    },
+    {
+      "path": "RuleGeneration.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/RuleGeneration.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "RuleGeneration.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/RuleGeneration.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Rules.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Rules.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 526323
+    },
+    {
+      "path": "Rules.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Rules.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 4930592
+    },
+    {
+      "path": "Rules.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Rules.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Rules.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Rules.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Semantics.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Semantics.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 241439
+    },
+    {
+      "path": "Semantics.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Semantics.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 1419634
+    },
+    {
+      "path": "Semantics.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Semantics.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Semantics.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Semantics.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Signature.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Signature.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 7897
+    },
+    {
+      "path": "Signature.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Signature.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 5027
+    },
+    {
+      "path": "Signature.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Signature.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Signature.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Signature.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Syntax.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Syntax.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 98779
+    },
+    {
+      "path": "Syntax.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Syntax.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 761854
+    },
+    {
+      "path": "Syntax.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Syntax.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "Syntax.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/Syntax.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "TraceSafety.glob",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/TraceSafety.glob",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 26831
+    },
+    {
+      "path": "TraceSafety.vo",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/TraceSafety.vo",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 623420
+    },
+    {
+      "path": "TraceSafety.vok",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/TraceSafety.vok",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    },
+    {
+      "path": "TraceSafety.vos",
+      "destination": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/pre-clean-build/TraceSafety.vos",
+      "reason": "Generated artifact or cache; require a fresh build",
+      "files": 1,
+      "bytes": 0
+    }
+  ],
+  "post_build_sidecars_moved": 154,
+  "after_files": 237,
+  "after_bytes": 136740689,
+  "additional_archive_manifest": "/tmp/cyclist-lpl-cleanup-20261017T054551957870Z-q4n1birp/control/PostBuildSidecars.json"
+}

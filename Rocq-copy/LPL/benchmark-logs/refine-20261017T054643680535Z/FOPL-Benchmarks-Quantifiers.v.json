@@ -1,0 +1,25 @@
+{
+  "source": "FOPL/Benchmarks/Quantifiers.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/Quantifiers.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.7440961200045422,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "9e1489a908b71f736562961b6f94bf589d0429b1f9cf83881c73b929fd9c4adb",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Quantifiers.v.txt"
+}

@@ -360,3 +360,62 @@ Any new double-line rule introduced during implementation must first receive
 the same explicit expansion and review in this catalog. Do not implement
 commented-out contraction or alternative rules merely because they occur in
 the manuscript source.
+
+## Refinement ownership and relational G3PPL rules
+
+The preceding expansions are preserved for the migrated FOPL image. In the
+shared implementation, a displayed world/update position is a parameterized
+world-denoting term `u`. The propositional `(p)` pair is restored as the generic
+atom-head `At.L`/`At.R` pair; FOPL instantiates it with predicate/equality atoms.
+Boolean, regular, temporal, label, and structural expansions are shared kernels;
+assignment and quantifier kernels are first-order additions.
+
+Relational assumptions are written separately as `R ; Gamma => Delta` and
+receive no formula tags. `E(a,u,v)` abbreviates the distinguished action relation
+with singleton endpoint labels. Four single-line schemes complement the
+existing double-line catalog:
+
+```text
+R ; Gamma => sigma u : [a]A, Delta
+    premise: R, E(a,u,y) ; Gamma => sigma u y : A, Delta       B.Atomic.R
+    y is fresh for every label and relational argument in the conclusion.
+
+R1, E(a,u,v), R2 ; Gamma, sigma u : [a]A => Delta
+    premise: R1, R2 ; Gamma, sigma u v : A => Delta            B.Atomic.L
+
+R1, E(a,u,v), R2 ; Gamma => sigma u : <a>A, Delta
+    premise: R1, R2 ; Gamma => sigma u v : A, Delta            D.Atomic.R
+
+R ; Gamma, sigma u : <a>A => Delta
+    premise: R, E(a,u,y) ; Gamma, sigma u y : A => Delta       D.Atomic.L
+    y is fresh for every label and relational argument in the conclusion.
+```
+
+The source/premise lists, context order, and selected relation occurrence are
+literal. `AtomicUse` takes a relation index; a reconstructed mismatching action
+or source fails the conclusion-equality check. A fresh-successor request scans
+world-name support in both formula labels and relational arguments.
+`B.Atomic.R` selects a minimum counterexample successor for its joint
+counterstep. A principal pair is progressing only when a traceable replacement
+actually carries the continuing tag. Other retained context pairs have proved
+nonincrease at that same mapping.
+
+The manuscript's cut with two complete contexts is `Cut.Relations`:
+
+```text
+R1, R2 ; Gamma, Sigma => Delta, Lambda
+    premises: R1 ; Gamma => cut, Delta
+              R2 ; Sigma, cut => Lambda
+```
+
+`CutRelations` explicitly supplies both relational and formula partitions.
+The existing `Cut` request retains a common fixed relational context, preserving
+the legacy empty-context instance. Relation weakening, exchange, and contraction
+are separate proved structural requests; weakening a relation retains one
+premise and never becomes an axiom.
+
+`Benchmarks/PPL/RuleCoverage.v` checks the common expansions, the four relational
+action schemes, relation structural operations, both cut forms, label algebra,
+and concrete rejection cases. `FOPL/Benchmarks/RuleCoverage.v` retains the
+original 50 premise-shape checks. T1 is resolved: all test guards in these
+schemes are evaluated on the two-state stutter `[s; s]`.

@@ -1,25 +1,14 @@
-(** * Meaning of first-order labelled process logic
+(** * Shallow semantics of the shared process logic.
 
-    Suggested reading order: the generic overlap relation; models, states and
-    labels; the mutual formula/program interpretation; FOL substitution and
-    sequent denotation; semantic rule equations; finally state-switch
-    freshness. Progress.v builds ranks on top of these definitions.
-
-    Two operations must stay distinct throughout: labels concatenate by list
-    append, while executable program traces overlap a shared endpoint. All
-    formulas are false on an empty trace; assertion admissibility makes the
-    intended logical laws available on the nonempty traces used by rules. *)
+    Frames may be infinite and nondeterministic. Only syntax is decidable.
+    Extensions interpret recursive children over traces. Labels append;
+    program executions overlap. T1: tests observe the two-state stutter. *)
 From Stdlib Require Import List Bool Arith Lia Classical_Prop Classical_Pred_Type.
-From Stdlib Require Import Logic.FunctionalExtensionality.
-From Stdlib Require Import Logic.ClassicalDescription.
+From Stdlib Require Import Logic.FunctionalExtensionality Logic.ClassicalDescription.
 From CyclistRocq.LPL Require Import Signature Syntax.
 Import ListNotations.
-
-Module MakeSemantics (S : SIGNATURE).
-Module Export Syn := MakeSyntax S.
-
-(** The same overlapping operation applies to traces and to sequences of
-    traces, as in Section 2 and Definition 5.3 of the manuscript. *)
+Module MakeSemantics (L : LANGUAGE) (Syn : SYNTAX L).
+Export Syn.
 Definition overlap_list {A : Type} (a b c : list A) : Prop :=
   exists prefix s tail, a = prefix ++ [s] /\ b = s :: tail /\ c = prefix ++ s :: tail.
 
@@ -137,111 +126,39 @@ Proof.
         destruct (overlap_list_head _ _ _ Hab) as [x [r [r' [_ ->]]]]; discriminate.
 Qed.
 
-(** Interpretations are total on argument lists; syntax checks enforce arity
-    for actual object-language uses. No injectivity, disjoint constructors,
-    decision procedure for truth, or arithmetic structure is assumed.
-    [domain_inhabitant] witnesses nonemptiness and supports classical choice. *)
 Record model : Type := Model {
-  domain : Type;
-  domain_inhabitant : domain;
-  interpret_function : S.function_symbol -> list domain -> domain;
-  interpret_predicate : S.predicate_symbol -> list domain -> Prop
+  carrier : Type;
+  carrier_inhabitant : carrier;
+  interpret_atom : L.atom_symbol -> list L.argument -> carrier -> Prop;
+  interpret_binary_atom : L.argument -> L.argument -> carrier -> Prop;
+  interpret_extension : L.binder -> (list carrier -> Prop) -> list carrier -> Prop;
+  interpret_coextension : L.binder -> (list carrier -> Prop) -> list carrier -> Prop;
+  interpret_action : L.action_symbol -> L.action_argument -> carrier -> carrier -> Prop;
+  interpret_atomic_trace : L.action_symbol -> L.action_argument -> list carrier -> Prop;
+  atomic_trace_law : forall action payload tr, interpret_atomic_trace action payload tr <->
+    exists s t, tr = [s;t] /\ interpret_action action payload s t;
+  interpret_world_term : (nat -> carrier) -> L.world_term -> carrier;
+  interpret_relation : L.relation_symbol -> list (list carrier) -> Prop;
+  world_name_law : forall rho x, interpret_world_term rho (L.world_name x) = rho x;
+  world_support_law : forall rho rho' u,
+    (forall x, In x (L.world_support u) -> rho x = rho' x) ->
+    interpret_world_term rho u = interpret_world_term rho' u;
+  world_substitution_law : forall rho x replacement u,
+    interpret_world_term rho (L.subst_world x replacement u) =
+    interpret_world_term
+      (fun y => if Nat.eqb x y then interpret_world_term rho replacement else rho y) u
 }.
-
 Section Interpretation.
 Context (M : model).
-(** A state assigns a model value to each program variable. The surrounding
-    section generalizes the definitions and proofs over [M]; integer-specific
-    reasoning only appears in the benchmarks. *)
-Definition state := nat -> domain M.
+Definition state := carrier M.
 Definition trace := list state.
-
-Definition write (s : state) (x : nat) (value : domain M) : state :=
-  fun y => if Nat.eqb x y then value else s y.
-
-Lemma write_same s x v : write s x v x = v.
-Proof. unfold write; now rewrite Nat.eqb_refl. Qed.
-Lemma write_other s x y v : x <> y -> write s x v y = s y.
-Proof. intro H; unfold write; apply Nat.eqb_neq in H; now rewrite H. Qed.
-
-Fixpoint eval_term (s : state) (t : term) : domain M :=
-  match t with
-  | Var x => s x
-  | Fun f ts => interpret_function M f (map (eval_term s) ts)
-  end.
-
-(** States are functions, so equalities between whole updated states use
-    functional extensionality. These update laws also handle the shadowing
-    and commuting writes encountered under named quantifiers. *)
-Lemma write_shadow s x a b : write (write s x a) x b = write s x b.
-Proof. apply functional_extensionality; intro y; unfold write; destruct (Nat.eqb x y); reflexivity. Qed.
-Lemma write_commute s x y a b : x <> y ->
-  write (write s x a) y b = write (write s y b) x a.
-Proof.
-  intro Hne; apply functional_extensionality; intro z; unfold write.
-  destruct (Nat.eqb x z) eqn:Hx, (Nat.eqb y z) eqn:Hy; try reflexivity.
-  apply Nat.eqb_eq in Hx, Hy; congruence.
-Qed.
-Lemma write_current s x : write s x (s x) = s.
-Proof.
-  apply functional_extensionality; intro y; unfold write.
-  destruct (Nat.eqb x y) eqn:H; [apply Nat.eqb_eq in H; subst|]; reflexivity.
-Qed.
-
-(** The basic substitution equation: replacing a variable syntactically is
-    equivalent to first evaluating its replacement in the original state,
-    then changing that variable's semantic value. *)
-Lemma eval_term_subst t : forall s x replacement,
-  eval_term s (subst_term x replacement t) =
-  eval_term (write s x (eval_term s replacement)) t.
-Proof.
-  revert t; fix IH 1; intro t; destruct t as [y|f ts]; intros s x replacement; cbn [subst_term eval_term].
-  - unfold write; destruct (Nat.eqb x y); reflexivity.
-  - f_equal. rewrite map_map. induction ts as [|a ts IHts]; cbn; [reflexivity|].
-    rewrite (IH a s x replacement), IHts; reflexivity.
-Qed.
-
-(** Coincidence only needs agreement on variables actually used by a term.
-    The nested induction on argument lists supplies the recursive hypotheses
-    that ordinary induction on the nested [term] datatype does not provide. *)
-Lemma eval_term_coincidence t : forall s s',
-  (forall x, In x (term_vars t) -> s x = s' x) -> eval_term s t = eval_term s' t.
-Proof.
-  revert t; fix IH 1; intro t; destruct t as [y|f ts]; intros s s' H; cbn [eval_term].
-  - apply H; cbn; auto.
-  - f_equal. cbn [term_vars] in H. revert H.
-    induction ts as [|a ts IHts]; intro H; cbn; [reflexivity|].
-    f_equal.
-    + apply (IH a s s'). intros x Hx; apply H; apply in_app_iff; auto.
-    + apply IHts. intros x Hx; apply H; apply in_app_iff; auto.
-Qed.
-
-Lemma eval_term_fresh t s x value : ~ In x (term_vars t) ->
-  eval_term (write s x value) t = eval_term s t.
-Proof.
-  intro Hfresh; apply eval_term_coincidence. intros y Hy; apply write_other; congruence.
-Qed.
-
-(** A framework world contains two label environments, rather than just one
-    program state. World names denote states; trace names denote nonempty
-    finite traces. The proof field is why a trace variable passes the purely
-    structural nonemptiness check in Syntax.v. *)
 Record world : Type := World {
   world_mapping : nat -> state;
   trace_mapping : nat -> trace;
   trace_mapping_nonempty : forall x, trace_mapping x <> []
 }.
-
-(** Evaluate inside out. In a nested assignment, both the old state and the
-    right-hand term come from the already evaluated previous update. *)
-Fixpoint eval_update (w : world) (u : update) : state :=
-  match u with
-  | Base x => world_mapping w x
-  | AssignUpdate x t u =>
-      let s := eval_update w u in write s x (eval_term s t)
-  end.
-
-(** D1: label juxtaposition is ordinary append, with no endpoint condition. *)
+Definition eval_update (w : world) (u : L.world_term) : state :=
+  interpret_world_term M (world_mapping w) u.
 Fixpoint eval_label (w : world) (l : label) : trace :=
   match l with
   | Empty => []
@@ -299,14 +216,9 @@ Defined.
     right. Formula syntax is untouched. Rules.v will transport both sequent
     truth and ranks along exactly these environment changes. *)
 Lemma eval_world_substitution w x replacement u :
-  eval_update w (subst_world_update x replacement u) =
+  eval_update w (L.subst_world x replacement u) =
   eval_update (replace_world w x (eval_update w replacement)) u.
-Proof.
-  induction u; cbn [subst_world_update eval_update replace_world world_mapping].
-  - destruct (Nat.eqb x world_variable); reflexivity.
-  - now rewrite IHu.
-Qed.
-
+Proof. apply world_substitution_law. Qed.
 Lemma eval_world_label_substitution w x replacement l :
   eval_label w (subst_world_label x replacement l) =
   eval_label (replace_world w x (eval_update w replacement)) l.
@@ -321,15 +233,10 @@ Lemma eval_trace_label_substitution w x replacement Hne l :
   eval_label (replace_trace w x (eval_label w replacement) Hne) l.
 Proof.
   induction l; cbn [subst_trace_label eval_label]; try reflexivity.
-  - assert (forall u, eval_update w u = eval_update (replace_trace w x (eval_label w replacement) Hne) u) as Hu.
-    { intro v; induction v; cbn [eval_update replace_trace world_mapping]; [reflexivity|now rewrite IHv]. }
-    now rewrite Hu.
   - cbn [replace_trace trace_mapping]. destruct (Nat.eqb x trace_variable); reflexivity.
   - now rewrite IHl1, IHl2.
 Qed.
 
-(** These equations justify explicit parenthesis/unit rules while keeping
-    graph equality syntactic. They do not choose a normal form for a label. *)
 Lemma eval_rotate_label w path left l : eval_label w (rotate_label path left l) = eval_label w l.
 Proof.
   revert l; induction path as [|direction path IH]; intro l.
@@ -387,14 +294,14 @@ Fixpoint formula_holds (a : formula) (tr : trace) : Prop :=
     match a with
     | Truth => True
     | Falsity => False
-    | Pred p ts => interpret_predicate M p (map (eval_term s) ts)
-    | Equal a b => eval_term s a = eval_term s b
+    | Atom p ts => interpret_atom M p ts s
+    | BinaryAtom a b => interpret_binary_atom M a b s
     | Neg a => ~ formula_holds a tr
     | Conj a b => formula_holds a tr /\ formula_holds b tr
     | Disj a b => formula_holds a tr \/ formula_holds b tr
     | Impl a b => formula_holds a tr -> formula_holds b tr
-    | All x a => forall value, formula_holds a (map (fun s => write s x value) tr)
-    | Ex x a => exists value, formula_holds a (map (fun s => write s x value) tr)
+    | Extension x a => interpret_extension M x (formula_holds a) tr
+    | Coextension x a => interpret_coextension M x (formula_holds a) tr
     | First a => formula_holds a [s]
     | Suffix a b =>
         exists suffix, proper_suffix suffix tr /\ formula_holds b suffix /\
@@ -410,263 +317,48 @@ Fixpoint formula_holds (a : formula) (tr : trace) : Prop :=
   end
 with program_holds (p : program) (tr : trace) : Prop :=
   match p with
-  | Assign x t => exists s, tr = [s; write s x (eval_term s t)]
+  | Atomic x t => interpret_atomic_trace M x t tr
   | Test a => exists s, tr = [s; s] /\ formula_holds a [s; s]
   | Seq a b => compose (program_holds a) (program_holds b) tr
   | Choice a b => program_holds a tr \/ program_holds b tr
   | Star a => exists n, finite_power (program_holds a) n tr
   end.
 
-(** Independent shallow FOL evaluation. Nonpure cases have no FOL meaning. *)
-Fixpoint fol_holds (a : formula) (s : state) : Prop :=
-  match a with
-  | Truth => True
-  | Falsity => False
-  | Pred p ts => interpret_predicate M p (map (eval_term s) ts)
-  | Equal a b => eval_term s a = eval_term s b
-  | Neg a => ~ fol_holds a s
-  | Conj a b => fol_holds a s /\ fol_holds b s
-  | Disj a b => fol_holds a s \/ fol_holds b s
-  | Impl a b => fol_holds a s -> fol_holds b s
-  | All x a => forall value, fol_holds a (write s x value)
-  | Ex x a => exists value, fol_holds a (write s x value)
-  | _ => False
-  end.
-
-Lemma fol_fresh a : pureb a = true -> forall s x value,
-  ~ In x (formula_vars a) -> (fol_holds a (write s x value) <-> fol_holds a s).
-Proof.
-  induction a; cbn [pureb]; intro Hp; try discriminate;
-    intros s u value Hfresh; cbn [fol_holds formula_vars] in *; try tauto.
-  - assert (map (eval_term (write s u value)) args = map (eval_term s) args) as Heq.
-    { apply map_ext_in; intros t Hin; apply eval_term_fresh.
-      intro H; apply Hfresh; apply in_flat_map; exists t; auto. }
-    now rewrite Heq.
-  - rewrite !eval_term_fresh; try tauto; intros H; apply Hfresh; apply in_app_iff; auto.
-  - now rewrite IHa by assumption.
-  - apply andb_true_iff in Hp as [Ha Hb].
-    rewrite IHa1, IHa2; try assumption; try (intro H; apply Hfresh; apply in_app_iff; auto); tauto.
-  - apply andb_true_iff in Hp as [Ha Hb].
-    rewrite IHa1, IHa2; try assumption; try (intro H; apply Hfresh; apply in_app_iff; auto); tauto.
-  - apply andb_true_iff in Hp as [Ha Hb].
-    rewrite IHa1, IHa2; try assumption; try (intro H; apply Hfresh; apply in_app_iff; auto); tauto.
-  - assert (u <> x) as Hux by (intro Heq; subst u; apply Hfresh; now left).
-    assert (~ In u (formula_vars a)) as Hbody by (intro Hin; apply Hfresh; now right).
-    split; intros H v; specialize (H v).
-    + rewrite write_commute in H by exact Hux. apply (proj1 (IHa Hp (write s x v) u value Hbody)); exact H.
-    + rewrite write_commute by exact Hux. apply (proj2 (IHa Hp (write s x v) u value Hbody)); exact H.
-  - assert (u <> x) as Hux by (intro Heq; subst u; apply Hfresh; now left).
-    assert (~ In u (formula_vars a)) as Hbody by (intro Hin; apply Hfresh; now right).
-    split; intros [v H]; exists v.
-    + rewrite write_commute in H by exact Hux. apply (proj1 (IHa Hp (write s x v) u value Hbody)); exact H.
-    + rewrite write_commute by exact Hux. apply (proj2 (IHa Hp (write s x v) u value Hbody)); exact H.
-Qed.
-
-(** Raw substitution is sound under [free_forb]. In the quantifier cases,
-    freshness of the binder in [t] keeps the replacement's evaluated value
-    fixed while writes are commuted. The public theorem below removes this
-    side condition by renaming conflicting binders first. *)
-Lemma raw_subst_correct a : pureb a = true -> forall s u t,
-  free_forb u t a = true ->
-  (fol_holds (raw_subst_fo u t a) s <-> fol_holds a (write s u (eval_term s t))).
-Proof.
-  induction a; cbn [pureb]; intro Hp; try discriminate;
-    intros s u t Hfree; cbn [raw_subst_fo free_forb fol_holds] in *; try tauto.
-  - rewrite map_map. assert (map (fun a => eval_term s (subst_term u t a)) args =
-      map (eval_term (write s u (eval_term s t))) args) as Heq.
-    { apply map_ext; intro a; apply eval_term_subst. }
-    now rewrite Heq.
-  - now rewrite !eval_term_subst.
-  - now rewrite IHa by assumption.
-  - apply andb_true_iff in Hp as [Ha Hb]; apply andb_true_iff in Hfree as [Hfa Hfb].
-    rewrite IHa1, IHa2 by assumption; tauto.
-  - apply andb_true_iff in Hp as [Ha Hb]; apply andb_true_iff in Hfree as [Hfa Hfb].
-    rewrite IHa1, IHa2 by assumption; tauto.
-  - apply andb_true_iff in Hp as [Ha Hb]; apply andb_true_iff in Hfree as [Hfa Hfb].
-    rewrite IHa1, IHa2 by assumption; tauto.
-  - destruct (Nat.eqb u x) eqn:Hux.
-    + apply Nat.eqb_eq in Hux; subst u. cbn [fol_holds]. setoid_rewrite write_shadow; reflexivity.
-    + apply Nat.eqb_neq in Hux; apply andb_true_iff in Hfree as [Hfresh Hfree].
-      apply negb_true_iff, occursb_false in Hfresh. cbn [fol_holds].
-      split; intros H v; specialize (H v).
-      * apply (proj1 (IHa Hp (write s x v) u t Hfree)) in H.
-        rewrite eval_term_fresh in H by exact Hfresh.
-        rewrite write_commute in H by congruence. exact H.
-      * apply (proj2 (IHa Hp (write s x v) u t Hfree)).
-        rewrite eval_term_fresh by exact Hfresh. rewrite write_commute by congruence. exact H.
-  - destruct (Nat.eqb u x) eqn:Hux.
-    + apply Nat.eqb_eq in Hux; subst u. cbn [fol_holds]. setoid_rewrite write_shadow; reflexivity.
-    + apply Nat.eqb_neq in Hux; apply andb_true_iff in Hfree as [Hfresh Hfree].
-      apply negb_true_iff, occursb_false in Hfresh. cbn [fol_holds].
-      split; intros [v H]; exists v.
-      * apply (proj1 (IHa Hp (write s x v) u t Hfree)) in H.
-        rewrite eval_term_fresh in H by exact Hfresh.
-        rewrite write_commute in H by congruence. exact H.
-      * apply (proj2 (IHa Hp (write s x v) u t Hfree)).
-        rewrite eval_term_fresh by exact Hfresh. rewrite write_commute by congruence. exact H.
-Qed.
-
-(** Alpha-conversion is a semantic theorem about the raw renaming helper.
-    Freshness includes nested bound names, so the chosen new binder cannot
-    collide with a binder deeper in the body. [alpha_ex] is the existential
-    counterpart used by the same substitution algorithm. *)
-Lemma alpha_all body y z s : pureb body = true -> ~ In z (formula_vars body) -> z <> y ->
-  (fol_holds (All z (raw_subst_fo y (Var z) body)) s <-> fol_holds (All y body) s).
-Proof.
-  intros Hp Hfresh Hzy; cbn [fol_holds].
-  split; intros H v; specialize (H v).
-  - apply (proj1 (raw_subst_correct body Hp (write s z v) y (Var z)
-      (rename_free_for body y z Hp Hfresh))) in H.
-    cbn [eval_term] in H; rewrite write_same, write_commute in H by exact Hzy.
-    apply (proj1 (fol_fresh body Hp (write s y v) z v Hfresh)); exact H.
-  - apply (proj2 (raw_subst_correct body Hp (write s z v) y (Var z)
-      (rename_free_for body y z Hp Hfresh))).
-    cbn [eval_term]; rewrite write_same, write_commute by exact Hzy.
-    apply (proj2 (fol_fresh body Hp (write s y v) z v Hfresh)); exact H.
-Qed.
-
-Lemma alpha_ex body y z s : pureb body = true -> ~ In z (formula_vars body) -> z <> y ->
-  (fol_holds (Ex z (raw_subst_fo y (Var z) body)) s <-> fol_holds (Ex y body) s).
-Proof.
-  intros Hp Hfresh Hzy; cbn [fol_holds].
-  split; intros [v H]; exists v.
-  - apply (proj1 (raw_subst_correct body Hp (write s z v) y (Var z)
-      (rename_free_for body y z Hp Hfresh))) in H.
-    cbn [eval_term] in H; rewrite write_same, write_commute in H by exact Hzy.
-    apply (proj1 (fol_fresh body Hp (write s y v) z v Hfresh)); exact H.
-  - apply (proj2 (raw_subst_correct body Hp (write s z v) y (Var z)
-      (rename_free_for body y z Hp Hfresh))).
-    cbn [eval_term]; rewrite write_same, write_commute by exact Hzy.
-    apply (proj2 (fol_fresh body Hp (write s y v) z v Hfresh)); exact H.
-Qed.
-
-(** Lift a body substitution equation through a nonconflicting binder.
-    Factoring out this write-commutation argument keeps the fuel proof's
-    capture and no-capture branches focused on their different bodies. *)
-Lemma all_subst_congruence body result y u t : y <> u -> ~ In y (term_vars t) ->
-  (forall s, fol_holds result s <-> fol_holds body (write s u (eval_term s t))) -> forall s,
-  (fol_holds (All y result) s <-> fol_holds (All y body) (write s u (eval_term s t))).
-Proof.
-  intros Hy Hfresh IH s; cbn [fol_holds].
-  split; intros H v; specialize (H v).
-  - apply (proj1 (IH _)) in H. rewrite eval_term_fresh in H by exact Hfresh.
-    rewrite write_commute in H by exact Hy; exact H.
-  - apply (proj2 (IH _)); rewrite eval_term_fresh by exact Hfresh.
-    rewrite write_commute by exact Hy; exact H.
-Qed.
-
-Lemma ex_subst_congruence body result y u t : y <> u -> ~ In y (term_vars t) ->
-  (forall s, fol_holds result s <-> fol_holds body (write s u (eval_term s t))) -> forall s,
-  (fol_holds (Ex y result) s <-> fol_holds (Ex y body) (write s u (eval_term s t))).
-Proof.
-  intros Hy Hfresh IH s; cbn [fol_holds].
-  split; intros [v H]; exists v.
-  - apply (proj1 (IH _)) in H. rewrite eval_term_fresh in H by exact Hfresh.
-    rewrite write_commute in H by exact Hy; exact H.
-  - apply (proj2 (IH _)); rewrite eval_term_fresh by exact Hfresh.
-    rewrite write_commute by exact Hy; exact H.
-Qed.
-
-(** Induct on fuel rather than the original body: after alpha-renaming, the
-    recursive argument is newly constructed syntax. [raw_subst_size] proves
-    that it still fits the smaller fuel bound. At each binder, first handle
-    shadowing, then separate capture from direct descent. *)
-Lemma subst_fo_fuel_correct fuel : forall a, pureb a = true -> fol_size a <= fuel -> forall s u t,
-  (fol_holds (subst_fo_fuel fuel u t a) s <-> fol_holds a (write s u (eval_term s t))).
-Proof.
-  induction fuel as [|fuel IH]; intros a Hp Hsize s u t.
-  - destruct a; cbn [fol_size] in Hsize; lia.
-  - destruct a; cbn [pureb fol_size] in Hp, Hsize; try discriminate;
-      cbn [subst_fo_fuel fol_holds]; try tauto.
-    + rewrite map_map. assert (map (fun a => eval_term s (subst_term u t a)) args =
-        map (eval_term (write s u (eval_term s t))) args) as Heq.
-      { apply map_ext; intro a; apply eval_term_subst. } now rewrite Heq.
-    + now rewrite !eval_term_subst.
-    + rewrite IH by (assumption || lia); tauto.
-    + apply andb_true_iff in Hp as [Ha Hb]; rewrite !IH by (assumption || lia); tauto.
-    + apply andb_true_iff in Hp as [Ha Hb]; rewrite !IH by (assumption || lia); tauto.
-    + apply andb_true_iff in Hp as [Ha Hb]; rewrite !IH by (assumption || lia); tauto.
-    + destruct (Nat.eqb u x) eqn:Hux.
-      * apply Nat.eqb_eq in Hux; subst u; cbn [fol_holds]; setoid_rewrite write_shadow; reflexivity.
-      * apply Nat.eqb_neq in Hux; destruct (existsb (Nat.eqb x) (term_vars t)) eqn:Hcapture.
-        -- set (z := fresh_name (u :: x :: (formula_vars a ++ term_vars t))).
-           assert (~ In z (u :: x :: (formula_vars a ++ term_vars t))) as Hz by apply fresh_name_not_in.
-           assert (z <> u /\ z <> x /\ ~ In z (formula_vars a) /\ ~ In z (term_vars t)) as [Hzu [Hzx [Hzbody Hzt]]].
-           { repeat split; intro H; apply Hz; cbn; try (left; congruence);
-             try (right; left; congruence); right; right; apply in_app_iff; auto. }
-           change (fol_holds (All z (subst_fo_fuel fuel u t (raw_subst_fo x (Var z) a))) s <-> fol_holds (All x a) (write s u (eval_term s t))).
-           transitivity (fol_holds (All z (raw_subst_fo x (Var z) a)) (write s u (eval_term s t))).
-           ++ apply all_subst_congruence; try assumption.
-              intro state'; apply IH; [apply raw_subst_pure; exact Hp|rewrite raw_subst_size; lia].
-           ++ apply alpha_all; assumption.
-        -- apply all_subst_congruence; [congruence|now apply occursb_false|].
-           intro state'; apply IH; [exact Hp|lia].
-    + destruct (Nat.eqb u x) eqn:Hux.
-      * apply Nat.eqb_eq in Hux; subst u; cbn [fol_holds]; setoid_rewrite write_shadow; reflexivity.
-      * apply Nat.eqb_neq in Hux; destruct (existsb (Nat.eqb x) (term_vars t)) eqn:Hcapture.
-        -- set (z := fresh_name (u :: x :: (formula_vars a ++ term_vars t))).
-           assert (~ In z (u :: x :: (formula_vars a ++ term_vars t))) as Hz by apply fresh_name_not_in.
-           assert (z <> u /\ z <> x /\ ~ In z (formula_vars a) /\ ~ In z (term_vars t)) as [Hzu [Hzx [Hzbody Hzt]]].
-           { repeat split; intro H; apply Hz; cbn; try (left; congruence);
-             try (right; left; congruence); right; right; apply in_app_iff; auto. }
-           change (fol_holds (Ex z (subst_fo_fuel fuel u t (raw_subst_fo x (Var z) a))) s <-> fol_holds (Ex x a) (write s u (eval_term s t))).
-           transitivity (fol_holds (Ex z (raw_subst_fo x (Var z) a)) (write s u (eval_term s t))).
-           ++ apply ex_subst_congruence; try assumption.
-              intro state'; apply IH; [apply raw_subst_pure; exact Hp|rewrite raw_subst_size; lia].
-           ++ apply alpha_ex; assumption.
-        -- apply ex_subst_congruence; [congruence|now apply occursb_false|].
-           intro state'; apply IH; [exact Hp|lia].
-Qed.
-
-Lemma subst_fo_correct a s u t : pureb a = true ->
-  (fol_holds (subst_fo u t a) s <-> fol_holds a (write s u (eval_term s t))).
-Proof. intro Hp; apply subst_fo_fuel_correct; [exact Hp|lia]. Qed.
-
-(** This is the bridge from uniform-value trace quantification to ordinary
-    FOL. Pure bodies cannot observe the tail, so writing one value to every
-    state has precisely the usual first-state FOL meaning. This restriction
-    is essential for the quantifier instantiation rules. *)
-Lemma pure_head a : pureb a = true -> forall s tail,
-  formula_holds a (s :: tail) <-> fol_holds a s.
-Proof.
-  induction a; cbn [pureb]; intro Hp; try discriminate;
-    intros s tail; cbn [formula_holds fol_holds]; try tauto.
-  - rewrite IHa by exact Hp. tauto.
-  - apply andb_true_iff in Hp as [Ha Hb].
-    rewrite IHa1 by exact Ha. rewrite IHa2 by exact Hb. tauto.
-  - apply andb_true_iff in Hp as [Ha Hb].
-    rewrite IHa1 by exact Ha. rewrite IHa2 by exact Hb. tauto.
-  - apply andb_true_iff in Hp as [Ha Hb].
-    rewrite IHa1 by exact Ha. rewrite IHa2 by exact Hb. tauto.
-  - split; intros H v; specialize (IHa Hp (write s x v) (map (fun s => write s x v) tail));
-      [apply IHa; apply H | apply IHa; apply H].
-  - split; intros [v H]; exists v;
-      specialize (IHa Hp (write s x v) (map (fun s => write s x v) tail));
-      apply IHa; exact H.
-Qed.
-
-Lemma pure_singleton a s tail : pureb a = true ->
-  (formula_holds a (s :: tail) <-> formula_holds a [s]).
-Proof. intro H; rewrite !pure_head by exact H; reflexivity. Qed.
-
-(** Assertion truth explicitly requires a nonempty interpreted label.
-    Sequent denotation then guards the whole implication by admissibility of
-    every assertion label. An empty succedent is false, an empty antecedent
-    is true. Tags have no role in any of these truth definitions. *)
 Definition labelled_holds w o : Prop :=
   label_admissible w o.(occurrence_label) /\
   formula_holds o.(occurrence_formula) (eval_label w o.(occurrence_label)).
+Definition relation_admissible w r := Forall (label_admissible w) (relation_labels r).
+Definition relation_holds w r := match r with
+  | ActionRelation action payload source target =>
+      exists s t, eval_label w source = [s] /\ eval_label w target = [t] /\
+        interpret_action M action payload s t
+  | CustomRelation symbol arguments => interpret_relation M symbol (map (eval_label w) arguments)
+  end.
+Definition relations_hold w context := Forall (relation_holds w) context.
 Definition admissible j w :=
-  Forall (fun o => label_admissible w o.(occurrence_label)) (j.(antecedent) ++ j.(succedent)).
+  Forall (fun o => label_admissible w o.(occurrence_label)) (j.(antecedent) ++ j.(succedent)) /\
+  Forall (relation_admissible w) j.(relations).
 Definition left_holds w context := Forall (labelled_holds w) context.
 Definition right_holds w context := exists o, In o context /\ labelled_holds w o.
-Definition denote j w := admissible j w -> left_holds w j.(antecedent) -> right_holds w j.(succedent).
+Definition denote j w := admissible j w -> relations_hold w j.(relations) ->
+  left_holds w j.(antecedent) -> right_holds w j.(succedent).
 Definition Valid j := forall w, denote j w.
-
-(** A label-map evaluation equation transports assertion truth and then the
-    entire guarded sequent. The sequent proof must transport admissibility
-    as well as left/right truth; forgetting that guard would lose the exact
-    meaning of [denote] for arbitrary raw judgments. *)
+Lemma relation_mapping f w w' :
+  (forall l, eval_label w (f l) = eval_label w' l) -> forall r,
+  relation_holds w (map_relation f r) <-> relation_holds w' r.
+Proof.
+  intros H [a p s t|symbol arguments]; cbn [relation_holds map_relation].
+  - now rewrite !H.
+  - rewrite map_map. assert (map (fun l => eval_label w (f l)) arguments = map (eval_label w') arguments) as ->.
+    { apply map_ext; exact H. } reflexivity.
+Qed.
+Lemma relation_admissible_mapping f w w' :
+  (forall l, eval_label w (f l) = eval_label w' l) -> forall r,
+  relation_admissible w (map_relation f r) <-> relation_admissible w' r.
+Proof.
+  intros H r; unfold relation_admissible. assert (relation_labels (map_relation f r) = map f (relation_labels r)) as -> by (destruct r; reflexivity).
+  rewrite Forall_map, !Forall_forall. unfold label_admissible. setoid_rewrite H; reflexivity.
+Qed.
 Lemma labelled_mapping f w w' :
   (forall l, eval_label w (f l) = eval_label w' l) -> forall o,
   (labelled_holds w (map_label_occurrence f o) <-> labelled_holds w' o).
@@ -696,8 +388,12 @@ Proof.
     - intros [o [Hin Ho]]. exists (map_label_occurrence f o); split.
       + exists o; auto.
       + apply (labelled_mapping f w w' Hmap); exact Ho. }
-  unfold denote, admissible; cbn [map_labels antecedent succedent].
-  rewrite <- map_app, Hadm, Hl, Hr; reflexivity.
+  assert (relations_hold w (map (map_relation f) j.(relations)) <-> relations_hold w' j.(relations)) as Hrel.
+  { unfold relations_hold; rewrite Forall_map, !Forall_forall; setoid_rewrite (relation_mapping f w w' Hmap); reflexivity. }
+  assert (Forall (relation_admissible w) (map (map_relation f) j.(relations)) <-> Forall (relation_admissible w') j.(relations)) as Hra.
+  { rewrite Forall_map, !Forall_forall; setoid_rewrite (relation_admissible_mapping f w w' Hmap); reflexivity. }
+  unfold denote, admissible; cbn [map_labels antecedent succedent relations].
+  rewrite <- map_app, Hadm, Hl, Hr, Hrel, Hra; reflexivity.
 Qed.
 
 (** Truth is insensitive to tag renaming or erasure. These equations alone
@@ -716,7 +412,7 @@ Proof.
   { intro context; unfold right_holds; setoid_rewrite in_map_iff; split.
     - intros [o [[original [Heq Hin]] Hholds]]; subst o; exists original; auto.
     - intros [o [Hin Hholds]]; exists (rename_occurrence_tag f o); split; [exists o; auto|exact Hholds]. }
-  unfold denote, admissible; cbn [rename_tags antecedent succedent]; rewrite <- map_app, Ha, Hl, Hr; reflexivity.
+  unfold denote, admissible; cbn [rename_tags antecedent succedent relations]; rewrite <- map_app, Ha, Hl, Hr; reflexivity.
 Qed.
 
 Lemma denote_erase_tags j w : denote (erase_tags j) w <-> denote j w.
@@ -732,7 +428,7 @@ Proof.
   { intro context; unfold right_holds; setoid_rewrite in_map_iff; split.
     - intros [o [[original [Heq Hin]] Hholds]]; subst o; exists original; auto.
     - intros [o [Hin Hholds]]; exists (erase_tag o); split; [exists o; auto|exact Hholds]. }
-  unfold denote, admissible; cbn [erase_tags antecedent succedent]; rewrite <- map_app, Ha, Hl, Hr; reflexivity.
+  unfold denote, admissible; cbn [erase_tags antecedent succedent relations]; rewrite <- map_app, Ha, Hl, Hr; reflexivity.
 Qed.
 
 Lemma backlink_eqb_denote a b w : backlink_eqb a b = true -> (denote a w <-> denote b w).
@@ -741,33 +437,38 @@ Proof.
   rewrite <- (denote_erase_tags a w), <- (denote_erase_tags b w); now rewrite Heq.
 Qed.
 
-Lemma valid_admissible j : Valid j <->
-  forall w, admissible j w -> left_holds w j.(antecedent) -> right_holds w j.(succedent).
+Lemma valid_admissible j : Valid j <-> forall w, admissible j w ->
+  relations_hold w j.(relations) -> left_holds w j.(antecedent) -> right_holds w j.(succedent).
 Proof. reflexivity. Qed.
-
-(** The useful shape of a countermodel: all labels are admissible, all
-    antecedents hold, and every succedent fails. Rules.v starts its backward
-    semantic steps with this extraction rather than assuming admissibility. *)
+Lemma false_relations j w : ~ denote j w -> relations_hold w j.(relations).
+Proof. unfold denote; tauto. Qed.
 Lemma false_sequent j w : ~ denote j w ->
   admissible j w /\ left_holds w j.(antecedent) /\
   forall o, In o j.(succedent) -> ~ labelled_holds w o.
 Proof.
   unfold denote, right_holds; intros H.
   assert (admissible j w) as Ha by tauto.
+  assert (relations_hold w j.(relations)) as Hrel by tauto.
   assert (left_holds w j.(antecedent)) as Hl by tauto.
-  repeat split; try assumption. intros o Hin Ho. apply H; auto. exists o; auto.
+  split; [exact Ha|]. split; [exact Hl|].
+  intros o Hin Ho. apply H; intros _ _ _; exists o; auto.
 Qed.
-
 Lemma judgment_wfb_admissible j w : judgment_wfb j = true -> admissible j w.
 Proof.
-  unfold judgment_wfb, admissible. rewrite !andb_true_iff.
-  intros [[Hl Hr] _]. apply Forall_app; split; apply Forall_forall;
-    intros o Hin; [apply forallb_forall with (x := o) in Hl | apply forallb_forall with (x := o) in Hr];
-    try assumption; unfold occurrence_wfb in *;
-    repeat match goal with H : _ && _ = true |- _ => apply andb_true_iff in H as [H ?] end;
-    apply label_nonemptyb_spec; assumption.
+  unfold judgment_wfb, admissible; rewrite !andb_true_iff.
+  intros [[[Hrelations Hl] Hr] _]; split.
+  - apply Forall_app; split; apply Forall_forall;
+      intros o Hin; [apply forallb_forall with (x:=o) in Hl | apply forallb_forall with (x:=o) in Hr];
+      try assumption; unfold occurrence_wfb in *;
+      repeat match goal with H : _ && _ = true |- _ => apply andb_true_iff in H as [H ?] end;
+      apply label_nonemptyb_spec; assumption.
+  - apply Forall_forall; intros r Hin.
+    apply (proj1 (forallb_forall _ _) Hrelations r) in Hin.
+    unfold relation_wfb in Hin; apply andb_true_iff in Hin as [_ Hlabels].
+    unfold relation_admissible; apply Forall_forall; intros l Hmember.
+    apply (proj1 (forallb_forall _ _) Hlabels l) in Hmember.
+    apply andb_true_iff in Hmember as [_ Hne]; apply label_nonemptyb_spec; exact Hne.
 Qed.
-
 Lemma overlap_nonempty a b c : overlap a b c -> a <> [] /\ b <> [] /\ c <> [].
 Proof.
   intros [prefix [s [tail [-> [-> ->]]]]].
@@ -796,7 +497,7 @@ Qed.
 Lemma program_length p : forall tr, program_holds p tr -> 2 <= length tr.
 Proof.
   induction p; intros tr H; cbn [program_holds] in H.
-  - destruct H as [s ->]; cbn; lia.
+  - apply atomic_trace_law in H. destruct H as [s [next [-> _]]]; cbn; lia.
   - destruct H as [s [-> _]]; cbn; lia.
   - destruct H as [a [b [Ha [Hb Ho]]]].
     specialize (IHp1 a Ha). specialize (IHp2 b Hb).
@@ -813,33 +514,6 @@ Proof. apply overlap_list_snoc. Qed.
 (** Semantic equations for rule kernels. The assignment/test equations
     expose the last state of the current trace and append the resulting
     state. Their diamond versions share the same endpoint calculation. *)
-Lemma box_assignment prefix s x t a :
-  formula_holds (Box (Assign x t) a) (prefix ++ [s]) <->
-  formula_holds a ((prefix ++ [s]) ++ [write s x (eval_term s t)]).
-Proof.
-  assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  destruct (prefix ++ [s]) as [|head tail] eqn:Htr; [contradiction|].
-  cbn [formula_holds]. split.
-  - intro H; eapply H.
-    + exists s; reflexivity.
-    + rewrite <- Htr; apply overlap_snoc; auto.
-  - intros Ha execution result [start ->] Ho.
-    rewrite <- Htr in Ho. apply overlap_snoc in Ho as [-> ->]. now rewrite Htr.
-Qed.
-
-Lemma diamond_assignment prefix s x t a :
-  formula_holds (Diamond (Assign x t) a) (prefix ++ [s]) <->
-  formula_holds a ((prefix ++ [s]) ++ [write s x (eval_term s t)]).
-Proof.
-  assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  destruct (prefix ++ [s]) as [|head tail] eqn:Htr; [contradiction|].
-  cbn [formula_holds]. split.
-  - intros [execution [result [[start ->] [Ho Ha]]]].
-    rewrite <- Htr in Ho. apply overlap_snoc in Ho as [-> ->]. now rewrite Htr in Ha.
-  - intro Ha. exists [s; write s x (eval_term s t)], ((head :: tail) ++ [write s x (eval_term s t)]).
-    split; [exists s; reflexivity|]. split; [rewrite <- Htr; apply overlap_snoc; auto|exact Ha].
-Qed.
-
 Lemma box_test prefix s guard a :
   formula_holds (Box (Test guard) a) (prefix ++ [s]) <->
   (formula_holds guard [s;s] -> formula_holds a ((prefix ++ [s]) ++ [s])).
@@ -992,34 +666,6 @@ Qed.
 (** Instantiate the preceding trace equations at evaluated labels. These
     forms match the literal label trees in RULE_EXPANSIONS.md, including
     both the old and new assignment states and both copies of a test state. *)
-Lemma assignment_label w sigma u x t body tag tag' :
-  (labelled_holds w (Occ (Join sigma (StateLabel u)) (Box (Assign x t) body) tag) <->
-   labelled_holds w (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tag')).
-Proof.
-  unfold labelled_holds, label_admissible; cbn [occurrence_label occurrence_formula eval_label].
-  rewrite box_assignment.
-  assert (eval_label w sigma ++ [eval_update w u] <> []) by
-    (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  assert ((eval_label w sigma ++ [eval_update w u]) ++
-    [write (eval_update w u) x (eval_term (eval_update w u) t)] <> []) by
-    (intro H'; apply app_eq_nil in H'; destruct H'; discriminate).
-  tauto.
-Qed.
-
-Lemma diamond_assignment_label w sigma u x t body tag tag' :
-  (labelled_holds w (Occ (Join sigma (StateLabel u)) (Diamond (Assign x t) body) tag) <->
-   labelled_holds w (Occ (Join (Join sigma (StateLabel u)) (StateLabel (AssignUpdate x t u))) body tag')).
-Proof.
-  unfold labelled_holds, label_admissible; cbn [occurrence_label occurrence_formula eval_label].
-  rewrite diamond_assignment.
-  assert (eval_label w sigma ++ [eval_update w u] <> []) by
-    (intro H; apply app_eq_nil in H; destruct H; discriminate).
-  assert ((eval_label w sigma ++ [eval_update w u]) ++
-    [write (eval_update w u) x (eval_term (eval_update w u) t)] <> []) by
-    (intro H'; apply app_eq_nil in H'; destruct H'; discriminate).
-  tauto.
-Qed.
-
 Lemma box_test_label w sigma u guard body ta tb tg :
   labelled_holds w (Occ (Join sigma (StateLabel u)) (Box (Test guard) body) ta) <->
   (labelled_holds w (Occ (Join (StateLabel u) (StateLabel u)) guard tg) ->
@@ -1060,15 +706,16 @@ Proof.
   split; intros [_ H]; split; try discriminate; exact H.
 Qed.
 
-Lemma pure_head_label w u sigma body tag tag' : pureb body = true ->
+Lemma atom_head_label w u sigma body tag tag' :
+  (match body with Atom _ _ | BinaryAtom _ _ => true | _ => false end) = true ->
   (labelled_holds w (Occ (Join (StateLabel u) sigma) body tag) <->
    labelled_holds w (Occ (StateLabel u) body tag')).
 Proof.
-  intro Hp; unfold labelled_holds, label_admissible; cbn [occurrence_label occurrence_formula eval_label].
-  rewrite (pure_singleton body (eval_update w u) (eval_label w sigma) Hp).
-  split; intros [_ H]; split; try discriminate; exact H.
+  destruct body; intro H; try discriminate;
+    unfold labelled_holds, label_admissible;
+    cbn [occurrence_label occurrence_formula eval_label formula_holds];
+    split; intros [_ Hp]; split; try discriminate; exact Hp.
 Qed.
-
 Lemma proper_suffix_length a b : proper_suffix a b -> length a < length b.
 Proof.
   intros [_ [prefix [Hp ->]]]. rewrite length_app.
@@ -1218,369 +865,102 @@ Proof. cbn; intros [suffix [Hp _]]; now apply (no_singleton_suffix s suffix). Qe
     transformation is its own inverse, preserves endpoint matches, and can
     transport executions in both directions. Later [swap_values] chooses an
     involution that installs a desired eigenvariable value at the head. *)
-Section StateSwitch.
-Context (v : nat) (f : domain M -> domain M) (Hf : forall d, f (f d) = d).
-Definition switch s := write s v (f (s v)).
-
-Lemma switch_involutive s : switch (switch s) = s.
-Proof. unfold switch; rewrite write_same, write_shadow, Hf; apply write_current. Qed.
-Lemma switch_write s x d : x <> v -> switch (write s x d) = write (switch s) x d.
+(** Fresh world names affect neither existing assertions nor relations. *)
+Lemma eval_update_fresh w x value u : ~ In x (L.world_support u) ->
+  eval_update (replace_world w x value) u = eval_update w u.
 Proof.
-  intro Hx; unfold switch; rewrite write_other by exact Hx.
-  apply write_commute; exact Hx.
+  intro Hfresh; unfold eval_update; apply world_support_law.
+  intros y Hin; cbn [replace_world world_mapping].
+  destruct (Nat.eqb x y) eqn:Heq; [apply Nat.eqb_eq in Heq; subst; contradiction|reflexivity].
 Qed.
-Lemma switch_term t s : ~ In v (term_vars t) -> eval_term (switch s) t = eval_term s t.
-Proof. apply eval_term_fresh. Qed.
-Lemma switch_map_involutive tr : map switch (map switch tr) = tr.
-Proof. apply map_involutive, switch_involutive. Qed.
-
-(** For an involution, a forward preservation theorem already gives an
-    equivalence: apply preservation twice and cancel the two switches. *)
-Lemma switch_predicate_iff (Q : trace -> Prop) :
-  (forall tr, Q tr -> Q (map switch tr)) -> forall tr, Q (map switch tr) <-> Q tr.
-Proof.
-  intros H tr; split; [intro HQ; specialize (H _ HQ); now rewrite switch_map_involutive in H|apply H].
-Qed.
-
-Lemma switch_compose R T :
-  (forall tr, R (map switch tr) <-> R tr) ->
-  (forall tr, T (map switch tr) <-> T tr) -> forall tr,
-  compose R T (map switch tr) <-> compose R T tr.
-Proof.
-  intros HR HT; apply switch_predicate_iff; intros tr [a [b [Ha [Hb Ho]]]].
-  exists (map switch a), (map switch b); split; [apply HR; exact Ha|].
-  split; [apply HT; exact Hb|]. now apply overlap_list_map.
-Qed.
-
-Lemma switch_power R : (forall tr, R (map switch tr) <-> R tr) -> forall n tr,
-  finite_power R n (map switch tr) <-> finite_power R n tr.
-Proof.
-  intros HR n; induction n as [|n IH].
-  - apply switch_predicate_iff; intros tr [s ->]; exists (switch s); reflexivity.
-  - cbn [finite_power]; apply switch_compose; assumption.
-Qed.
-
-Lemma switch_box p a :
-  (forall tr, program_holds p (map switch tr) <-> program_holds p tr) ->
-  (forall tr, formula_holds a (map switch tr) <-> formula_holds a tr) -> forall tr,
-  formula_holds (Box p a) (map switch tr) <-> formula_holds (Box p a) tr.
-Proof.
-  intros Hp Ha; apply switch_predicate_iff; intros tr Hbox.
-  destruct tr as [|s tail]; [contradiction|]; cbn [map formula_holds] in *.
-  intros execution result Hprogram Hover.
-  pose proof (overlap_list_map switch _ _ _ Hover) as Ho.
-  change (overlap_list (map switch (map switch (s :: tail)))
-    (map switch execution) (map switch result)) in Ho.
-  rewrite switch_map_involutive in Ho.
-  apply (proj1 (Ha result)). eapply Hbox; [apply Hp; exact Hprogram|exact Ho].
-Qed.
-
-Lemma switch_diamond p a :
-  (forall tr, program_holds p (map switch tr) <-> program_holds p tr) ->
-  (forall tr, formula_holds a (map switch tr) <-> formula_holds a tr) -> forall tr,
-  formula_holds (Diamond p a) (map switch tr) <-> formula_holds (Diamond p a) tr.
-Proof.
-  intros Hp Ha; apply switch_predicate_iff; intros tr Hdiamond.
-  destruct tr as [|s tail]; [contradiction|]; cbn [map formula_holds] in *.
-  destruct Hdiamond as [execution [result [Hprogram [Hover Hbody]]]].
-  exists (map switch execution), (map switch result); split; [apply Hp; exact Hprogram|].
-  split; [exact (overlap_list_map switch (s :: tail) execution result Hover)|apply Ha; exact Hbody].
-Qed.
-
-(** The mutual induction follows every formula and program constructor.
-    Freshness excludes assignment targets as well as read variables, so
-    writes commute with the switch. Quantifiers likewise have different
-    binders. The modal cases use reversible execution transport; suffix
-    cases use their one-step equations and induction on finite traces. *)
-Lemma switch_semantics :
-  (forall a, ~ In v (formula_vars a) -> forall tr,
-    formula_holds a (map switch tr) <-> formula_holds a tr) /\
-  (forall p, ~ In v (program_vars p) -> forall tr,
-    program_holds p (map switch tr) <-> program_holds p tr).
-Proof.
-  apply formula_program_mutind.
-  - intros Hfresh [|s tail]; reflexivity.
-  - intros Hfresh [|s tail]; reflexivity.
-  - intros p args Hfresh [|s tail]; [reflexivity|]. cbn [map formula_holds].
-    assert (map (eval_term (switch s)) args = map (eval_term s) args) as Heq.
-    { apply map_ext_in; intros t Hin; apply switch_term.
-      intro H; apply Hfresh; apply in_flat_map; exists t; auto. }
-    now rewrite Heq.
-  - intros a b Hfresh [|s tail]; [reflexivity|]. cbn [map formula_holds].
-    rewrite !switch_term; try (intro H; apply Hfresh; apply in_app_iff; auto); reflexivity.
-  - intros a IH Hfresh [|s tail]; [reflexivity|].
-    change (~ formula_holds a (map switch (s :: tail)) <-> ~ formula_holds a (s :: tail)).
-    now rewrite IH by exact Hfresh.
-  - intros a Ha b Hb Hfresh [|s tail]; [reflexivity|].
-    change ((formula_holds a (map switch (s :: tail)) /\ formula_holds b (map switch (s :: tail))) <->
-      (formula_holds a (s :: tail) /\ formula_holds b (s :: tail))).
-    rewrite Ha, Hb; try (intro H; apply Hfresh; apply in_app_iff; auto); tauto.
-  - intros a Ha b Hb Hfresh [|s tail]; [reflexivity|].
-    change ((formula_holds a (map switch (s :: tail)) \/ formula_holds b (map switch (s :: tail))) <->
-      (formula_holds a (s :: tail) \/ formula_holds b (s :: tail))).
-    rewrite Ha, Hb; try (intro H; apply Hfresh; apply in_app_iff; auto); tauto.
-  - intros a Ha b Hb Hfresh [|s tail]; [reflexivity|].
-    change ((formula_holds a (map switch (s :: tail)) -> formula_holds b (map switch (s :: tail))) <->
-      (formula_holds a (s :: tail) -> formula_holds b (s :: tail))).
-    rewrite Ha, Hb; try (intro H; apply Hfresh; apply in_app_iff; auto); tauto.
-  - intros x a IH Hfresh tr.
-    assert (x <> v) as Hx by (intro H; subst; apply Hfresh; now left).
-    assert (~ In v (formula_vars a)) as Ha by (intro H; apply Hfresh; now right).
-    destruct tr as [|s tail]; [reflexivity|]. cbn [formula_holds map].
-    assert (forall d, map (fun s => write s x d) (map switch (s :: tail)) =
-      map switch (map (fun s => write s x d) (s :: tail))) as Hmaps.
-    { intro d; rewrite !map_map; apply map_ext; intro state'; symmetry; apply switch_write; exact Hx. }
-    change ((forall d, formula_holds a (map (fun s => write s x d) (map switch (s :: tail)))) <->
-      (forall d, formula_holds a (map (fun s => write s x d) (s :: tail)))).
-    split; intros H d; specialize (H d).
-    + rewrite Hmaps in H; apply (proj1 (IH Ha _)); exact H.
-    + rewrite Hmaps; apply (proj2 (IH Ha _)); exact H.
-  - intros x a IH Hfresh tr.
-    assert (x <> v) as Hx by (intro H; subst; apply Hfresh; now left).
-    assert (~ In v (formula_vars a)) as Ha by (intro H; apply Hfresh; now right).
-    destruct tr as [|s tail]; [reflexivity|]. cbn [formula_holds map].
-    assert (forall d, map (fun s => write s x d) (map switch (s :: tail)) =
-      map switch (map (fun s => write s x d) (s :: tail))) as Hmaps.
-    { intro d; rewrite !map_map; apply map_ext; intro state'; symmetry; apply switch_write; exact Hx. }
-    change ((exists d, formula_holds a (map (fun s => write s x d) (map switch (s :: tail)))) <->
-      (exists d, formula_holds a (map (fun s => write s x d) (s :: tail)))).
-    split; intros [d H]; exists d.
-    + rewrite Hmaps in H; apply (proj1 (IH Ha _)); exact H.
-    + rewrite Hmaps; apply (proj2 (IH Ha _)); exact H.
-  - intros a IH Hfresh [|s tail]; [reflexivity|]; change (formula_holds a (map switch [s]) <-> formula_holds a [s]); apply IH; exact Hfresh.
-  - intros a Ha b Hb Hfresh tr.
-    assert (~ In v (formula_vars a) /\ ~ In v (formula_vars b)) as [Hfa Hfb]
-      by (split; intro H; apply Hfresh; apply in_app_iff; auto).
-    induction tr as [|s tail IH]; [reflexivity|]. destruct tail as [|t tail].
-    + cbn [map]; split; intro H; exfalso; eapply suffix_singleton; exact H.
-    + change (formula_holds (Suffix a b) (switch s :: map switch (t :: tail)) <-> formula_holds (Suffix a b) (s :: t :: tail)).
-      rewrite !suffix_step by discriminate. rewrite Ha, Hb, IH by assumption; reflexivity.
-  - intros a Ha b Hb Hfresh tr.
-    assert (~ In v (formula_vars a) /\ ~ In v (formula_vars b)) as [Hfa Hfb]
-      by (split; intro H; apply Hfresh; apply in_app_iff; auto).
-    induction tr as [|s tail IH]; [reflexivity|]. destruct tail as [|t tail].
-    + cbn [map]; split; intro H; apply dual_suffix_singleton.
-    + change (formula_holds (DualSuffix a b) (switch s :: map switch (t :: tail)) <-> formula_holds (DualSuffix a b) (s :: t :: tail)).
-      rewrite !dual_suffix_step by discriminate. rewrite Ha, Hb, IH by assumption; reflexivity.
-  - intros p Hp a Ha Hfresh; apply switch_box;
-      [apply Hp|apply Ha]; intro H; apply Hfresh; apply in_app_iff; auto.
-  - intros p Hp a Ha Hfresh; apply switch_diamond;
-      [apply Hp|apply Ha]; intro H; apply Hfresh; apply in_app_iff; auto.
-  - intros x t Hfresh. apply switch_predicate_iff; intros tr [s ->].
-    assert (x <> v) as Hx by (intro H; subst; apply Hfresh; now left).
-    assert (~ In v (term_vars t)) as Ht by (intro H; apply Hfresh; now right).
-    cbn [map]. exists (switch s). rewrite switch_write by exact Hx.
-    rewrite switch_term by exact Ht; reflexivity.
-  - intros a Ha Hfresh; apply switch_predicate_iff; intros tr [s [-> Hguard]].
-    exists (switch s); split; [reflexivity|]. apply (proj2 (Ha Hfresh [s;s])); exact Hguard.
-  - intros a Ha b Hb Hfresh; apply switch_compose;
-      [apply Ha|apply Hb]; intro H; apply Hfresh; apply in_app_iff; auto.
-  - intros a Ha b Hb Hfresh tr; cbn [program_holds].
-    rewrite Ha, Hb; try (intro H; apply Hfresh; apply in_app_iff; auto); reflexivity.
-  - intros a Ha Hfresh tr; cbn [program_holds].
-    setoid_rewrite (switch_power (program_holds a) (Ha Hfresh)); reflexivity.
-Qed.
-
-(** Switch every state in both label environments. Mapping a nonempty trace
-    preserves nonemptiness, so the environment remains a valid [world]. The
-    following lemmas lift the semantic switch through updates, labels and
-    whole contexts under the same syntactic freshness condition. *)
-Definition switch_world (w : world) : world.
-Proof.
-  refine (World (fun x => switch (world_mapping w x))
-    (fun x => map switch (trace_mapping w x)) _).
-  intros x Heq; apply map_eq_nil in Heq; apply (trace_mapping_nonempty w x); exact Heq.
-Defined.
-
-Lemma switch_update w u : ~ In v (update_vars u) ->
-  eval_update (switch_world w) u = switch (eval_update w u).
-Proof.
-  induction u; intro Hfresh; cbn [eval_update]; [reflexivity|].
-  assert (x <> v) as Hx by (intro H; subst; apply Hfresh; now left).
-  assert (~ In v (term_vars value)) as Ht by
-    (intro H; apply Hfresh; right; apply in_app_iff; auto).
-  assert (~ In v (update_vars u)) as Hu by
-    (intro H; apply Hfresh; right; apply in_app_iff; auto).
-  rewrite IHu by exact Hu; rewrite switch_term by exact Ht.
-  symmetry; apply switch_write; exact Hx.
-Qed.
-
-Lemma switch_label w l : ~ In v (label_vars l) ->
-  eval_label (switch_world w) l = map switch (eval_label w l).
+Lemma eval_label_fresh w x value l : ~ In x (label_world_names l) ->
+  eval_label (replace_world w x value) l = eval_label w l.
 Proof.
   induction l; intro Hfresh; cbn [eval_label]; try reflexivity.
-  - now rewrite switch_update by exact Hfresh.
-  - rewrite IHl1, IHl2, map_app; try reflexivity;
-      intro H; apply Hfresh; apply in_app_iff; auto.
+  - rewrite eval_update_fresh; [reflexivity|exact Hfresh].
+  - rewrite IHl1, IHl2; try reflexivity; intro H; apply Hfresh; apply in_app_iff; auto.
 Qed.
-
-Lemma switch_labelled w o : ~ In v (occurrence_vars o) ->
-  (labelled_holds (switch_world w) o <-> labelled_holds w o).
+Lemma eval_fresh_name w x value :
+  eval_update (replace_world w x value) (L.world_name x) = value.
 Proof.
-  intro Hfresh.
-  assert (~ In v (label_vars o.(occurrence_label))) as Hl by
-    (intro H; apply Hfresh; apply in_app_iff; auto).
-  assert (~ In v (formula_vars o.(occurrence_formula))) as Ha by
-    (intro H; apply Hfresh; apply in_app_iff; auto).
-  unfold labelled_holds, label_admissible; rewrite switch_label by exact Hl.
-  rewrite (proj1 switch_semantics _ Ha).
-  assert (map switch (eval_label w o.(occurrence_label)) <> [] <-> eval_label w o.(occurrence_label) <> []) as Hne.
-  { split; intros H Heq; [apply H; now rewrite Heq|apply map_eq_nil in Heq; contradiction]. }
-  tauto.
+  unfold eval_update; rewrite world_name_law; cbn [replace_world world_mapping]; now rewrite Nat.eqb_refl.
 Qed.
-
-Lemma switch_left_context w context :
-  (forall o, In o context -> ~ In v (occurrence_vars o)) ->
-  (left_holds (switch_world w) context <-> left_holds w context).
+Lemma fresh_occurrence j x o : world_freshb x j = true ->
+  In o (j.(antecedent) ++ j.(succedent)) -> ~ In x (label_world_names o.(occurrence_label)).
 Proof.
-  intro Hfresh; unfold left_holds; rewrite !Forall_forall.
-  split; intros H o Hin.
-  - apply (proj1 (switch_labelled w o (Hfresh o Hin))); apply H; exact Hin.
-  - apply (proj2 (switch_labelled w o (Hfresh o Hin))); apply H; exact Hin.
+  intros Hfresh Hin Hbad; apply world_freshb_spec in Hfresh; apply Hfresh.
+  unfold judgment_world_names; apply in_app_iff; right; apply in_flat_map; exists o; auto.
 Qed.
-
-Lemma switch_right_context w context :
-  (forall o, In o context -> ~ In v (occurrence_vars o)) ->
-  (right_holds (switch_world w) context <-> right_holds w context).
+Lemma fresh_relation_label j x r l : world_freshb x j = true ->
+  In r j.(relations) -> In l (relation_labels r) -> ~ In x (label_world_names l).
 Proof.
-  intro Hfresh; unfold right_holds; split; intros [o [Hin Ho]]; exists o; split; try exact Hin.
-  - apply (proj1 (switch_labelled w o (Hfresh o Hin))); exact Ho.
-  - apply (proj2 (switch_labelled w o (Hfresh o Hin))); exact Ho.
+  intros Hfresh Hr Hl Hbad; apply world_freshb_spec in Hfresh; apply Hfresh.
+  unfold judgment_world_names; apply in_app_iff; left; apply in_flat_map; exists r; split; [exact Hr|].
+  apply in_flat_map; exists l; auto.
 Qed.
-
-Lemma switch_denote w j : ~ In v (judgment_vars j) ->
-  (denote j (switch_world w) <-> denote j w).
+Lemma labelled_fresh w x value o : ~ In x (label_world_names o.(occurrence_label)) ->
+  (labelled_holds (replace_world w x value) o <-> labelled_holds w o).
+Proof. intro H; unfold labelled_holds, label_admissible; now rewrite eval_label_fresh. Qed.
+Lemma relation_fresh w x value r :
+  (forall l, In l (relation_labels r) -> ~ In x (label_world_names l)) ->
+  (relation_holds (replace_world w x value) r <-> relation_holds w r).
 Proof.
-  intro Hfresh.
-  assert (forall o, In o (j.(antecedent) ++ j.(succedent)) -> ~ In v (occurrence_vars o)) as Hocc.
-  { intros o Hin Hvar; apply Hfresh; apply in_flat_map; exists o; auto. }
-  assert (admissible j (switch_world w) <-> admissible j w) as Hadm.
-  { unfold admissible; rewrite !Forall_forall; split; intros H o Hin;
-      specialize (H o Hin); unfold label_admissible in *;
-      rewrite switch_label in * by (intro Hv; apply (Hocc o Hin); apply in_app_iff; auto).
-    - intro Heq; apply H; now rewrite Heq.
-    - intro Heq; apply map_eq_nil in Heq; contradiction. }
-  assert (left_holds (switch_world w) j.(antecedent) <-> left_holds w j.(antecedent)) as Hl.
-  { unfold left_holds; rewrite !Forall_forall; split; intros H o Hin;
-      assert (~ In v (occurrence_vars o)) as Hfresh_o by (apply Hocc; apply in_app_iff; auto).
-    - apply (proj1 (switch_labelled w o Hfresh_o)); apply H; exact Hin.
-    - apply (proj2 (switch_labelled w o Hfresh_o)); apply H; exact Hin. }
-  assert (right_holds (switch_world w) j.(succedent) <-> right_holds w j.(succedent)) as Hr.
-  { unfold right_holds; split; intros [o [Hin Ho]]; exists o; split; try exact Hin;
-      assert (~ In v (occurrence_vars o)) as Hfresh_o by (apply Hocc; apply in_app_iff; auto).
-    - apply (proj1 (switch_labelled w o Hfresh_o)); exact Ho.
-    - apply (proj2 (switch_labelled w o Hfresh_o)); exact Ho. }
-  unfold denote; rewrite Hadm, Hl, Hr; reflexivity.
+  destruct r as [a p source target|symbol args]; intro H; cbn [relation_holds].
+  - rewrite !eval_label_fresh; try reflexivity; apply H; cbn; auto.
+  - assert (map (eval_label (replace_world w x value)) args = map (eval_label w) args) as ->.
+    { apply map_ext_in; intros l Hin; apply eval_label_fresh, H; exact Hin. }
+    reflexivity.
 Qed.
-
-End StateSwitch.
-
-(** Exchange two arbitrary model values and fix all other values. Classical
-    equality is used internally; the model interface still requires no
-    executable equality decision. Swapping also works when the values agree. *)
-Definition swap_values (a b d : domain M) : domain M :=
-  if excluded_middle_informative (d = a) then b
-  else if excluded_middle_informative (d = b) then a else d.
-
-Lemma swap_values_left a b : swap_values a b a = b.
-Proof. unfold swap_values; destruct (excluded_middle_informative (a = a)); congruence. Qed.
-Lemma swap_values_right a b : swap_values a b b = a.
+Lemma relations_fresh j w x value : world_freshb x j = true ->
+  (relations_hold (replace_world w x value) j.(relations) <-> relations_hold w j.(relations)).
 Proof.
-  unfold swap_values; destruct (excluded_middle_informative (b = a)); [congruence|].
-  destruct (excluded_middle_informative (b = b)); congruence.
+  intro Hfresh; unfold relations_hold; rewrite !Forall_forall.
+  split; intros H r Hin; specialize (H r Hin);
+    assert (forall l, In l (relation_labels r) -> ~ In x (label_world_names l)) as Hlabels
+      by (intros l Hl; eapply fresh_relation_label; eauto);
+    apply (relation_fresh w x value r Hlabels); exact H.
 Qed.
-Lemma swap_values_involutive a b d : swap_values a b (swap_values a b d) = d.
+Lemma box_atomic prefix s action payload body :
+  formula_holds (Box (Atomic action payload) body) (prefix ++ [s]) <->
+  forall next, interpret_action M action payload s next ->
+    formula_holds body ((prefix ++ [s]) ++ [next]).
 Proof.
-  destruct (excluded_middle_informative (d = a)) as [->|Hda]; [now rewrite swap_values_left, swap_values_right|].
-  destruct (excluded_middle_informative (d = b)) as [->|Hdb]; [now rewrite swap_values_right, swap_values_left|].
-  assert (swap_values a b d = d) as Hd.
-  { unfold swap_values; destruct (excluded_middle_informative (d = a)); [contradiction|].
-    destruct (excluded_middle_informative (d = b)); [contradiction|reflexivity]. }
-  now rewrite Hd.
+  assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
+  destruct (prefix ++ [s]) as [|head tail] eqn:Htr; [contradiction|].
+  cbn [formula_holds]; split.
+  - intros H next Hstep; eapply H.
+    + cbn [program_holds]; apply atomic_trace_law; exists s, next; auto.
+    + rewrite <- Htr; apply overlap_snoc; auto.
+  - intros H execution result Hp Ho.
+    cbn [program_holds] in Hp; apply atomic_trace_law in Hp.
+    destruct Hp as [start [next [-> Hstep]]].
+    rewrite <- Htr in Ho; apply overlap_snoc in Ho as [-> ->].
+    rewrite Htr; apply H; exact Hstep.
 Qed.
-
-Lemma fol_write_fresh body s u v value other : pureb body = true -> ~ In v (formula_vars body) ->
-  (fol_holds body (write (write s v other) u value) <-> fol_holds body (write s u value)).
+Lemma diamond_atomic prefix s action payload body :
+  formula_holds (Diamond (Atomic action payload) body) (prefix ++ [s]) <->
+  exists next, interpret_action M action payload s next /\
+    formula_holds body ((prefix ++ [s]) ++ [next]).
 Proof.
-  intros Hp Hv; destruct (Nat.eq_dec u v) as [->|Huv].
-  - now rewrite write_shadow.
-  - rewrite write_commute by congruence; apply fol_fresh; assumption.
-Qed.
-
-(** If the head's current [v] value is exchanged with [d], evaluating the
-    fresh-variable instance in the switched world means evaluating the
-    quantified body with [u := d] in the original head state. Label freshness
-    is essential: an update mentioning [v] could otherwise overwrite it. *)
-Lemma eigen_instance w l u v body d s tail :
-  eval_label w l = s :: tail -> ~ In v (label_vars l) ->
-  pureb body = true -> ~ In v (formula_vars body) ->
-  (formula_holds (subst_fo u (Var v) body)
-    (eval_label (switch_world v (swap_values (s v) d) w) l) <->
-   fol_holds body (write s u d)).
-Proof.
-  intros Hlabel Hl Hp Hv.
-  rewrite switch_label by exact Hl; rewrite Hlabel.
-  change (formula_holds (subst_fo u (Var v) body)
-    (switch v (swap_values (s v) d) s :: map (switch v (swap_values (s v) d)) tail) <-> fol_holds body (write s u d)).
-  rewrite (pure_head (subst_fo u (Var v) body)) by (apply subst_fo_fuel_pure; exact Hp).
-  rewrite subst_fo_correct by exact Hp.
-  cbn [eval_term]; unfold switch; rewrite write_same, swap_values_left.
-  apply fol_write_fresh; assumption.
-Qed.
-
-(** Arbitrary-term instantiation reduces via [pure_head] to the proved FOL
-    substitution theorem. It does not assert a substitution law for a modal
-    quantifier body or freeze a term's value across a changing program run. *)
-Lemma all_instantiation body u t tr : pureb body = true -> tr <> [] ->
-  formula_holds (All u body) tr -> formula_holds (subst_fo u t body) tr.
-Proof.
-  intros Hp Hne; destruct tr as [|s tail]; [contradiction|].
-  rewrite (pure_head (All u body)) by exact Hp.
-  rewrite (pure_head (subst_fo u t body)) by (apply subst_fo_fuel_pure; exact Hp).
-  rewrite subst_fo_correct by exact Hp. cbn [fol_holds]; auto.
-Qed.
-
-Lemma ex_instantiation body u t tr : pureb body = true -> tr <> [] ->
-  formula_holds (subst_fo u t body) tr -> formula_holds (Ex u body) tr.
-Proof.
-  intros Hp Hne; destruct tr as [|s tail]; [contradiction|].
-  rewrite (pure_head (Ex u body)) by exact Hp.
-  rewrite (pure_head (subst_fo u t body)) by (apply subst_fo_fuel_pure; exact Hp).
-  rewrite subst_fo_correct by exact Hp. cbn [fol_holds]; eauto.
-Qed.
-
-(** For a pure observation, [Always] is exactly the observation at every
-    visited state. The complex benchmarks use this to turn finite-trace
-    safety induction into an object-language temporal validity theorem. *)
-Lemma always_pure_forall a tr : pureb a = true -> tr <> [] ->
-  (formula_holds (Always a) tr <-> Forall (fun s => formula_holds a [s]) tr).
-Proof.
-  intros Hp; induction tr as [|s tail IH]; intro Hne; [contradiction|].
-  destruct tail as [|t tail].
-  - unfold Always, Eventually; rewrite !nonempty_neg by discriminate.
-    change (~ (~ formula_holds a [s] \/ formula_holds (Suffix Truth (Neg a)) [s]) <-> Forall (fun s => formula_holds a [s]) [s]).
-    rewrite Forall_cons_iff. pose proof (suffix_singleton Truth (Neg a) s) as Hsuffix.
-    split; [intro H; split; [tauto|constructor]|intros [H _]; tauto].
-  - specialize (IH ltac:(discriminate)).
-    unfold Always, Eventually in *.
-    rewrite nonempty_neg in * by discriminate.
-    change (~ (formula_holds (Neg a) (s :: t :: tail) \/
-      formula_holds (Suffix Truth (Neg a)) (s :: t :: tail)) <-> Forall (fun s => formula_holds a [s]) (s :: t :: tail)).
-    rewrite nonempty_neg, suffix_step by discriminate.
-    rewrite nonempty_neg by discriminate.
-    change (formula_holds Truth (t :: tail)) with True.
-    rewrite (pure_singleton a s (t :: tail) Hp).
-    change (~ (formula_holds (Neg a) (t :: tail) \/ formula_holds (Suffix Truth (Neg a)) (t :: tail)) <-> Forall (fun s => formula_holds a [s]) (t :: tail)) in IH.
-    rewrite nonempty_neg in IH by discriminate.
-    rewrite (pure_singleton a t tail Hp) in *.
-    rewrite Forall_cons_iff. tauto.
+  assert (prefix ++ [s] <> []) as Hne by (intro H; apply app_eq_nil in H; destruct H; discriminate).
+  destruct (prefix ++ [s]) as [|head tail] eqn:Htr; [contradiction|].
+  cbn [formula_holds]; split.
+  - intros [execution [result [Hp [Ho Hbody]]]].
+    cbn [program_holds] in Hp; apply atomic_trace_law in Hp.
+    destruct Hp as [start [next [-> Hstep]]].
+    rewrite <- Htr in Ho; apply overlap_snoc in Ho as [-> ->].
+    exists next; split; [exact Hstep|]. rewrite Htr in Hbody; exact Hbody.
+  - intros [next [Hstep Hbody]].
+    exists [s;next], ((head::tail) ++ [next]); split.
+    + cbn [program_holds]; apply atomic_trace_law; exists s, next; auto.
+    + split; [rewrite <- Htr; apply overlap_snoc; auto|exact Hbody].
 Qed.
 
 End Interpretation.
-
-(** Package a chosen model for the later [ForModel] functors. This module
-    type belongs to this particular syntax/semantics functor instance. *)
 Module Type INTERPRETATION.
   Parameter interpretation : model.
 End INTERPRETATION.
 End MakeSemantics.
+Module Type SEMANTICS (L : LANGUAGE) (Syn : SYNTAX L).
+  Include MakeSemantics L Syn.
+End SEMANTICS.

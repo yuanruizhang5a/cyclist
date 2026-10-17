@@ -1,0 +1,25 @@
+{
+  "source": "FOPL/Benchmarks/Booleans.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/Benchmarks/Booleans.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.7260585350013571,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "16e79a86c0eca39fe1d682e5e6f8268523de9e474d095211440cbe1f3a86a3f2",
+  "dependency_sha256": {
+    "LPL/FOPL/Benchmarks/Support.v": "55a511a75bab1361d5d48af789e75cad560c55b4ddb0df58e102930374315756"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-Benchmarks-Booleans.v.txt"
+}

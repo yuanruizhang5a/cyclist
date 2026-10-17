@@ -1,0 +1,26 @@
+{
+  "source": "FOPL/LegacyReference/Semantics.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "FOPL/LegacyReference/Semantics.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 1.3636542029998964,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "b23c076e15f6186918160e0a0b0e45fe7747cb72058e7f837fc0c07d61f01edf",
+  "dependency_sha256": {
+    "LPL/FOPL/Signature.v": "9fcccedc45bf8585945e4c03616d5bc87badb8249d12385bfbc9ca3391dc4b9a",
+    "LPL/FOPL/LegacyReference/Syntax.v": "87be9e815bddcc5987879a4cc64e2b58084e3e848b19b1e8b8427860962f6ca5"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/FOPL-LegacyReference-Semantics.v.txt"
+}

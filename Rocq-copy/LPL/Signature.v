@@ -1,23 +1,30 @@
-(** * The vocabulary of the object logic
+(** * Parameters of labelled process logic
 
-    Start here, then read Syntax.v and Semantics.v. A [SIGNATURE] supplies
-    names and argument counts; a semantic model later assigns meanings to
-    those names. Keeping the two interfaces separate lets the same syntax be
-    interpreted over integers, Booleans, or an arbitrary nonempty carrier. *)
+    A language supplies only reified data and executable syntax checks.
+    Semantic truth and state equality are deliberately absent here.
+
+    Two atomic/extension slots preserve the existing first-order constructor
+    interface without imposing first-order meanings on the shared theory.
+    Plain PPL uses the first atomic slot, no extension tokens, and a unit
+    action payload. Structured languages may use every slot. *)
 From Stdlib Require Import List.
 
-(** Finitary, single-sorted signatures. Equality is required only for syntax;
-    models need neither decidable equality nor decidable predicate truth. *)
-Module Type SIGNATURE.
-  (** Function and predicate symbols occupy separate namespaces. A constant
-      is simply a function symbol whose arity is zero. *)
-  Parameter function_symbol predicate_symbol : Type.
-  (** These decisions compare names in reified syntax. They make executable
-      formula/judgment comparison possible without comparing model values. *)
-  Parameter function_eq_dec : forall x y : function_symbol, {x = y} + {x <> y}.
-  Parameter predicate_eq_dec : forall x y : predicate_symbol, {x = y} + {x <> y}.
-  (** Syntax.v checks list lengths against these arities before a concrete
-      rule instance can cross the well-formedness boundary. *)
-  Parameter function_arity : function_symbol -> nat.
-  Parameter predicate_arity : predicate_symbol -> nat.
-End SIGNATURE.
+Module Type LANGUAGE.
+  Parameter atom_symbol argument binder action_symbol action_argument world_term relation_symbol : Type.
+  Parameter atom_eq_dec : forall x y : atom_symbol, {x=y}+{x<>y}.
+  Parameter argument_eq_dec : forall x y : argument, {x=y}+{x<>y}.
+  Parameter binder_eq_dec : forall x y : binder, {x=y}+{x<>y}.
+  Parameter action_eq_dec : forall x y : action_symbol, {x=y}+{x<>y}.
+  Parameter action_argument_eq_dec : forall x y : action_argument, {x=y}+{x<>y}.
+  Parameter world_term_eq_dec : forall x y : world_term, {x=y}+{x<>y}.
+  Parameter relation_eq_dec : forall x y : relation_symbol, {x=y}+{x<>y}.
+  Parameter atom_wfb : atom_symbol -> list argument -> bool.
+  Parameter binary_atom_wfb : argument -> argument -> bool.
+  Parameter extension_wfb coextension_wfb : binder -> bool -> bool.
+  Parameter action_wfb : action_symbol -> action_argument -> bool.
+  Parameter world_term_wfb : world_term -> bool.
+  Parameter custom_relation_wfb : relation_symbol -> nat -> bool.
+  Parameter world_name : nat -> world_term.
+  Parameter world_support : world_term -> list nat.
+  Parameter subst_world : nat -> world_term -> world_term -> world_term.
+End LANGUAGE.

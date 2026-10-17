@@ -1,0 +1,25 @@
+{
+  "source": "Syntax.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Syntax.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.6082587789933314,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "20345e18f1eb1b1316fbc611e785d7e537b07726ccb688859488151ab270982c",
+  "dependency_sha256": {
+    "LPL/Signature.v": "7bca973ea503a0630d2f716369b4796360f3adf648e4fb66b73f5b573a0937ad"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/Syntax.v.txt"
+}

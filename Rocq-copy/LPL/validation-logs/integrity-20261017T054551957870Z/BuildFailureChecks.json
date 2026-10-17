@@ -1,0 +1,23 @@
+[
+  {
+    "case": "dependency_failure_tracking",
+    "repeat_attempts": 2,
+    "active_set_cleared": true
+  },
+  {
+    "case": "compile_failure",
+    "exit_status": 1,
+    "stale_success_replaced": true,
+    "report_status": "failed"
+  },
+  {
+    "case": "missing_dependency",
+    "exit_status": 1,
+    "stale_success_replaced": true,
+    "report_status": "failed"
+  },
+  {
+    "case": "outside_report_path",
+    "rejected_before_write": true
+  }
+]

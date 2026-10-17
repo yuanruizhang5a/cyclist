@@ -1,0 +1,26 @@
+{
+  "source": "Benchmarks/PPL/SafetySystem.v",
+  "cached": false,
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "compile",
+    "-Q",
+    "..",
+    "CyclistRocq",
+    "-noglob",
+    "Benchmarks/PPL/SafetySystem.v"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "elapsed_seconds": 0.45121040000231005,
+  "exit_status": 0,
+  "timeout": false,
+  "source_sha256": "87cb85ef91feffe6a22abd28030b08f1ffaeee97afbd3549710b9438c23008f5",
+  "dependency_sha256": {
+    "LPL/TraceSafety.v": "5fe5f811ec3e09da96b9092205462dbd35630ab1af0cb63bfa064e5dbacfc858",
+    "LPL/Benchmarks/PPL/Support.v": "72d9930ce619bccad9e5c75358912aab37bbf331b9cb447743e8fe287c8c2dd3"
+  },
+  "log": "benchmark-logs/refine-20261017T054643680535Z/Benchmarks-PPL-SafetySystem.v.txt"
+}

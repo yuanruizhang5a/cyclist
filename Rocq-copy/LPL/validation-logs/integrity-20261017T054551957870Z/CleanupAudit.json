@@ -1,0 +1,21 @@
+{
+  "original_files": 1353,
+  "original_files_unchanged_or_recoverable": 1353,
+  "missing": [],
+  "surviving_sources": 51,
+  "source_declarations_and_proofs_unchanged_except_imports": true,
+  "changed_source_imports": [
+    "FOPL/Benchmarks/CounterLoop.v",
+    "FOPL/Benchmarks/NestedProgram.v",
+    "FOPL/LegacyReference/Progress.v",
+    "FOPL/LegacyReference/Semantics.v",
+    "FOPL/LegacyReference/Syntax.v"
+  ],
+  "removed_sources": [
+    "FOPL/Benchmarks/InvariantSupport.v",
+    "FOPL/LegacyReference/Signature.v"
+  ],
+  "post_build_sidecars_moved": 154,
+  "old_bytes": 233037336,
+  "current_bytes": 136740689
+}

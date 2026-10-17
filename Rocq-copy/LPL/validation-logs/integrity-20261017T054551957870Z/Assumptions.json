@@ -1,0 +1,18 @@
+{
+  "command": [
+    "timeout",
+    "--signal=KILL",
+    "600s",
+    "rocq",
+    "repl",
+    "-quiet",
+    "-Q",
+    "..",
+    "CyclistRocq"
+  ],
+  "cwd": "/home/zyr/myCode/cyclist/Rocq-copy/LPL",
+  "exit_code": 0,
+  "elapsed_seconds": 1.247,
+  "commands": "From CyclistRocq.LPL.Benchmarks.PPL Require Import Support.\nPrint Assumptions Kernel.P.atomic_minimum_successor.\nPrint Assumptions Kernel.box_atomic_right.\nPrint Assumptions Kernel.box_atomic_left.\nPrint Assumptions Kernel.diamond_atomic_right.\nPrint Assumptions Kernel.diamond_atomic_left.\nPrint Assumptions Generation.generate_requested_spec.\nPrint Assumptions Cert.raw_check_sound.\nQuit.\n",
+  "errors_present": false
+}

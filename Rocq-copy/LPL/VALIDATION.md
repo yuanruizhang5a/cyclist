@@ -1,126 +1,107 @@
-# LPL implementation validation
+# LPL integrity validation
 
-The implementation follows D1–D4 and all eight implementation stages in
-[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). The final syntax audit adds
-explicit reflection for the FOL grammar and well-formedness predicates, plus
-proofs that capture-avoiding and sorted label substitutions preserve their
-syntax invariants. The API and semantic conventions are in [README.md](README.md).
+The implementation contains **51 Rocq sources**, each listed exactly once in
+`_CoqProject` and the build inventory. The eight generic implementations live
+at the root; FOPL supplies its specialization, and the two benchmark suites
+exercise both instances. [README.md](README.md) describes the public API.
 
-## Learner comments
+## Fresh build and benchmarks
 
-All 24 `.v` files now include reading guides and explanations of their central
-definitions, proof strategies, module connections and benchmark steps. A
-[comment audit](validation-logs/20261016T172216122771Z/CommentAudit.json) compares
-each file with its version before annotation, removing nested comments and
-preserving quoted strings: all code-token sequences are unchanged. It also
-confirms that every current source hash matches the new successful benchmark
-run and all 13 `Cyclic/` files retain their original bytes.
+Run `20261017T054643680535Z` rebuilt every source from scratch using Rocq 9.1.0
+(OCaml 4.14.1). All **29/29 benchmark units passed**: 15 FOPL and 14 PPL.
+All 22 common modules were freshly compiled. The hard per-command limit
+remains 600 seconds; the slowest benchmark took
+**13.878 seconds**.
+Commands, hashes, timings, proof modes, assumptions and compiler output are in
+[BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md) and its
+[JSON record](BENCHMARK_RESULTS.json).
 
-The benchmark build below was rerun after annotation. The independent kernel,
-existing-theory regression and initial scope records are preserved from the
-implementation verification; the comment update changes no definitions or
-proof terms.
-
-## Proof obligations
-
-| Obligation | Implemented evidence |
-| --- | --- |
-| Arbitrary signatures and models | `Signature.v`, `Semantics.v`; independent Boolean and integer instances and an abstract-model functor in `Benchmarks/Signatures.v` |
-| Recursive pure-FOL quantifier bodies, arities, labels and tags | `pureb_spec`, `term_wfb_spec`, `formula_program_wfb_spec`, `judgment_wfb_spec` in `Syntax.v` |
-| Capture avoidance and substitution preservation | `subst_fo_correct` in `Semantics.v`; `subst_fo_wf`, `subst_fo_pure`, and sorted label-substitution preservation in `Syntax.v` |
-| Assignments, tests and context freshness | Exact assignment/test semantic laws and `switch_semantics` in `Semantics.v`; the mutual freshness proof includes program assignments, test guards and bound variables |
-| Both label-variable sorts | `eval_world_substitution`, `eval_world_label_substitution`, `eval_trace_label_substitution`; no world-to-trace substitution |
-| Append labels and nonempty assertions | Label unit/length laws, `label_nonemptyb_spec`, `valid_admissible`, `false_sequent` in `Semantics.v` |
-| Mathematical counterexample minima | `minimum_spec`, `false_minimum_exists` in `Progress.v`, using summed trace lengths |
-| Trace transport and progress | `sequence_nonincrease`, `choice_nonincrease`, `star_nonincrease`, `assignment_decrease`, `test_decrease`, `suffix_decrease`, `dual_suffix_decrease`, and switch transport in `Progress.v` |
-| All rule families and checked local generation | `Rules.v`, `RuleGeneration.v`; 50 exact premise-shape checks in `Benchmarks/RuleCoverage.v` |
-| Certification through the unchanged framework | `raw_check_sound` in `Certification.v`, constructing a certificate and applying `certificate_sound` |
-| Manual acyclic and cyclic certificates | Six-node assignment-change proof, 11-node star cycle, 12-node star cycle with explicit tag renaming; explicit graph scripts and witnesses |
-| Complex all-visited-state invariants | `CounterLoop.v` and `NestedProgram.v`, proved for arbitrary finite iterations by semantic induction |
-
-The star certificates preserve a first-state observation. The two complex
-all-visited-state examples are direct semantic proofs, not cyclic certificates.
-These proof modes are recorded separately in the benchmark report. Star does
-not require an execution to reach a loop exit.
-
-## Timed benchmark build
-
-Run from `Rocq-copy/`:
+From `Rocq-copy/LPL/`:
 
 ```sh
-make lpl
-make lpl-benchmarks
+make check
 ```
 
-All **15/15** isolated units passed after annotation in run
-`20261016T172216122771Z`. Every unit used the unchanged 600-second limit;
-the slowest took 6.953 seconds. [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
-contains individual commands, timings, logs and assumptions. Its JSON includes
-hashes of all 24 LPL source files, including common dependencies. A final
-`make -n lpl` reported that the build was current.
-
-The one development timeout and the auxiliary proof simplification that fixed
-it are documented in the report; the cyclic certificate was retained.
-
-## Independent kernel check
-
-The implementation was also checked independently before annotation with:
+This runs the benchmarks, source/build/reference audits and a recursive
+`rocq check` of every project module. For a previously built full suite:
 
 ```sh
-timeout --signal=KILL 600s rocq check -silent -Q . CyclistRocq \
-  CyclistRocq.LPL.Syntax \
-  CyclistRocq.LPL.Benchmarks.CyclicTags \
-  CyclistRocq.LPL.Benchmarks.Quantifiers \
-  CyclistRocq.LPL.Benchmarks.NestedProgram
+python3 -B check_integrity.py --kernel
 ```
 
-The check **passed with exit 0 in 26.082 seconds**. It checks the new syntax
-lemmas, shared rule/progress/certification
-dependencies, cyclic certificate, quantifier proof, and arbitrary-predicate
-invariant. The [machine record](validation-logs/20261016T165938090755Z/KernelCheck.json)
-preserves its command, exit status and elapsed time; the silent compiler
-output is retained beside it.
+## Independent checking and source integrity
 
-## Existing-theory regressions
+All **51 modules** and their recursive dependencies passed independent kernel checking in **89.053 seconds** (exit 0).
+The [machine record](validation-logs/integrity-20261017T054551957870Z/KernelCheck.json) contains the complete module
+list and actual command; [output](validation-logs/integrity-20261017T054551957870Z/KernelCheck.log) is retained.
+The check uses neither `-admit` nor `-norec`.
 
-Both regressions passed after build integration, with a 600-second limit:
+The [source audit](validation-logs/integrity-20261017T054551957870Z/SourceAudit.json) checks the source/project/build
+inventories, compiled-artifact and dependency hashes, stale reports, duplicate
+sources, import boundaries, unsupported namespaces and forbidden proof shortcuts.
+There are no admitted proofs, project-defined axioms, disabled kernel checks,
+custom tactics or external solver imports.
 
-| Command from `Rocq-copy/` | Seconds | Exit |
-| --- | ---: | ---: |
-| `timeout --signal=KILL 600s rocq compile -Q . CyclistRocq LTL/Examples.v` | 2.266 | 0 |
-| `timeout --signal=KILL 600s rocq compile -Q . CyclistRocq FirstOrder/Search.v` | 134.589 | 0 |
+The [preservation audit](validation-logs/integrity-20261017T054551957870Z/BenchmarkPreservation.json) confirms all
+**185 original FOPL theorem/lemma/example statements** remain unchanged and
+in order. FOPL retains its **50** exact premise-shape checks; PPL has **53**.
+Original FOPL cycles remain 11/12 nodes; PPL atomic-action cycles remain 12/13
+nodes. Their explicit witnesses and backlinks are checked. Complex
+all-visited-state invariants remain direct semantic proofs over arbitrary
+finite stopping points. Those proof modes are distinguished in the report.
 
-The commands, timings and retained output paths are in
-[Regressions.json](validation-logs/20261016T165938090755Z/Regressions.json).
-The final additional changes affect LPL syntax proofs and documentation;
-neither regression imports LPL.
+## Frozen reference and assumptions
 
-## Initial scope and assumptions audit
+The legacy syntax, semantics and progress remain separate test-only sources.
+They differ from the immutable `../LPL-old/` sources only in imports. Their
+shared `FOPL/Signature.v` must remain byte-identical to the frozen signature;
+this is enforced on every integrity check. Production modules do not import
+the oracle. Full arbitrary-signature/model semantic and rank preservation is
+proved in [FOPL/Compatibility.v](FOPL/Compatibility.v); see
+[FOPL_COMPATIBILITY.md](FOPL_COMPATIBILITY.md).
 
-The [source audit](validation-logs/20261016T165938090755Z/SourceAudit.json)
-compares against the preserved [baseline](validation-logs/20261016T165938090755Z/Baseline.json):
+The compiler logs retain `Print Assumptions` output for representative rules,
+certification, preservation and positive benchmark theorems. The audited
+standard-library principles are classical excluded middle, definite and
+indefinite description, and dependent functional extensionality. Signature,
+model and preservation hypotheses remain explicit parameters.
 
-- All **13 files** in `Cyclic/`, including generated artifacts, match exactly;
-  the directory contains no additional files.
-- All **29 pre-existing non-LPL `.v` sources** retain their original bytes.
-- All 24 initial LPL source hashes matched that implementation benchmark run;
-  the comment audit above records the current sources.
-- No admitted proofs, project-defined axioms, custom tactics, external-library
-  imports, or project FirstOrder/LTL imports occur in LPL sources.
-- `git diff --check` passes. Changes outside `LPL/` are the explicit build-file
-  entries and top-level usage documentation.
+The targeted [assumptions audit](validation-logs/integrity-20261017T054551957870Z/Assumptions.log)
+also covers the minimum-successor lemma, all four atomic rules, generator
+guarantees and checker soundness.
 
-`Print Assumptions` in the final benchmark logs reports only these
-standard-library principles across the audited exported theorems and rule
-kernels:
+D1–D4 and T1 remain unchanged: labels append, asserted labels are nonempty,
+quantifier bodies remain pure FOL with label-aware freshness, and test guards
+are evaluated on `[s; s]`. Generation remains local; there is no proof search,
+automatic backlink/witness discovery or semantic truth oracle. The unchanged
+cyclic framework selects at most one tag per node; completeness is outside scope.
 
-- `Classical_Prop.classic`
-- `Description.constructive_definite_description`
-- `ClassicalEpsilon.constructive_indefinite_description`
-- `FunctionalExtensionality.functional_extensionality_dep`
+## Cleanup and build reliability
 
-Abstract signatures, model interpretations and the arbitrary benchmark
-predicate remain explicit module parameters; they supply no constructor laws,
-predicate decision procedures or unproved soundness statements. The finite
-framework witness remains conservative, as described in the plan; acceptance
-of every manuscript preproof and proof-search completeness are outside scope.
+[CLEANUP.json](CLEANUP.json) records recoverable removal of obsolete snapshots,
+diagnostic binaries, old verification runs, caches, a duplicated progress
+summary, the invariant-helper forwarding file and the duplicate signature.
+Original plans, requirements, manuscript sources, necessary semantic reference
+files and all benchmark statements are retained. Current `.vo` files are kept
+because Rocq imports require them; unused generated sidecar files are removed.
+
+The [cleanup audit](validation-logs/integrity-20261017T054551957870Z/CleanupAudit.json) confirms all 1,353
+original files remain unchanged or recoverable, and all surviving Rocq
+implementations retain their declarations and proofs apart from import edits.
+The project shrank from about 222 MiB to 130 MiB.
+
+No files were permanently deleted. Removed files are stored outside the project
+in the archive recorded by `CLEANUP.json`. The session could not write to
+`~/Garbage`, so the recoverable archive is under `/tmp/`.
+
+The [outside-file audit](validation-logs/integrity-20261017T054551957870Z/OutsideAudit.json) compares all manifested
+non-LPL workspace files against their state at the start of this cleanup,
+including pre-existing edits. No outside file was changed. `.git/` metadata
+is excluded from the content manifest and was not edited.
+
+[Failure-path checks](validation-logs/integrity-20261017T054551957870Z/BuildFailureChecks.json) verify that failed
+compilations clear dependency-traversal state, failed common builds replace
+old success reports, and outside report paths are rejected before writing.
+Builds run from `LPL/`, suppress unused globalization output, and validate
+compiler/source/dependency/artifact hashes. Python syntax, documentation links
+and `git diff --check` are also checked.
